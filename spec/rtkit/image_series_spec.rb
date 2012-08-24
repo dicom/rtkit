@@ -60,6 +60,13 @@ module RTKIT
         is.images.first.uid.should eql @dcm.value('0008,0018')
       end
 
+      it "should add itself (once) to the referenced Study" do
+        st = Study.new('1.456.777', @p)
+        is = ImageSeries.load(@dcm, st)
+        is.study.image_series.length.should eql 1
+        is.study.iseries(is.uid).should eql is
+      end
+
     end
 
 

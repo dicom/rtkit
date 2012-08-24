@@ -101,7 +101,6 @@ module RTKIT
         when *IMAGE_SERIES
           # Create the ImageSeries:
           s = ImageSeries.load(dcm, self)
-          @image_series << s
         when 'RTSTRUCT'
           s = StructureSet.load(dcm, self)
         when 'RTPLAN'

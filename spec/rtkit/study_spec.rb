@@ -170,8 +170,16 @@ module RTKIT
         s.image_series.last.should eql is
       end
 
-      it "should not add multiple entries of the same ImageSeries" do
+      it "should add (one instance of) the ImageSeries to the Study" do
         is = ImageSeries.new('1.678', 'MR', @f, @s)
+        @s.add_series(is)
+        @s.image_series.size.should eql 1
+        @s.image_series.first.should eql is
+      end
+
+      it "should not add multiple entries of the same ImageSeries if it is attempted added more than once" do
+        is = ImageSeries.new('1.678', 'MR', @f, @s)
+        @s.add_series(is)
         @s.add_series(is)
         @s.image_series.size.should eql 1
         @s.image_series.first.should eql is
