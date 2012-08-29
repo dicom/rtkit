@@ -211,7 +211,7 @@ module RTKIT
           puts "  #{st.uid}"
           st.series.each do |se|
             puts "    #{se.modality}"
-            if se.images
+            if se.respond_to?(:images) && se.images
               puts "      (#{se.images.length} images)"
             end
           end
@@ -233,8 +233,12 @@ module RTKIT
               puts "      StructureSet"
               struct.plans.each do |plan|
                 puts "        RTPlan"
-                puts "          RTDose" if plan.dose
-                puts "          RTImage" if plan.rtimage
+                plan.rt_doses.each do |rt_dose|
+                  puts "          RTDose"
+                end
+                plan.rt_images.each do |rt_image|
+                  puts "          RTImage"
+                end
               end
             end
           end
