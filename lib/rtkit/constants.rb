@@ -110,6 +110,12 @@ module RTKIT
   ROI_INTERPRETER = '3006,00A6'
   # Frame of Reference Relationship Sequence.
   FRAME_OF_REF_REL_SQ = '3006,00C0'
+  # RT Plan Label.
+  RT_PLAN_LABEL = '300A,0002'
+  # RT Plan Name.
+  RT_PLAN_NAME = '300A,0003'
+  # RT Plan Description.
+  RT_PLAN_DESCR = '300A,0004'
   # Fraction Group Sequence.
   FRACTION_GROUP_SQ = '300A,0070'
   # Fraction Group Number.

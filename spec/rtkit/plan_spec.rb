@@ -17,7 +17,10 @@ module RTKIT
       @uid = '1.345.789'
       @date = '20050523'
       @time = '102219'
-      @description = '4-field'
+      @description = '5-field'
+      @label = 'Boost'
+      @name = 'Prost:70-78:2'
+      @plan_description = 'IMRT'
       @plan = Plan.new(@uid, @ss)
     end
 
@@ -48,6 +51,9 @@ module RTKIT
         plan.date.should eql @dcm.value('0008,0021')
         plan.time.should eql @dcm.value('0008,0031')
         plan.description.should eql @dcm.value('0008,103E')
+        plan.label.should eql @dcm.value('300A,0002')
+        plan.name.should eql @dcm.value('300A,0003')
+        plan.plan_description.should eql @dcm.value('300A,0004')
       end
 
       it "should create a Plan instance which is properly referenced to its study" do
@@ -113,6 +119,18 @@ module RTKIT
         @plan.description.should be_nil
       end
 
+      it "should by default set the 'label' attribute as nil" do
+        @plan.label.should be_nil
+      end
+
+      it "should by default set the 'name' attribute as nil" do
+        @plan.name.should be_nil
+      end
+
+      it "should by default set the 'plan_description' attribute as nil" do
+        @plan.plan_description.should be_nil
+      end
+
       it "should pass the 'sop_uid' argument to the 'sop_uid' attribute" do
         @plan.sop_uid.should eql @uid
       end
@@ -135,6 +153,21 @@ module RTKIT
       it "should pass the optional 'description' argument to the 'description' attribute" do
         plan = Plan.new(@uid, @ss, :description => @description)
         plan.description.should eql @description
+      end
+
+      it "should pass the optional 'label' argument to the 'label' attribute" do
+        plan = Plan.new(@uid, @ss, :label => @label)
+        plan.label.should eql @label
+      end
+
+      it "should pass the optional 'name' argument to the 'name' attribute" do
+        plan = Plan.new(@uid, @ss, :name => @name)
+        plan.name.should eql @name
+      end
+
+      it "should pass the optional 'plan_description' argument to the 'plan_description' attribute" do
+        plan = Plan.new(@uid, @ss, :plan_description => @plan_description)
+        plan.plan_description.should eql @plan_description
       end
 
       it "should add the Plan instance (once) to the referenced StructureSet" do

@@ -12,8 +12,12 @@ module RTKIT
     attr_reader :beams
     # The DObject instance of this Plan.
     attr_reader :dcm
-    # The patient position.
-    attr_reader :patient_position
+    # The RT Plan Label.
+    attr_accessor :label
+    # The RT Plan Name.
+    attr_accessor :name
+    # The RT Plan Description.
+    attr_accessor :plan_description
     #  An array of RTDose instances associated with this Plan.
     attr_reader :rt_doses
     #  An array of RTImage (series) instances associated with this Plan.
@@ -45,10 +49,13 @@ module RTKIT
       time = dcm.value(SERIES_TIME)
       description = dcm.value(SERIES_DESCR)
       series_uid = dcm.value(SERIES_UID)
+      label = dcm.value(RT_PLAN_LABEL)
+      name = dcm.value(RT_PLAN_NAME)
+      plan_description = dcm.value(RT_PLAN_DESCR)
       # Get the corresponding StructureSet:
       struct = self.structure_set(dcm, study)
       # Create the Plan instance:
-      plan = self.new(sop_uid, struct, :class_uid => class_uid, :date => date, :time => time, :description => description, :series_uid => series_uid)
+      plan = self.new(sop_uid, struct, :class_uid => class_uid, :date => date, :time => time, :description => description, :series_uid => series_uid, :label => label, :name => name, :plan_description => plan_description)
       plan.add(dcm)
       return plan
     end
@@ -113,6 +120,9 @@ module RTKIT
       super(series_uid, 'RTPLAN', struct.study, options)
       @sop_uid = sop_uid
       @struct = struct
+      @label = options[:label]
+      @name = options[:name]
+      @plan_description = options[:plan_description]
       # Default attributes:
       @beams = Array.new
       @rt_doses = Array.new
@@ -252,7 +262,7 @@ module RTKIT
     # Returns the attributes of this instance in an array (for comparison purposes).
     #
     def state
-       [@beams, @patient_position, @rt_doses, @rt_images, @setup, @sop_uid]
+       [@beams, @rt_doses, @rt_images, @setup, @sop_uid]
     end
 
   end
