@@ -18,11 +18,11 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 1.9.2'
   s.required_rubygems_version = '>= 1.8.6'
 
-  s.add_dependency('dicom', '0.9.3')
+  s.add_dependency('dicom', '0.9.4')
   s.add_dependency('narray', '0.6.0.1')
 
-  s.add_development_dependency('bundler', '>= 1.0.0')
-  s.add_development_dependency('mocha', '>= 0.10.0')
-  s.add_development_dependency('rake', '>= 0.9.2.2')
-  s.add_development_dependency('rspec', '>= 2.9.0')
+  s.add_development_dependency('bundler', '~> 1.2')
+  s.add_development_dependency('mocha', '~> 0.12')
+  s.add_development_dependency('rake', '~> 0.9.2')
+  s.add_development_dependency('rspec', '~> 2.11')
 end
