@@ -32,7 +32,7 @@ module RTKIT
       bin_volume.bin_images.each do |bin_image|
         slice_pixel_values = bin_image.image.pixel_values(bin_image.selection)
         slice_dose_values = slice_pixel_values.to_type(4) * bin_image.image.series.scaling
-        dose_values = NArray[*dose_values, *slice_dose_values]
+        dose_values = dose_values.expand_vector(slice_dose_values)
       end
       # Create the DoseDistribution instance:
       dd = self.new(dose_values, dose_volume)
