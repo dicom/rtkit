@@ -312,14 +312,15 @@ module RTKIT
     #
     def size
       volume = 0.0
+      last_index = @slices.length - 1
       # Iterate each slice:
       @slices.each_index do |i|
         # Get the contoured area in this slice, convert it to volume and add to our total.
         # If the slice is the first or last, only multiply by half of the slice thickness:
-        if i == 0 or i == @slices.length-1
-          volume += slice.area * image_series.slice_spacing * 0.5
+        if i == 0 or i == last_index
+          volume += @slices[i].area * image_series.slice_spacing * 0.5
         else
-          volume += slice.area * image_series.slice_spacing
+          volume += @slices[i].area * image_series.slice_spacing
         end
       end
       # Convert from mm^3 to cm^3:

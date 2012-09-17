@@ -505,12 +505,34 @@ module RTKIT
 
     context "#size" do
 
-      it "should return a positive float value for this ROI" do
-        d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        roi = d.patient.study.image_series.first.struct.roi('External')
-        size = roi.size
-        size.class.should eql Float
-        size.should be > 0
+      before :each do
+        i1 = Image.new('1.789.541', @is)
+        i2 = Image.new('1.789.542', @is)
+        i3 = Image.new('1.789.543', @is)
+        i1.cosines, i2.cosines, i3.cosines = [1,0,0,0,1,0], [1,0,0,0,1,0], [1,0,0,0,1,0]
+        i1.row_spacing, i2.row_spacing, i3.row_spacing = 1.0, 1.0, 1.0
+        i1.col_spacing, i2.col_spacing, i3.col_spacing = 2.0, 2.0, 2.0
+        i1.rows, i2.rows, i3.rows = 10, 10, 10
+        i1.columns, i2.columns, i3.columns = 10, 10, 10
+        i1.pos_x, i2.pos_x, i3.pos_x = 0.0, 0.0, 0.0
+        i1.pos_y, i2.pos_y, i3.pos_y = 0.0, 0.0, 0.0
+        i1.pos_slice, i2.pos_slice, i3.pos_slice = 5.0, 10.0, 15.0
+        s1 = Slice.new('1.789.541', @roi)
+        s2 = Slice.new('1.789.542', @roi)
+        s3 = Slice.new('1.789.543', @roi)
+        # First slice, volume: 45 mm^3 (3*3 pixels * 2mm^2 * 5mm * 0.5):
+        c1 = Contour.create_from_coordinates([0.0, 4.0, 4.0, 0.0], [0.0, 0.0, 2.0, 2.0], [5.0, 5.0, 5.0, 5.0], s1)
+        # Middle slice, volume: 160 mm^3 (4*4 pixels * 2mm^2 * 5mm):
+        c2 = Contour.create_from_coordinates([2.0, 8.0, 8.0, 2.0], [1.0, 1.0, 4.0, 4.0], [10.0, 10.0, 10.0, 10.0], s2)
+        # Last slice, volume: 60 mm^3 (3*4 pixels * 2mm^2 * 5mm * 0.5):
+        c3 = Contour.create_from_coordinates([4.0, 8.0, 8.0, 4.0], [2.0, 2.0, 5.0, 5.0], [15.0, 15.0, 15.0, 15.0], s3)
+        # Sum volume: 265 mm^3 = 0.265 cm^3
+      end
+
+      it "should return the expected size (as a float value in units of cm^3) for this case" do
+        size = @roi.size
+        size.should be_a Float
+        size.should eql 0.265
       end
 
       it "should give this value for this ROI (NB: But the expected value is not an exact, principal value!!)" do

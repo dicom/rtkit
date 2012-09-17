@@ -47,7 +47,6 @@ module RTKIT
     # === Parameters
     #
     # * <tt>sop_uid</tt> -- The SOP Instance UID reference for this slice.
-    # * <tt>contour_item</tt> -- An array of contour items from the Contour Sequence in ROI Contour Sequence, belonging to the same slice.
     # * <tt>roi</tt> -- The ROI instance that this Slice belongs to.
     #
     def initialize(sop_uid, roi)
