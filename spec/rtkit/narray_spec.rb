@@ -53,6 +53,12 @@ module RTKIT
         (n1.expand_vector(n2) == n1).should be_true
       end
 
+      it "should scale well (i.e. not throw a stack level to deep error on large arrays)" do
+        n1 = NArray.int(100000)
+        n2 = NArray.int(100000)
+        n1.expand_vector(n2)
+      end
+
     end
 
 
