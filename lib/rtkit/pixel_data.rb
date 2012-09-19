@@ -83,7 +83,8 @@ module RTKIT
     # Iterative, queue based flood fill algorithm.
     # Replaces all pixels of a specific value that are contained by pixels of different value.
     # The replacement value along with the starting coordinates are passed as parameters to this method.
-    # It seems a recursive method is not suited for Ruby due to its limited stack space (a problem in general for scripting languages).
+    # It seems a recursive method is not suited for Ruby due to its limited stack space
+    # (a problem in general for scripting languages).
     #
     def flood_fill(col, row, image, fill_value)
       existing_value = image[col, row]

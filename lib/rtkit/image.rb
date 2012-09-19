@@ -92,6 +92,8 @@ module RTKIT
     # * <tt>coords_z</tt> -- An Array/NArray of a contour's Z coordinates. Must have at least 3 elements.
     #
     def binary_image(coords_x, coords_y, coords_z)
+      # FIXME: Should we test whether the coordinates go outside the bounds of this image, and
+      # give a descriptive warning/error instead of letting the code crash with a more cryptic error?!
       raise ArgumentError, "Invalid argument 'coords_x'. Expected at least 3 elements, got #{coords_x.length}" unless coords_x.length >= 3
       raise ArgumentError, "Invalid argument 'coords_y'. Expected at least 3 elements, got #{coords_y.length}" unless coords_y.length >= 3
       raise ArgumentError, "Invalid argument 'coords_z'. Expected at least 3 elements, got #{coords_z.length}" unless coords_z.length >= 3
