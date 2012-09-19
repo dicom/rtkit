@@ -65,4 +65,4 @@ DICOM.source_app_title = "RTKIT"
 DICOM.logger.level = Logger::FATAL
 
 # Use ruby-dicom's UID as our DICOM Root UID:
-RTKIT.dicom_root = DICOM::UID
+RTKIT.dicom_root = DICOM::UID_ROOT
