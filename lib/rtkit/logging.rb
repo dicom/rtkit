@@ -6,8 +6,9 @@ module RTKIT
   # To properly handle progname, which inside the RTKIT module is simply
   # "RTKIT", in all cases, we use an implementation with a proxy class.
   #
-  # === Examples
+  # @note For more information, please read the Standard library Logger documentation.
   #
+  # @example Various logger use cases:
   #   require 'rtkit'
   #   include RTKIT
   #
@@ -27,8 +28,6 @@ module RTKIT
   #   RTKIT.logger.info("MY_MODULE) {"Message"} # => "MY_MODULE: Message"
   #   logger.info "Message"                     # => "MY_APP: Message"
   #
-  #   For more information, please read the Standard library Logger documentation.
-  #
   module Logging
 
     require 'logger'
@@ -40,6 +39,8 @@ module RTKIT
       base.extend(ClassMethods)
     end
 
+    # Class methods which the Logging module is extended with.
+    #
     module ClassMethods
 
       # We use our own ProxyLogger to achieve the features wanted for RTKIT logging,
@@ -51,15 +52,14 @@ module RTKIT
 
         # Creating the ProxyLogger instance.
         #
-        # === Parameters
-        #
-        # * <tt>target</tt> -- A Logger instance (e.g. Standard Logger or ActiveSupport::BufferedLogger).
+        # @param [Logger] target a logger instance (e.g. Standard Logger or ActiveSupport::BufferedLogger)
         #
         def initialize(target)
           @target = target
         end
 
         # Catches missing methods.
+        #
         # In our case, the methods of interest are the typical logger methods,
         # i.e. log, info, fatal, error, debug, where the arguments/block are
         # redirected to the logger in a specific way so that our stated logger
@@ -67,12 +67,10 @@ module RTKIT
         # (Rails vs Standard) and in the case of Standard logger,
         # whether or not a block is given).
         #
-        # === Examples
-        #
-        #   # Inside the RTKIT module or an external class with 'include RTKIT::Logging':
+        # @example Inside the RTKIT module or an external class with 'include RTKIT::Logging':
         #   logger.info "message"
         #
-        #   # Calling from outside the RTKIT module:
+        # @example Calling from outside the RTKIT module:
         #   RTKIT.logger.info "message"
         #
         def method_missing(method_name, *args, &block)
@@ -98,36 +96,18 @@ module RTKIT
       #
       @@logger = nil
 
-      # The logger object setter.
-      # This method is used to replace the default logger instance with
-      # a custom logger of your own.
-      #
-      # === Parameters
-      #
-      # * <tt>l</tt> -- A Logger instance (e.g. a custom standard Logger).
-      #
-      # === Examples
-      #
-      #   # Create a logger which ages logfile once it reaches a certain size,
-      #   # leaves 10 "old log files" with each file being about 1,024,000 bytes:
-      #   RTKIT.logger = Logger.new('foo.log', 10, 1024000)
-      #
-      def logger=(l)
-        @@logger = ProxyLogger.new(l)
-      end
-
       # The logger object getter.
-      # Returns the logger class variable, if defined.
-      # If not defined, sets up the Rails logger (if in a Rails environment),
-      # or a Standard logger if not.
       #
-      # === Examples
+      # If a logger instance is not pre-defined, it sets up a Standard
+      # logger or (if in a Rails environment) the Rails logger.
       #
-      #   # Inside the RTKIT module (or a class with 'include RTKIT::Logging'):
+      # @example Inside the RTKIT module (or a class with 'include RTKIT::Logging'):
       #   logger # => Logger instance
       #
-      #   # Accessing from outside the RTKIT module:
+      # @example Accessing from outside the RTKIT module:
       #   RTKIT.logger # => Logger instance
+      #
+      # @return [ProxyLogger] the logger class variable
       #
       def logger
         @@logger ||= lambda {
@@ -141,10 +121,28 @@ module RTKIT
         }.call
       end
 
+      # The logger object setter.
+      #
+      # This method is used to replace the default logger instance with
+      # a custom logger of your own.
+      #
+      # @param [Logger] l a logger instance
+      #
+      # @example Multiple log files
+      #   # Create a logger which ages logfile once it reaches a certain size,
+      #   # leaving 10 "old log files" with each file being about 1,024,000 bytes:
+      #   RTKIT.logger = Logger.new('foo.log', 10, 1024000)
+      #
+      def logger=(l)
+        @@logger = ProxyLogger.new(l)
+      end
+
     end
 
     # A logger object getter.
     # Forwards the call to the logger class method of the Logging module.
+    #
+    # @return [ProxyLogger] the logger class variable
     #
     def logger
       self.class.logger

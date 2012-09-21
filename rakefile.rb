@@ -1,15 +1,16 @@
 # Available commands:
 # Testing the specification:
 #   bundle exec rake spec
-# Building a gem package from source:
+# Building a gem from source with rake:
 #   bundle exec rake package
-# Create documentation files (html):
-#   bundle exec rake rdoc
+# Building a gem from source with rubygems:
+#   bundle exec gem build rtkit.gemspec
+# Create html documentation files:
+#   bundle exec rake yard
 
-require 'rubygems'
 require 'rubygems/package_task'
-require 'rdoc/task'
 require 'rspec/core/rake_task'
+require 'yard'
 
 # Build gem:
 gem_spec = eval(File.read('rtkit.gemspec'))
@@ -23,8 +24,7 @@ RSpec::Core::RakeTask.new do |t|
   t.pattern = 'spec/**/*_spec.rb'
 end
 
-# Build documentation:
-RDoc::Task.new do |rd|
-  rd.main = "README.rdoc"
-  rd.rdoc_files.include("README.rdoc", "lib/**/*.rb")
+# Build documentation (YARD):
+YARD::Rake::YardocTask.new do |t|
+  t.options += ['--title', "RTKIT #{RTKIT::VERSION} Documentation"]
 end

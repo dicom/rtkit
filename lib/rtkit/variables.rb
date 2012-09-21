@@ -17,7 +17,7 @@ module RTKIT
   # Default variable settings:
   #++
 
-  # The default contour algorithm:
+  # The default contour algorithm (Not in use yet!).
   self.contour_algorithm = :basic
 
 end
