@@ -6,7 +6,7 @@
 require_relative 'rtkit/logging'
 # Super classes/modules:
 require_relative 'rtkit/series'
-require_relative 'rtkit/pixel_data'
+require_relative 'rtkit/image'
 require_relative 'rtkit/mixins/image_parent'
 # Subclasses and independent classes:
 # Collection classes:
@@ -21,7 +21,8 @@ require_relative 'rtkit/rt_dose'
 require_relative 'rtkit/rt_image'
 # Image related:
 require_relative 'rtkit/dose_volume'
-require_relative 'rtkit/image'
+require_relative 'rtkit/slice_image'
+require_relative 'rtkit/projection_image'
 require_relative 'rtkit/plane'
 # Dose related:
 require_relative 'rtkit/dose_distribution'

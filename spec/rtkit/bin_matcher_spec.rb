@@ -13,7 +13,7 @@ module RTKIT
       @f = Frame.new('1.4321', @p)
       @st = Study.new('1.456.789', @p)
       @is = ImageSeries.new('1.345.789', 'CT', @f, @st)
-      @i1 = Image.new('1.6789.5', @is)
+      @i1 = SliceImage.new('1.6789.5', 5.0, @is)
       @bv = BinVolume.new(@is)
       @bm = BinMatcher.new
     end

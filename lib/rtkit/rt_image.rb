@@ -119,13 +119,11 @@ module RTKIT
     alias_method :eql?, :==
 
     # Registers a DICOM Object to the RTImage series, and processes it
-    # to create (and reference) an (RT) Image instance linked to this RTImage series.
+    # to create (and reference) a ProjectionImage instance linked to this RTImage series.
     #
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
-      Image.load(dcm, self)
-      #load_patient_setup
-      #load_fields
+      ProjectionImage.load(dcm, self)
     end
 
     # Adds an Image to this RTImage series.
@@ -140,6 +138,25 @@ module RTKIT
     #
     def hash
       state.hash
+    end
+
+    # Returns the Image instance mathcing the specified SOP Instance UID (if an argument is used).
+    # If a specified UID doesn't match, nil is returned.
+    # If no argument is passed, the first Image instance associated with the ImageSeries is returned.
+    #
+    # === Parameters
+    #
+    # * <tt>uid</tt> -- String. The value of the SOP Instance UID element of the Image.
+    #
+    def image(*args)
+      raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
+      if args.length == 1
+        # Match image by UID string:
+        return @associated_images[args.first]
+      else
+        # No argument used, therefore we return the first Image instance:
+        return @images.first
+      end
     end
 
     # Returns self.

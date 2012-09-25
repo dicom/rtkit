@@ -1,27 +1,19 @@
 module RTKIT
 
-  # Contains the DICOM data and methods related to an image.
+  # A collection of methods and attributes for handling 2D pixel data.
   #
-  # === Inheritance
-  #
-  # * As the Image class inherits from the PixelData class, all PixelData methods are available to instances of Image.
-  #
-  class Image < PixelData
+  class Image
 
     # The physical distance (in millimeters) between columns in the pixel data (i.e. horisontal spacing).
     attr_reader :col_spacing
     # The number of columns in the pixel data.
     attr_reader :columns
-    # The values of the Image Orientation (Patient) element.
-    attr_reader :cosines
     # The Instance Creation Date.
     attr_reader :date
     # The DICOM object of this Image instance.
     attr_reader :dcm
     # The 2d NArray holding the pixel data of this Image instance.
     attr_reader :narray
-    # The physical position (in millimeters) of the image slice.
-    attr_reader :pos_slice
     # The physical position (in millimeters) of the first (left) column in the pixel data.
     attr_reader :pos_x
     # The physical position (in millimeters) of the first (top) row in the pixel data.
@@ -37,42 +29,6 @@ module RTKIT
     # The SOP Instance UID.
     attr_reader :uid
 
-    # Creates a new Image instance by loading image information from the specified DICOM object.
-    # The Image object's SOP Instance UID string value is used to uniquely identify an image.
-    #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- An instance of a DICOM object (DObject).
-    # * <tt>series</tt> -- The Series instance that this Image belongs to.
-    #
-    def self.load(dcm, series)
-      raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
-      raise ArgumentError, "Invalid argument 'series'. Expected Series, got #{series.class}." unless series.is_a?(Series)
-      raise ArgumentError, "Invalid argument 'dcm'. Expected an image related modality, got #{dcm.value(MODALITY)}." unless IMAGE_MODALITIES.include?(dcm.value(MODALITY))
-      sop_uid = dcm.value(SOP_UID)
-      image = self.new(sop_uid, series)
-      image.load_pixel_data(dcm)
-      return image
-    end
-
-    # Creates a new Image instance. The SOP Instance UID tag value is used to uniquely identify an image.
-    #
-    # === Parameters
-    #
-    # * <tt>sop_uid</tt> -- The SOP Instance UID string.
-    # * <tt>series</tt> -- The Series instance that this Image belongs to.
-    #
-    def initialize(sop_uid, series)
-      raise ArgumentError, "Invalid argument 'sop_uid'. Expected String, got #{sop_uid.class}." unless sop_uid.is_a?(String)
-      raise ArgumentError, "Invalid argument 'series'. Expected Series, got #{series.class}." unless series.is_a?(Series)
-      raise ArgumentError, "Invalid argument 'series'. Expected Series to have an image related modality, got #{series.modality}." unless IMAGE_MODALITIES.include?(series.modality)
-      # Key attributes:
-      @uid = sop_uid
-      @series = series
-      # Register ourselves with the ImageSeries:
-      @series.add_image(self)
-    end
-
     # Returns true if the argument is an instance with attributes equal to self.
     #
     def ==(other)
@@ -82,51 +38,6 @@ module RTKIT
     end
 
     alias_method :eql?, :==
-
-    # Creates and returns a filled, binary NArray image (a 'segmented' image) based on the provided contour coordinates.
-    #
-    # === Parameters
-    #
-    # * <tt>coords_x</tt> -- An Array/NArray of a contour's X coordinates. Must have at least 3 elements.
-    # * <tt>coords_y</tt> -- An Array/NArray of a contour's Y coordinates. Must have at least 3 elements.
-    # * <tt>coords_z</tt> -- An Array/NArray of a contour's Z coordinates. Must have at least 3 elements.
-    #
-    def binary_image(coords_x, coords_y, coords_z)
-      # FIXME: Should we test whether the coordinates go outside the bounds of this image, and
-      # give a descriptive warning/error instead of letting the code crash with a more cryptic error?!
-      raise ArgumentError, "Invalid argument 'coords_x'. Expected at least 3 elements, got #{coords_x.length}" unless coords_x.length >= 3
-      raise ArgumentError, "Invalid argument 'coords_y'. Expected at least 3 elements, got #{coords_y.length}" unless coords_y.length >= 3
-      raise ArgumentError, "Invalid argument 'coords_z'. Expected at least 3 elements, got #{coords_z.length}" unless coords_z.length >= 3
-      # Values that will be used for image geometry:
-      empty_value = 0
-      line_value = 1
-      fill_value = 2
-      # Convert physical coordinates to image indices:
-      column_indices, row_indices = coordinates_to_indices(NArray.to_na(coords_x), NArray.to_na(coords_y), NArray.to_na(coords_z))
-      # Create an empty array and fill in the gathered points:
-      empty_array = NArray.byte(@columns, @rows)
-      delineated_array = draw_lines(column_indices.to_a, row_indices.to_a, empty_array, line_value)
-      # Establish starting point indices for the coming flood fill algorithm:
-      # (Using a rather simple approach by finding the average column and row index among the selection of indices)
-      start_col = column_indices.mean
-      start_row = row_indices.mean
-      # Perform a flood fill to enable us to extract all pixels contained in a specific ROI:
-      filled_array = flood_fill(start_col, start_row, delineated_array, fill_value)
-      # Extract the indices of 'ROI pixels':
-      if filled_array[0,0] != fill_value
-        # ROI has been filled as expected. Extract indices of value line_value and fill_value:
-        filled_array[(filled_array.eq line_value).where] = fill_value
-        indices = (filled_array.eq fill_value).where
-      else
-        # An inversion has occured. The entire image except our ROI has been filled. Extract indices of value line_value and empty_value:
-        filled_array[(filled_array.eq line_value).where] = empty_value
-        indices = (filled_array.eq empty_value).where
-      end
-      # Create binary image:
-      bin_image = NArray.byte(@columns, @rows)
-      bin_image[indices] = 1
-      return bin_image
-    end
 
     # Sets the col_spacing attribute.
     #
@@ -141,11 +52,108 @@ module RTKIT
       @columns = cols && cols.to_i
     end
 
-    # Sets the cosines attribute.
+    # Converts from two NArrays of image X & Y indices to physical coordinates X, Y & Z (in mm).
+    # The X, Y & Z coordinates are returned in three NArrays of equal size as the input index NArrays.
+    # The image coordinates are calculated using the direction cosines of the Image Orientation (Patient) element (0020,0037).
     #
-    def cosines=(cos)
-      #raise ArgumentError, "Invalid argument 'cos'. Expected 6 elements, got #{cos.length}" unless cos.length == 6
-      @cosines = cos && cos.to_a.collect! {|val| val.to_f}
+    # === Notes
+    #
+    # * For details about Image orientation, refer to the DICOM standard: PS 3.3 C.7.6.2.1.1
+    #
+    def coordinates_from_indices(column_indices, row_indices)
+      raise ArgumentError, "Invalid argument 'column_indices'. Expected NArray, got #{column_indices.class}." unless column_indices.is_a?(NArray)
+      raise ArgumentError, "Invalid argument 'row_indices'. Expected NArray, got #{row_indices.class}." unless row_indices.is_a?(NArray)
+      raise ArgumentError, "Invalid arguments. Expected NArrays of equal length, got #{column_indices.length} and #{row_indices.length}." unless column_indices.length == row_indices.length
+      raise "Invalid attribute 'cosines'. Expected a 6 element Array, got #{cosines.class} #{cosines.length if cosines.is_a?(Array)}." unless cosines.is_a?(Array) && cosines.length == 6
+      raise "Invalid attribute 'pos_x'. Expected Float, got #{pos_x.class}." unless pos_x.is_a?(Float)
+      raise "Invalid attribute 'pos_y'. Expected Float, got #{pos_y.class}." unless pos_y.is_a?(Float)
+      raise "Invalid attribute 'pos_slice'. Expected Float, got #{pos_slice.class}." unless pos_slice.is_a?(Float)
+      raise "Invalid attribute 'col_spacing'. Expected Float, got #{col_spacing.class}." unless col_spacing.is_a?(Float)
+      raise "Invalid attribute 'row_spacing'. Expected Float, got #{row_spacing.class}." unless row_spacing.is_a?(Float)
+      # Convert indices integers to floats:
+      column_indices = column_indices.to_f
+      row_indices = row_indices.to_f
+      # Calculate the coordinates by multiplying indices with the direction cosines and applying the image offset:
+      x = pos_x + (column_indices * col_spacing * cosines[0]) + (row_indices * row_spacing * cosines[3])
+      y = pos_y + (column_indices * col_spacing * cosines[1]) + (row_indices * row_spacing * cosines[4])
+      z = pos_slice + (column_indices * col_spacing * cosines[2]) + (row_indices * row_spacing * cosines[5])
+      return x, y, z
+    end
+
+    # Converts from three (float) NArrays of X, Y & Z physical coordinates (in mm) to image slice indices X & Y.
+    # The X & Y indices are returned in two NArrays of equal size as the input coordinate NArrays.
+    # The image indices are calculated using the direction cosines of the Image Orientation (Patient) element (0020,0037).
+    #
+    # === Notes
+    #
+    # * For details about Image orientation, refer to the DICOM standard: PS 3.3 C.7.6.2.1.1
+    #
+    def coordinates_to_indices(x, y, z)
+      raise ArgumentError, "Invalid argument 'x'. Expected NArray, got #{x.class}." unless x.is_a?(NArray)
+      raise ArgumentError, "Invalid argument 'y'. Expected NArray, got #{y.class}." unless y.is_a?(NArray)
+      raise ArgumentError, "Invalid argument 'z'. Expected NArray, got #{z.class}." unless z.is_a?(NArray)
+      raise ArgumentError, "Invalid arguments. Expected NArrays of equal length, got #{x.length}, #{y.length} and #{z.length}." unless [x.length, y.length, z.length].uniq.length == 1
+      raise "Invalid attribute 'cosines'. Expected a 6 element Array, got #{cosines.class} #{cosines.length if cosines.is_a?(Array)}." unless cosines.is_a?(Array) && cosines.length == 6
+      raise "Invalid attribute 'pos_x'. Expected Float, got #{pos_x.class}." unless pos_x.is_a?(Float)
+      raise "Invalid attribute 'pos_y'. Expected Float, got #{pos_y.class}." unless pos_y.is_a?(Float)
+      raise "Invalid attribute 'pos_slice'. Expected Float, got #{pos_slice.class}." unless pos_slice.is_a?(Float)
+      raise "Invalid attribute 'col_spacing'. Expected Float, got #{col_spacing.class}." unless col_spacing.is_a?(Float)
+      raise "Invalid attribute 'row_spacing'. Expected Float, got #{row_spacing.class}." unless row_spacing.is_a?(Float)
+      # Calculate the indices by multiplying coordinates with the direction cosines and applying the image offset:
+      column_indices = ((x-pos_x)/col_spacing*cosines[0] + (y-pos_y)/col_spacing*cosines[1] + (z-pos_slice)/col_spacing*cosines[2]).round
+      row_indices = ((x-pos_x)/row_spacing*cosines[3] + (y-pos_y)/row_spacing*cosines[4] + (z-pos_slice)/row_spacing*cosines[5]).round
+      return column_indices, row_indices
+    end
+
+    # Fills the provided image array with lines of a specified value, based on two vectors of column and row indices.
+    # The image is expected to be a (two-dimensional) NArray.
+    # Returns the processed image array.
+    #
+    def draw_lines(column_indices, row_indices, image, value)
+      raise ArgumentError, "Invalid argument 'column_indices'. Expected Array, got #{column_indices.class}." unless column_indices.is_a?(Array)
+      raise ArgumentError, "Invalid argument 'row_indices'. Expected Array, got #{row_indices.class}." unless row_indices.is_a?(Array)
+      raise ArgumentError, "Invalid arguments. Expected Arrays of equal length, got #{column_indices.length}, #{row_indices.length}." unless column_indices.length == row_indices.length
+      raise ArgumentError, "Invalid argument 'image'. Expected NArray, got #{image.class}." unless image.is_a?(NArray)
+      raise ArgumentError, "Invalid number of dimensions for argument 'image'. Expected 2, got #{image.shape.length}." unless image.shape.length == 2
+      raise ArgumentError, "Invalid argument 'value'. Expected Integer, got #{value.class}." unless value.is_a?(Integer)
+      column_indices.each_index do |i|
+        image = draw_line(column_indices[i-1], column_indices[i], row_indices[i-1], row_indices[i], image, value)
+      end
+      return image
+    end
+
+    # Iterative, queue based flood fill algorithm.
+    # Replaces all pixels of a specific value that are contained by pixels of different value.
+    # The replacement value along with the starting coordinates are passed as parameters to this method.
+    # It seems a recursive method is not suited for Ruby due to its limited stack space
+    # (a problem in general for scripting languages).
+    #
+    def flood_fill(col, row, image, fill_value)
+      existing_value = image[col, row]
+      queue = Array.new
+      queue.push([col, row])
+      until queue.empty?
+        col, row = queue.shift
+        if image[col, row] == existing_value
+          west_col, west_row = ff_find_border(col, row, existing_value, :west, image)
+          east_col, east_row = ff_find_border(col, row, existing_value, :east, image)
+          # Fill the line between the two border pixels (i.e. not touching the border pixels):
+          image[west_col..east_col, row] = fill_value
+          q = west_col
+          while q <= east_col
+            [:north, :south].each do |direction|
+              same_col, next_row = ff_neighbour(q, row, direction)
+              begin
+                queue.push([q, next_row]) if image[q, next_row] == existing_value
+              rescue
+                # Out of bounds. Do nothing.
+              end
+            end
+            q, same_row = ff_neighbour(q, row, :east)
+          end
+        end
+      end
+      return image
     end
 
     # Generates a Fixnum hash value for this instance.
@@ -154,48 +162,31 @@ module RTKIT
       state.hash
     end
 
-    # Transfers the pixel data, as well as the related image properties and the DObject instance itself,
-    # to the Image instance.
+    # Converts general image indices to specific column and row indices based on the
+    # provided image indices and the number of columns in the image.
     #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- A DICOM object containing image data that will be applied to the Image instance.
-    #
-    def load_pixel_data(dcm)
-      raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
-      raise ArgumentError, "Invalid argument 'dcm'. Expected an image related modality, got #{dcm.value(MODALITY)}." unless IMAGE_MODALITIES.include?(dcm.value(MODALITY))
-      # Set attributes common for all image modalities, i.e. CT, MR, RTDOSE & RTIMAGE:
-      @dcm = dcm
-      @narray = dcm.narray
-      @date = dcm.value(IMAGE_DATE)
-      @time = dcm.value(IMAGE_TIME)
-      @uid = dcm.value(SOP_UID)
-      @columns = dcm.value(COLUMNS)
-      @rows = dcm.value(ROWS)
-      # Some difference in where we pick our values depending on if we have an RTIMAGE or another type:
-      if @series.modality == 'RTIMAGE'
-        image_position = dcm.value(RT_IMAGE_POSITION).split("\\")
-        raise "Invalid DICOM image: 2 basckslash-separated values expected for RT Image Position (Patient), got: #{image_position}" unless image_position.length == 2
-        @pos_x = image_position[0].to_f
-        @pos_y = image_position[1].to_f
-        @pos_slice = nil
-        spacing = dcm.value(IMAGE_PLANE_SPACING).split("\\")
-        raise "Invalid DICOM image: 2 basckslash-separated values expected for Image Plane Pixel Spacing, got: #{spacing}" unless spacing.length == 2
-        @col_spacing = spacing[1].to_f
-        @row_spacing = spacing[0].to_f
+    def indices_general_to_specific(indices, n_cols)
+      if indices.is_a?(Array)
+        row_indices = indices.collect{|i| i/n_cols}
+        column_indices = [indices, row_indices].transpose.collect{|i| i[0] - i[1] * n_cols}
       else
-        image_position = dcm.value(IMAGE_POSITION).split("\\")
-        raise "Invalid DICOM image: 3 basckslash-separated values expected for Image Position (Patient), got: #{image_position}" unless image_position.length == 3
-        @pos_x = image_position[0].to_f
-        @pos_y = image_position[1].to_f
-        self.pos_slice = image_position[2].to_f
-        spacing = dcm.value(SPACING).split("\\")
-        raise "Invalid DICOM image: 2 basckslash-separated values expected for Pixel Spacing, got: #{spacing}" unless spacing.length == 2
-        @col_spacing = spacing[1].to_f
-        @row_spacing = spacing[0].to_f
-        raise "Invalid DICOM image: Direction cosines missing (DICOM tag '#{IMAGE_ORIENTATION}')." unless dcm.exists?(IMAGE_ORIENTATION)
-        @cosines = dcm.value(IMAGE_ORIENTATION).split("\\").collect {|val| val.to_f} if dcm.value(IMAGE_ORIENTATION)
-        raise "Invalid DICOM image: 6 values expected for direction cosines (DICOM tag '#{IMAGE_ORIENTATION}'), got #{@cosines.length}." unless @cosines.length == 6
+        # Assume Fixnum or NArray:
+        row_indices = indices/n_cols # Values are automatically rounded down.
+        column_indices = indices-row_indices*n_cols
+      end
+      return column_indices, row_indices
+    end
+
+    # Converts specific x and y indices to general image indices based on the provided specific indices and x size of the NArray image.
+    #
+    def indices_specific_to_general(column_indices, row_indices, n_cols)
+      if column_indices.is_a?(Array)
+        indices = Array.new
+        column_indices.each_index {|i| indices << column_indices[i] + row_indices[i] * n_cols}
+        return indices
+      else
+        # Assume Fixnum or NArray:
+        return column_indices + row_indices * n_cols
       end
     end
 
@@ -222,11 +213,14 @@ module RTKIT
       return @narray[selection.indices]
     end
 
-    # Sets the pos_slice attribute.
+    # A convenience method for printing image information.
+    # NB! This has been used only for debugging, and will soon be removed.
     #
-    def pos_slice=(pos)
-      @series.update_image_position(self, pos)
-      @pos_slice = pos && pos.to_f
+    def print_img(narr=@narray)
+      puts "Image dimensions: #{@columns}*#{@rows}"
+      narr.shape[0].times do |i|
+        puts narr[true, i].to_a.to_s
+      end
     end
 
     # Sets the pos_x attribute.
@@ -320,54 +314,94 @@ module RTKIT
       end
     end
 
-    # Dumps the Image instance to a DObject.
-    # This overwrites the dcm instance attribute.
-    # Returns the DObject instance.
-    #
-    def to_dcm
-      # Use the original DICOM object as a starting point,
-      # and update all image related parameters:
-      @dcm.add(DICOM::Element.new(IMAGE_DATE, @date))
-      @dcm.add(DICOM::Element.new(IMAGE_TIME, @time))
-      @dcm.add(DICOM::Element.new(SOP_UID, @uid))
-      @dcm.add(DICOM::Element.new(COLUMNS, @columns))
-      @dcm.add(DICOM::Element.new(ROWS, @rows))
-      if @series.modality == 'RTIMAGE'
-        @dcm.add(DICOM::Element.new(RT_IMAGE_POSITION, [@pos_x, @pos_y].join("\\")))
-        @dcm.add(DICOM::Element.new(IMAGE_PLANE_SPACING, [@row_spacing, @col_spacing].join("\\")))
-      else
-        @dcm.add(DICOM::Element.new(IMAGE_POSITION, [@pos_x, @pos_y, @pos_slice].join("\\")))
-        @dcm.add(DICOM::Element.new(SPACING, [@row_spacing, @col_spacing].join("\\")))
-        @dcm.add(DICOM::Element.new(IMAGE_ORIENTATION, [@cosines].join("\\")))
-      end
-      # Write pixel data:
-      @dcm.pixels = @narray
-      return @dcm
-    end
-
     # Returns self.
+    #
+    # @return [Image] self
     #
     def to_image
       self
-    end
-
-    # Writes the Image to a DICOM file given by the specified file string.
-    #
-    def write(file_name)
-      to_dcm
-      @dcm.write(file_name)
     end
 
 
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Draws a single line in the (NArray) image matrix based on a start- and an end-point.
+    # The method uses an iterative Bresenham Line Algorithm.
+    # Returns the processed image array.
     #
-    def state
-       [@col_spacing, @columns, @cosines, @date, @narray.to_a, @pos_x, @pos_y,
-        @pos_slice, @row_spacing, @rows, @time, @uid
-       ]
+    def draw_line(x0, x1, y0, y1, image, value)
+      steep = ((y1-y0).abs) > ((x1-x0).abs)
+      if steep
+        x0,y0 = y0,x0
+        x1,y1 = y1,x1
+      end
+      if x0 > x1
+        x0,x1 = x1,x0
+        y0,y1 = y1,y0
+      end
+      deltax = x1-x0
+      deltay = (y1-y0).abs
+      error = (deltax / 2).to_i
+      y = y0
+      ystep = nil
+      if y0 < y1
+        ystep = 1
+      else
+        ystep = -1
+      end
+      for x in x0..x1
+        if steep
+          begin
+            image[y,x] = value # (switching variables)
+          rescue
+            # Our line has gone outside the image. Do nothing for now, but the proper thing to do would be to at least return some status boolean indicating that this has occured.
+          end
+        else
+          begin
+            image[x,y] = value
+          rescue
+            # Our line has gone outside the image.
+          end
+        end
+        error -= deltay
+        if error < 0
+          y += ystep
+          error += deltax
+        end
+      end
+      return image
+    end
+
+    # Searches left and right to find the 'border' in a row of pixels the image array.
+    # Returns a column and row index. Used by the flood_fill() method.
+    #
+    def ff_find_border(col, row, existing_value, direction, image)
+      next_col, next_row = ff_neighbour(col, row, direction)
+      begin
+        while image[next_col, next_row] == existing_value
+          col, row = next_col, next_row
+          next_col, next_row = ff_neighbour(col, row, direction)
+        end
+      rescue
+        # Out of bounds. Do nothing.
+      end
+      col = 0 if col < 1
+      row = 0 if row < 1
+      return col, row
+    end
+
+    # Returns the neighbour index based on the specified direction.
+    # Used by the flood_fill() method and its dependency; the ff_find_border() method.
+    # :east => to the right when looking at an array image printout on the screen
+    #
+    def ff_neighbour(col, row, direction)
+      case direction
+        when :north then return col, row-1
+        when :south then return col, row+1
+        when :east  then return col+1, row
+        when :west  then return col-1, row
+      end
     end
 
   end

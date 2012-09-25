@@ -101,10 +101,10 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Adds a DICOM object (Image) to the ImageSeries, by creating a new Image instance linked to this ImageSeries.
+    # Adds a DICOM image object to the ImageSeries, by creating a new SliceImage instance linked to this ImageSeries.
     #
     def add(dcm)
-      Image.load(dcm, self)
+      SliceImage.load(dcm, self)
     end
 
     # Adds an Image to this ImageSeries.
@@ -113,6 +113,7 @@ module RTKIT
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
       @images << image unless @frame.image(image.uid)
       @slices[image.uid] = image.pos_slice
+      @image_positions[image.pos_slice] = image
       @sop_uids[image.pos_slice] = image.uid
       # The link between image uid and image instance is kept in the Frame, instead of the ImageSeries:
       @frame.add_image(image) unless @frame.image(image.uid)

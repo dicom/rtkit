@@ -15,7 +15,7 @@ module RTKIT
       @f = Frame.new(@uid, @p)
       @st = Study.new('1.456.789', @p)
       @is = ImageSeries.new('1.345.789', 'CT', @f, @st)
-      @img = Image.new('1.234.876', @is)
+      @img = SliceImage.new('1.234.876', 5.0, @is)
     end
 
     context "::new" do
@@ -213,8 +213,8 @@ module RTKIT
         @is = ImageSeries.new('1.345.789', 'CT', @f, @st)
         @uid1 = '1.234'
         @uid2 = '1.678'
-        @i1 = Image.new(@uid1, @is)
-        @i2 = Image.new(@uid2, @is)
+        @i1 = SliceImage.new(@uid1, 0.0, @is)
+        @i2 = SliceImage.new(@uid2, 5.0, @is)
       end
 
       it "should raise an ArgumentError when a non-String is passed as an argument" do

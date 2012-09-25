@@ -506,9 +506,9 @@ module RTKIT
     context "#size" do
 
       before :each do
-        i1 = Image.new('1.789.541', @is)
-        i2 = Image.new('1.789.542', @is)
-        i3 = Image.new('1.789.543', @is)
+        i1 = SliceImage.new('1.789.541', 5.0, @is)
+        i2 = SliceImage.new('1.789.542', 10.0, @is)
+        i3 = SliceImage.new('1.789.543', 15.0, @is)
         i1.cosines, i2.cosines, i3.cosines = [1,0,0,0,1,0], [1,0,0,0,1,0], [1,0,0,0,1,0]
         i1.row_spacing, i2.row_spacing, i3.row_spacing = 1.0, 1.0, 1.0
         i1.col_spacing, i2.col_spacing, i3.col_spacing = 2.0, 2.0, 2.0
@@ -516,7 +516,6 @@ module RTKIT
         i1.columns, i2.columns, i3.columns = 10, 10, 10
         i1.pos_x, i2.pos_x, i3.pos_x = 0.0, 0.0, 0.0
         i1.pos_y, i2.pos_y, i3.pos_y = 0.0, 0.0, 0.0
-        i1.pos_slice, i2.pos_slice, i3.pos_slice = 5.0, 10.0, 15.0
         s1 = Slice.new('1.789.541', @roi)
         s2 = Slice.new('1.789.542', @roi)
         s3 = Slice.new('1.789.543', @roi)

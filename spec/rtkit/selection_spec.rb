@@ -16,11 +16,10 @@ module RTKIT
       @is = ImageSeries.new('1.345.789', 'CT', @f, @st)
       @ss = StructureSet.new('1.765.12', @is)
       @roi = ROI.new("Brain", 1, @f, @ss)
-      @image = Image.new(@sop, @is)
+      @image = SliceImage.new(@sop, 9.0, @is)
       @image.cosines = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
       @image.col_spacing = 1.0
       @image.row_spacing = 1.0
-      @image.pos_slice = 9.0
       @image.pos_x = 0.0
       @image.pos_y = 0.0
       @columns = 10

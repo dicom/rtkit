@@ -113,13 +113,12 @@ module RTKIT
       # Iterate each frame and create dose images:
       nr_frames.times do |i|
         # Create an Image instance (using an arbitrary UID, as individual dose frames don't really have UIDs in DICOM):
-        img = Image.new(sop_uids[i], self)
+        img = SliceImage.new(sop_uids[i], frame_origin + frame_offsets[i], self)
         # Fill in image information:
         img.columns = cols
         img.rows = rows
         img.pos_x = pos_x
         img.pos_y = pos_y
-        img.pos_slice = frame_origin + frame_offsets[i]
         img.col_spacing = col_spacing
         img.row_spacing = row_spacing
         img.cosines = cosines

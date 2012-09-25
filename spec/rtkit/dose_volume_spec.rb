@@ -125,7 +125,7 @@ module RTKIT
 
       it "should add the Image to the image-less DoseVolume instance" do
         vol_other = DoseVolume.new('1.23.787', @f, @dose)
-        img = Image.new('1.45.876', vol_other)
+        img = SliceImage.new('1.45.876', 5.0, vol_other)
         @vol.add_image(img)
         @vol.images.size.should eql 1
         @vol.images.first.should eql img
@@ -135,14 +135,14 @@ module RTKIT
         ds = DataSet.read(DIR_DOSE_ONLY)
         vol = ds.patient.study.iseries.struct.plan.rt_dose.volume
         previous_size = vol.images.size
-        img = Image.new('1.45.876', vol)
+        img = SliceImage.new('1.45.876', 5.0, vol)
         vol.add_image(img)
         vol.images.size.should eql previous_size + 1
         vol.images.last.should eql img
       end
 
       it "should not add multiple entries of the same Image" do
-        img = Image.new('1.45.876', @vol)
+        img = SliceImage.new('1.45.876', 5.0, @vol)
         @vol.add_image(img)
         @vol.images.size.should eql 1
         @vol.images.first.should eql img
@@ -201,14 +201,13 @@ module RTKIT
           @cols = 4
           @rows = 4
           # Dose images:
-          @i1 = Image.new('1.67.11', @vol)
-          @i2 = Image.new('1.67.12', @vol)
+          @i1 = SliceImage.new('1.67.11', 0.0, @vol)
+          @i2 = SliceImage.new('1.67.12', 50.0, @vol)
           @i1.columns, @i2.columns = @cols, @cols
           @i1.rows, @i2.rows = @rows, @rows
           @i1.row_spacing, @i2.row_spacing = 5, 5
           @i1.col_spacing, @i2.col_spacing = 5, 5
           @i1.cosines, @i2.cosines = [1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 1, 0]
-          @i1.pos_slice, @i2.pos_slice = 0.0, 50.0
           @i1.pos_x, @i2.pos_x = 0.0, 0.0
           @i1.pos_y, @i2.pos_y = 0.0, 0.0
           @i1.narray = NArray.int(@cols, @rows).fill(500)
@@ -216,14 +215,13 @@ module RTKIT
           # Anatomy images:
           ct_cols = @cols * 2
           ct_rows = @rows * 2
-          @ct1 = Image.new('1.671', @is)
-          @ct2 = Image.new('1.672', @is)
+          @ct1 = SliceImage.new('1.671', 0.0, @is)
+          @ct2 = SliceImage.new('1.672', 50.0, @is)
           @ct1.columns, @ct2.columns = ct_cols, ct_cols
           @ct1.rows, @ct2.rows = ct_rows, ct_rows
           @ct1.row_spacing, @ct2.row_spacing = 2.5, 2.5
           @ct1.col_spacing, @ct2.col_spacing = 2.5, 2.5
           @ct1.cosines, @ct2.cosines = [1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 1, 0]
-          @ct1.pos_slice, @ct2.pos_slice = 0.0, 50.0
           @ct1.pos_x, @ct2.pos_x = 0.0, 0.0
           @ct1.pos_y, @ct2.pos_y = 0.0, 0.0
           @ct1.narray = NArray.int(ct_cols, ct_rows)
@@ -294,14 +292,13 @@ module RTKIT
         @cols = 4
         @rows = 4
         # Dose images:
-        @i1 = Image.new('1.67.11', @vol)
-        @i2 = Image.new('1.67.12', @vol)
+        @i1 = SliceImage.new('1.67.11', 0.0, @vol)
+        @i2 = SliceImage.new('1.67.12', 50.0, @vol)
         @i1.columns, @i2.columns = @cols, @cols
         @i1.rows, @i2.rows = @rows, @rows
         @i1.row_spacing, @i2.row_spacing = 5, 5
         @i1.col_spacing, @i2.col_spacing = 5, 5
         @i1.cosines, @i2.cosines = [1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 1, 0]
-        @i1.pos_slice, @i2.pos_slice = 0.0, 50.0
         @i1.pos_x, @i2.pos_x = 0.0, 0.0
         @i1.pos_y, @i2.pos_y = 0.0, 0.0
         @i1.narray = NArray.int(@cols, @rows).indgen! * 100
@@ -309,14 +306,13 @@ module RTKIT
         # Anatomy images:
         ct_cols = @cols * 2
         ct_rows = @rows * 2
-        @ct1 = Image.new('1.671', @is)
-        @ct2 = Image.new('1.672', @is)
+        @ct1 = SliceImage.new('1.671', 0.0, @is)
+        @ct2 = SliceImage.new('1.672', 50.0, @is)
         @ct1.columns, @ct2.columns = ct_cols, ct_cols
         @ct1.rows, @ct2.rows = ct_rows, ct_rows
         @ct1.row_spacing, @ct2.row_spacing = 2.5, 2.5
         @ct1.col_spacing, @ct2.col_spacing = 2.5, 2.5
         @ct1.cosines, @ct2.cosines = [1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 1, 0]
-        @ct1.pos_slice, @ct2.pos_slice = 0.0, 50.0
         @ct1.pos_x, @ct2.pos_x = 0.0, 0.0
         @ct1.pos_y, @ct2.pos_y = 0.0, 0.0
         @ct1.narray = NArray.int(ct_cols, ct_rows)
@@ -513,10 +509,8 @@ module RTKIT
         @uid2 = '1.45.876'
         @pos_slice1 = 66.5
         @pos_slice2 = 77.7
-        @img1 = Image.new(@uid1, @vol)
-        @img2 = Image.new(@uid2, @vol)
-        @img1.pos_slice = @pos_slice1
-        @img2.pos_slice = @pos_slice2
+        @img1 = SliceImage.new(@uid1, @pos_slice1, @vol)
+        @img2 = SliceImage.new(@uid2, @pos_slice2, @vol)
       end
 
       it "should raise an ArgumentError if multiple arguments are passed" do

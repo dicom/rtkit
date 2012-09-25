@@ -221,10 +221,10 @@ module RTKIT
         @vol2.scaling = 3.0
         @cols = 2
         @rows = 3
-        @i11 = Image.new('1.67.11', @vol1)
-        @i12 = Image.new('1.67.12', @vol1)
-        @i21 = Image.new('1.67.21', @vol2)
-        @i22 = Image.new('1.67.23', @vol2)
+        @i11 = SliceImage.new('1.67.11', 0.0, @vol1)
+        @i12 = SliceImage.new('1.67.12', 2.0, @vol1)
+        @i21 = SliceImage.new('1.67.21', 4.0, @vol2)
+        @i22 = SliceImage.new('1.67.23', 6.0, @vol2)
         @i11.columns = @cols
         @i12.columns = @cols
         @i21.columns = @cols

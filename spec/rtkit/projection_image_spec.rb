@@ -5,50 +5,62 @@ require 'spec_helper'
 
 module RTKIT
 
-  describe Image do
+  describe ProjectionImage do
 
     before :each do
       @ds = DataSet.new
       @p = Patient.new('John', '12345', @ds)
       @st = Study.new('1.456.789', @p)
       @f = Frame.new('1.4321', @p)
-      @is = ImageSeries.new('1.345.789', 'CT', @f, @st)
+      @is = ImageSeries.new('1.888.434', 'CT', @f, @st)
+      @ss = StructureSet.new('1.765.354', @is)
+      @plan = Plan.new('1.456.654', @ss)
+      @rtis = RTImage.new('1.345.789', @plan)
       @uid = '1.234.876'
-      @im = Image.new(@uid, @is)
+      @im = ProjectionImage.new(@uid, @rtis)
     end
 
     describe "::load" do
 
       before :each do
-        @dcm = DICOM::DObject.read(FILE_IMAGE)
+        @dcm = DICOM::DObject.read(FILE_RTIMAGE)
       end
 
       it "should raise an ArgumentError when a non-DObject is passed as the 'dcm' argument" do
-        expect {Image.load(42, @is)}.to raise_error(ArgumentError, /'dcm'/)
+        expect {ProjectionImage.load(42, @rtis)}.to raise_error(ArgumentError, /'dcm'/)
       end
 
       it "should raise an ArgumentError when an non-Series is passed as the 'series' argument" do
-        expect {Image.load(@dcm, 'not-a-series')}.to raise_error(ArgumentError, /series/)
+        expect {ProjectionImage.load(@dcm, 'not-a-series')}.to raise_error(ArgumentError, /series/)
       end
 
       it "should raise an ArgumentError when a DObject with a non-image type modality is passed with the 'dcm' argument" do
-        expect {Image.load(DICOM::DObject.read(FILE_STRUCT), @is)}.to raise_error(ArgumentError, /'dcm'/)
+        expect {ProjectionImage.load(DICOM::DObject.read(FILE_STRUCT), @rtis)}.to raise_error(ArgumentError, /'dcm'/)
       end
 
       it "should create an Image instance with attributes taken from the DICOM Object" do
-        im = Image.load(@dcm, @is)
+        # Note: No pos_slice or cosines for ProjectionImage.
+        im = ProjectionImage.load(@dcm, @rtis)
         im.uid.should eql @dcm.value('0008,0018')
         im.date.should eql @dcm.value('0008,0012')
         im.time.should eql @dcm.value('0008,0013')
+        im.columns.should eql @dcm.value('0028,0011')
+        im.rows.should eql @dcm.value('0028,0010')
+        img_pos = @dcm.value('3002,0012').split("\\").collect {|val| val.to_f}
+        im.pos_x.should eql img_pos[0]
+        im.pos_y.should eql img_pos[1]
+        spacing = @dcm.value('3002,0011').split("\\").collect {|val| val.to_f}
+        im.col_spacing.should eql spacing[1]
+        im.row_spacing.should eql spacing[0]
       end
 
       it "should create an Image instance which is properly referenced to its series" do
-        im = Image.load(@dcm, @is)
-        im.series.should eql @is
+        im = ProjectionImage.load(@dcm, @rtis)
+        im.series.should eql @rtis
       end
 
       it "should pass the 'dcm' argument to the 'dcm' attribute" do
-        im = Image.load(@dcm, @is)
+        im = ProjectionImage.load(@dcm, @rtis)
         im.dcm.should eql @dcm
       end
 
@@ -58,19 +70,15 @@ module RTKIT
     context "::new" do
 
       it "should raise an ArgumentError when a non-string is passed as the 'sop_uid' argument" do
-        expect {Image.new(42, @is)}.to raise_error(ArgumentError, /'sop_uid'/)
+        expect {ProjectionImage.new(42, @rtis)}.to raise_error(ArgumentError, /'sop_uid'/)
       end
 
       it "should raise an ArgumentError when a non-Series is passed as the 'series' argument" do
-        expect {Image.new(@uid, 'not-a-series')}.to raise_error(ArgumentError, /'series'/)
+        expect {ProjectionImage.new(@uid, 'not-a-series')}.to raise_error(ArgumentError, /'series'/)
       end
 
       it "should raise an ArgumentError when a Series with a non-image-series type modality is passed as the 'modality' argument" do
-        expect {Image.new(@uid, StructureSet.new('1.7890', @is))}.to raise_error(ArgumentError, /'series'/)
-      end
-
-      it "should by default set the 'cosines' attribute as an nil" do
-        @im.cosines.should be_nil
+        expect {ProjectionImage.new(@uid, StructureSet.new('1.7890', @is))}.to raise_error(ArgumentError, /'series'/)
       end
 
       it "should by default set the 'date' attribute as an nil" do
@@ -97,10 +105,6 @@ module RTKIT
         @im.pos_y.should be_nil
       end
 
-      it "should by default set the 'pos_slice' attribute as an nil" do
-        @im.pos_slice.should be_nil
-      end
-
       it "should by default set the 'col_spacing' attribute as an nil" do
         @im.col_spacing.should be_nil
       end
@@ -118,10 +122,10 @@ module RTKIT
       end
 
       it "should pass the 'series' argument to the 'series' attribute" do
-        @im.series.should eql @is
+        @im.series.should eql @rtis
       end
 
-      it "should add the Image instance (once) to the referenced ImageSeries" do
+      it "should add the Image instance (once) to the referenced RTImage series" do
         @im.series.images.length.should eql 1
         @im.series.image(@im.uid).should eql @im
       end
@@ -132,12 +136,12 @@ module RTKIT
     context "#==()" do
 
       it "should be true when comparing two instances having the same attribute values" do
-        im_other = Image.new(@uid, @is)
+        im_other = ProjectionImage.new(@uid, @rtis)
         (@im == im_other).should be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
-        im_other = Image.new('1.4.99', @is)
+        im_other = ProjectionImage.new('1.4.99', @rtis)
         (@im == im_other).should be_false
       end
 
@@ -360,39 +364,15 @@ module RTKIT
     end
 
 
-    describe "#cosines=()" do
-
-=begin
-      it "should raise an ArgumentError when an Array of length other than 6 is passed as argument" do
-        expect {@im.cosines = [1.0, 2.0, 3.0]}.to raise_error(ArgumentError, /'cos'/)
-      end
-=end
-
-      it "should pass the argument to the 'cosines' attribute" do
-        value = [1.0, 2.0, 3.0, 4.0, 5.0, 6.6]
-        @im.cosines = value
-        @im.cosines.should eql value
-      end
-
-      it "should convert array string parameters to floats" do
-        value_str = ['1.0', '2.0', '3.0', '4.0', '5.0', '6.6']
-        value = [1.0, 2.0, 3.0, 4.0, 5.0, 6.6]
-        @im.cosines = value_str
-        @im.cosines.should eql value
-      end
-
-    end
-
-
     context "#eql?" do
 
       it "should be true when comparing two instances having the same attribute values" do
-        im_other = Image.new(@uid, @is)
+        im_other = ProjectionImage.new(@uid, @rtis)
         @im.eql?(im_other).should be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
-        im_other = Image.new('1.4.99', @is)
+        im_other = ProjectionImage.new('1.4.99', @rtis)
         @im.eql?(im_other).should be_false
       end
 
@@ -402,13 +382,13 @@ module RTKIT
     context "#hash" do
 
       it "should return the same Fixnum for two instances having the same attribute values" do
-        im_other = Image.new(@uid, @is)
+        im_other = ProjectionImage.new(@uid, @rtis)
         @im.hash.should be_a Fixnum
         @im.hash.should eql im_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
-        im_other = Image.new('1.4.99', @is)
+        im_other = ProjectionImage.new('1.4.99', @rtis)
         @im.hash.should_not eql im_other.hash
       end
 
@@ -438,17 +418,6 @@ module RTKIT
         narray = NArray[[1,2],[3,4]]
         @im.narray = narray
         @im.narray.should eql narray
-      end
-
-    end
-
-
-    describe "#pos_slice=()" do
-
-      it "should pass the argument to the 'pos_slice' attribute" do
-        value = 33.3
-        @im.pos_slice = value
-        @im.pos_slice.should eql value
       end
 
     end
@@ -678,10 +647,10 @@ module RTKIT
     end
 
 
-    context "#to_image" do
+    context "#to_projection_image" do
 
       it "should return itself" do
-        @im.to_image.equal?(@im).should be_true
+        @im.to_projection_image.equal?(@im).should be_true
       end
 
     end

@@ -4,9 +4,9 @@ module RTKIT
   #
   # === Inheritance
   #
-  # * As the BinImage class inherits from the PixelData class, all PixelData methods are available to instances of BinImage.
+  # * As the BinImage class inherits from the Image class, all Image methods are available to instances of BinImage.
   #
-  class BinImage < PixelData
+  class BinImage < Image
 
     # The BinImage's Image reference.
     attr_reader :image
@@ -23,12 +23,12 @@ module RTKIT
     # === Parameters
     #
     # * <tt>contours</tt> -- An array of contours from which to fill in a binary image.
-    # * <tt>image</tt> -- The image that this BinImage instance will be based on.
+    # * <tt>image</tt> -- The SliceImage that this BinImage instance will be based on.
     # * <tt>bin_volume</tt> -- The BinVolume instance that this bin_image belongs to.
     #
     def self.from_contours(contours, image, bin_volume)
       raise ArgumentError, "Invalid argument 'contours'. Expected Array, got #{contours.class}." unless contours.is_a?(Array)
-      raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
+      raise ArgumentError, "Invalid argument 'image'. Expected SliceImage, got #{image.class}." unless image.is_a?(SliceImage)
       raise ArgumentError, "Invalid argument 'bin_volume'. Expected BinVolume, got #{bin_volume.class}." unless bin_volume.is_a?(BinVolume)
       # Create the narray to be used:
       narr = NArray.byte(image.columns, image.rows)

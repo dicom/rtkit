@@ -50,6 +50,11 @@ module RTKIT
         rt.description.should eql @dcm.value('0008,103E')
       end
 
+      it "should set up the DICOM RTIMAGE object as a ProjectionImage instance belonging to the RTImage series" do
+        rt = RTImage.load(@dcm, @st)
+        rt.images.first.should be_a ProjectionImage
+      end
+
       it "should create an RTImage instance which is properly referenced to its study" do
         rt = RTImage.load(@dcm, @st)
         rt.study.should eql @st

@@ -67,6 +67,32 @@ module RTKIT
         is.study.iseries(is.uid).should eql is
       end
 
+      it "should add the single image instance to itself" do
+        is = ImageSeries.load(@dcm, @st)
+        is.images.length.should eql 1
+      end
+
+      it "should set up the CT DICOM image as a SliceImage instance" do
+        is = ImageSeries.load(@dcm, @st)
+        is.image.should be_a SliceImage
+      end
+
+      it "should add the slice position and uid from the dicom image to the image series' slices attribute hash" do
+        is = ImageSeries.load(@dcm, @st)
+        is.slices[is.image.uid].should eql is.image.pos_slice
+      end
+
+      it "should add the slice position and uid from the dicom image to the image series' sop_uids attribute hash" do
+        is = ImageSeries.load(@dcm, @st)
+        is.sop_uids[is.image.pos_slice].should eql is.image.uid
+      end
+
+      it "should register the image's slice position such that a query by slice position yields the image instance" do
+        is = ImageSeries.load(@dcm, @st)
+        pos_slice = is.images.first.pos_slice
+        is.image(pos_slice).should eql is.images.first
+      end
+
     end
 
 
@@ -189,7 +215,7 @@ module RTKIT
       it "should add the Image to the image-less ImageSeries instance" do
         f2 = Frame.new('1.4321', @p)
         is_other = ImageSeries.new('1.678', 'MR', f2, @st)
-        image = Image.new('1.234', is_other)
+        image = SliceImage.new('1.234', 5.0, is_other)
         @is.add_image(image)
         @is.images.size.should eql 1
         @is.images.first.should eql image
@@ -199,14 +225,14 @@ module RTKIT
         ds = DataSet.read(DIR_IMAGE_ONLY)
         is = ds.patient.study.iseries
         previous_size = is.images.size
-        image = Image.new('1.234', @is)
+        image = SliceImage.new('1.234', 5.0, @is)
         is.add_image(image)
         is.images.size.should eql previous_size + 1
         is.images.last.should eql image
       end
 
       it "should not add multiple entries of the same Image" do
-        image = Image.new('1.234', @is)
+        image =SliceImage.new('1.234', 5.0, @is)
         @is.add_image(image)
         @is.images.size.should eql 1
         @is.images.first.should eql image
@@ -284,9 +310,9 @@ module RTKIT
 
       before :each do
         @uid1 = '1.234'
-        @im1 = Image.new(@uid1, @is)
+        @im1 = SliceImage.new(@uid1, 0.0, @is)
         @uid2 = '1.678'
-        @im2 = Image.new(@uid2, @is)
+        @im2 = SliceImage.new(@uid2, 5.0, @is)
       end
 
       it "should raise an ArgumentError when a non-String is passed as an argument" do

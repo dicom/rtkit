@@ -62,7 +62,6 @@ module RTKIT
     #
     def add_image(image)
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
-      #@images << image
       @associated_instance_uids[image.uid] = image
       # If the ImageSeries of an added Image is not connected to this Frame yet, do so:
       add_series(image.series) unless series(image.series.uid)

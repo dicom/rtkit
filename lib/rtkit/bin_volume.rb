@@ -2,11 +2,7 @@ module RTKIT
 
   # Contains the DICOM data and methods related to a binary volume.
   #
-  # === Inheritance
-  #
-  # * As the BinVolume class inherits from the PixelData class, all PixelData methods are available to instances of BinVolume.
-  #
-  class BinVolume < PixelData
+  class BinVolume
 
     # An array of BinImage references.
     attr_reader :bin_images

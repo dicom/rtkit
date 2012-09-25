@@ -26,44 +26,31 @@ module RTKIT
       end
 
       it "should return nil when the image series contain only one image" do
-        @im = Image.new('1.234', @is)
-        @im.pos_slice = 5.0
+        @im = SliceImage.new('1.234', 5.0, @is)
         @is.slice_spacing.should be_nil
       end
 
       it "should return the expected slice spacing on an image series containing two images" do
-        @im1 = Image.new('1.234', @is)
-        @im2 = Image.new('1.235', @is)
-        @im1.pos_slice = 5.0
-        @im2.pos_slice = 10.0
+        @im1 = SliceImage.new('1.234', 5.0, @is)
+        @im2 = SliceImage.new('1.235', 10.0, @is)
         @is.slice_spacing.should eql 5.0
       end
 
       it "should return the expected slice spacing on an image series containing multiple images" do
-        @im1 = Image.new('1.234', @is)
-        @im2 = Image.new('1.235', @is)
-        @im3 = Image.new('1.236', @is)
-        @im4 = Image.new('1.237', @is)
-        @im5 = Image.new('1.238', @is)
-        @im1.pos_slice = -15.0
-        @im2.pos_slice = -10.0
-        @im3.pos_slice = -5.0
-        @im4.pos_slice = 0.0
-        @im5.pos_slice = 5.0
+        @im1 = SliceImage.new('1.234', -15.0, @is)
+        @im2 = SliceImage.new('1.235', -10.0, @is)
+        @im3 = SliceImage.new('1.236', -5.0, @is)
+        @im4 = SliceImage.new('1.237', 0.0, @is)
+        @im5 = SliceImage.new('1.238', 5.0, @is)
         @is.slice_spacing.should eql 5.0
       end
 
       it "should return the most frequent slice spacing on an image series containing a missing image" do
-        @im1 = Image.new('1.234', @is)
-        @im2 = Image.new('1.235', @is)
-        @im3 = Image.new('1.236', @is)
-        @im4 = Image.new('1.237', @is)
-        @im5 = Image.new('1.238', @is)
-        @im1.pos_slice = -15.0
-        @im2.pos_slice = -10.0
-        @im3.pos_slice = -5.0
-        @im4.pos_slice = 0.0
-        @im5.pos_slice = 10.0
+        @im1 = SliceImage.new('1.234', -15.0, @is)
+        @im2 = SliceImage.new('1.235', -10.0, @is)
+        @im3 = SliceImage.new('1.236', -5.0, @is)
+        @im4 = SliceImage.new('1.237', 0.0, @is)
+        @im5 = SliceImage.new('1.238', 10.0, @is)
         @is.slice_spacing.should eql 5.0
       end
 
