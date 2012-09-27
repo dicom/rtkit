@@ -238,6 +238,14 @@ module RTKIT
         @is.images.first.should eql image
       end
 
+      it "should register an image's slice position in such a way that it can be matched later on even though the original slice position is somewhat deviant (to address typical float inaccuracy issues)" do
+        im1 = SliceImage.new('1.234', -0.0007, @is)
+        im2 = SliceImage.new('1.678', 5.0037, @is)
+        im3 = SliceImage.new('1.987', 9.9989, @is)
+        image = @is.image(5.0)
+        image.uid.should eql '1.678'
+      end
+
     end
 
 
@@ -330,6 +338,16 @@ module RTKIT
       it "should return the matching Image when a UID string is supplied" do
         image = @is.image(@uid2)
         image.uid.should eql @uid2
+      end
+
+      it "should return the matching Image when a slice position float is supplied" do
+        image = @is.image(5.0)
+        image.pos_slice.should eql 5.0
+      end
+
+      it "should return the matching Image when a minimally deviant slice position is supplied (to address typical float inaccuracy issues)" do
+        image = @is.image(5.0045)
+        image.pos_slice.should eql 5.0
       end
 
     end

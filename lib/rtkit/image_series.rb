@@ -113,7 +113,7 @@ module RTKIT
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
       @images << image unless @frame.image(image.uid)
       @slices[image.uid] = image.pos_slice
-      @image_positions[image.pos_slice] = image
+      @image_positions[image.pos_slice.round(2)] = image
       @sop_uids[image.pos_slice] = image.uid
       # The link between image uid and image instance is kept in the Frame, instead of the ImageSeries:
       @frame.add_image(image) unless @frame.image(image.uid)
@@ -170,7 +170,7 @@ module RTKIT
       if args.length == 1
         if args.first.is_a?(Float)
           # Presumably an image position:
-          return @image_positions[args.first]
+          return @image_positions[args.first.round(2)]
         else
           # Presumably a uid string:
           return @frame.image(args.first)
