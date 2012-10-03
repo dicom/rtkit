@@ -438,6 +438,21 @@ module RTKIT
     end
 
 
+    context "#frame=()" do
+
+      it "should raise an when a non-Frame is passed" do
+        expect {@roi.frame = 'not-a-frame'}.to raise_error
+      end
+
+      it "should assign the new frame to the roi" do
+        f_other = Frame.new('1.787.434', @p)
+        @roi.frame = f_other
+        @roi.frame.should eql f_other
+      end
+
+    end
+
+
     context "#hash" do
 
       it "should return the same Fixnum for two instances having the same attribute values" do

@@ -248,6 +248,12 @@ module RTKIT
       return dose_distribution
     end
 
+    # Sets the frame attribute.
+    #
+    def frame=(frame)
+      @frame = frame.to_frame
+    end
+
     # Generates a Fixnum hash value for this instance.
     #
     def hash
