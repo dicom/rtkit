@@ -3,7 +3,7 @@ module RTKIT
   # This is a mixin-module for the classes that are image 'parents',
   # i.e. they contain a reference to an array of image instances.
   #
-  # This module is mixed in by the ImageSeries and Volume classes.
+  # This module is mixed in by the ImageSeries and DoseVolume classes.
   #
   module ImageParent
 
