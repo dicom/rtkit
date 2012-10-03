@@ -133,7 +133,7 @@ module RTKIT
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
       @images << image unless @associated_images[image.uid]
       @associated_images[image.uid] = image
-      @image_positions[image.pos_slice] = image
+      @image_positions[image.pos_slice.round(2)] = image
     end
 
     # Creates a binary volume object consisting of a series of binary
@@ -211,7 +211,7 @@ module RTKIT
       if args.length == 1
         if args.first.is_a?(Float)
           # Presumably an image position:
-          return @image_positions[args.first]
+          return @image_positions[args.first.round(2)]
         else
           # Presumably a uid string:
           return @associated_images[args.first && args.first.to_s]
