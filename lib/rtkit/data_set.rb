@@ -202,7 +202,8 @@ module RTKIT
       end
     end
 
-    # Prints the nested structure of patient - study - series - images that have been loaded to the dataset instance.
+    # Prints the nested structure of patient - study - series - images that
+    # have been loaded in the DataSet instance.
     #
     def print
       @patients.each do |p|
@@ -219,25 +220,27 @@ module RTKIT
       end
     end
 
-    # Prints the nested structure of patient - study - modalities from
-    # a RT point of view, with image_series - ss - plan, etc.
+    # Prints the nested structure of the DataSet from a radiotherapy point of
+    # view, where the various series beneath the patient-study level in a
+    # hiearchy of image series, structure set, rt plan, rt dose and rt image,
+    # in accordance with the object hiearchy used by RTKIT.
     #
     def print_rt
       @patients.each do |p|
         puts p.name
         p.studies.each do |st|
-          puts "  #{st.uid}"
+          puts "  Study (UID: #{st.uid})"
           st.image_series.each do |is|
-            puts "    #{is.modality} (#{is.images.length} images)"
+            puts "    #{is.modality} (#{is.images.length} images - UID: #{is.uid})"
             is.structs.each do |struct|
-              puts "      StructureSet"
+              puts "      StructureSet (#{struct.rois.length} ROIs - UID: #{struct.uid})"
               struct.plans.each do |plan|
-                puts "        RTPlan"
+                puts "        RTPlan (#{plan.beams.length} beams - UID: #{plan.uid})"
                 plan.rt_doses.each do |rt_dose|
-                  puts "          RTDose"
+                  puts "          RTDose (#{rt_dose.volumes.length} volumes - UID: #{rt_dose.uid})"
                 end
                 plan.rt_images.each do |rt_image|
-                  puts "          RTImage"
+                  puts "          RTImage (#{rt_image.images.length} images - UID: #{rt_image.uid})"
                 end
               end
             end
