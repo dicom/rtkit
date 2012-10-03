@@ -29,12 +29,14 @@ suppress_warnings do
   RTKIT::DIR_SIMPLE_PHANTOM_CASE = 'samples/simple_phantom_case/'
   # Directory for writing temporary files:
   RTKIT::TMPDIR = "tmp/"
-  # Single files:
+  # Single files of various modalities:
   RTKIT::FILE_IMAGE = RTKIT::DIR_IMAGE_ONLY + 'ct_rect_phantom.dcm'
   RTKIT::FILE_STRUCT = RTKIT::DIR_STRUCT_ONLY + 'two_roi_rtstruct.dcm'
   RTKIT::FILE_PLAN = RTKIT::DIR_PLAN_ONLY + 'simple_plan.dcm'
   RTKIT::FILE_DOSE = RTKIT::DIR_DOSE_ONLY + 'dose.dcm'
   RTKIT::FILE_RTIMAGE = RTKIT::DIR_RTIMAGE_ONLY + 'rt_image.dcm'
+  # Single, 'special' files:
+  RTKIT::FILE_EMPTY_DOSE = 'samples/single_empty_dose/' + 'empty_dose.dcm'
 end
 
 # Create a directory for temporary files (and delete the directory if it already exists):

@@ -122,7 +122,7 @@ module RTKIT
     #
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
-      DoseVolume.load(dcm, self)
+      DoseVolume.load(dcm, self) if proper_dose_volume?(dcm)
     end
 
     # Adds a DoseVolume instance to this RTDose series.
@@ -224,6 +224,24 @@ module RTKIT
 
     private
 
+
+    # Checks whether the given DICOM RTDose file is a proper dose volume.
+    # From experience, some treatment planning systems (e.g. Oncentra), will
+    # output one dose volume per plan beam + one 'empty' dose volume
+    # that does not contain any dose information. This particular non-dose file
+    # should be ignored when loading dose volumes.
+    #
+    # @param [DObject] dcm a DICOM object of modality RTDose
+    # @return [Boolean] true if the dose volume appears to be 'proper'
+    #
+    def proper_dose_volume?(dcm)
+      # Some observed characterstics about these files:
+      # -The value of the Dose Grid Scaling tag is 1.0
+      # -The values of the Dose Value tags in the RT Dose ROI Sequence items are 0.0
+      # -The Pixel Data array doesn't contain any non-zero values
+      # -The Pixel Data array may be small (1x1 element per slice)
+      dcm.value('3004,000E').to_f.round(4) == 1.0000 ? false : true
+    end
 
     # Returns the attributes of this instance in an array (for comparison purposes).
     #

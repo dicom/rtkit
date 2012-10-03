@@ -60,6 +60,19 @@ module RTKIT
         dose.plan.should be_a Plan
       end
 
+      it "should ignore the 'empty' dose volume amongst the three 'real volumes' (in this case exported from the Oncentra TPS)" do
+        ds = DataSet.read(DIR_SIMPLE_PHANTOM_CASE)
+        dose = ds.patient.study.iseries.struct.plan.rt_dose
+        # This case contains 3 beams and 3 corresponding dose volumes, and an additional 'empty' volume:
+        dose.volumes.length.should eql 3
+      end
+
+      it "should ignore the single 'empty' dose volume (in this case exported from the Oncentra TPS)" do
+        dcm = DICOM::DObject.read(FILE_EMPTY_DOSE)
+        dose = RTDose.load(dcm, @st)
+        dose.volumes.length.should eql 0
+      end
+
     end
 
 
