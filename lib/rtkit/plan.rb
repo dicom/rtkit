@@ -240,22 +240,29 @@ module RTKIT
 
     # Loads the Beam Items contained in the RTPlan and creates Beam instances.
     #
+    # @note This method currently only supports setting up external beam RTPlans.
+    #   For brachy plans, no child structures (e.g. beams) are created.
+    #
     def load_beams
-      # Load the patient position.
-      # NB! (FIXME) We assume that there is only one patient setup sequence item!
-      Setup.create_from_item(@dcm[PATIENT_SETUP_SQ][0], self)
-      # Load the information in a nested hash:
-      item_group = Hash.new
-      # NB! (FIXME) We assume there is only one fraction group!
-      @dcm[FRACTION_GROUP_SQ][0][REF_BEAM_SQ].each do |fg_item|
-        item_group[fg_item.value(REF_BEAM_NUMBER)] = {:meterset => fg_item.value(BEAM_METERSET).to_f}
-      end
-      @dcm[BEAM_SQ].each do |beam_item|
-        item_group[beam_item.value(BEAM_NUMBER)][:beam] = beam_item
-      end
-      # Create a Beam instance for each set of items:
-      item_group.each_value do |beam_items|
-        Beam.create_from_item(beam_items[:beam], beam_items[:meterset], self)
+      # Top allow brachy plans to load without crashing, only proceed
+      # if this seems to be an external beam plan object:
+      if @dcm[BEAM_SQ]
+        # Load the patient position.
+        # NB! (FIXME) We assume that there is only one patient setup sequence item!
+        Setup.create_from_item(@dcm[PATIENT_SETUP_SQ][0], self)
+        # Load the information in a nested hash:
+        item_group = Hash.new
+        # NB! (FIXME) We assume there is only one fraction group!
+        @dcm[FRACTION_GROUP_SQ][0][REF_BEAM_SQ].each do |fg_item|
+          item_group[fg_item.value(REF_BEAM_NUMBER)] = {:meterset => fg_item.value(BEAM_METERSET).to_f}
+        end
+        @dcm[BEAM_SQ].each do |beam_item|
+          item_group[beam_item.value(BEAM_NUMBER)][:beam] = beam_item
+        end
+        # Create a Beam instance for each set of items:
+        item_group.each_value do |beam_items|
+          Beam.create_from_item(beam_items[:beam], beam_items[:meterset], self)
+        end
       end
     end
 

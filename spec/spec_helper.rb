@@ -35,6 +35,7 @@ suppress_warnings do
   RTKIT::FILE_PLAN = RTKIT::DIR_PLAN_ONLY + 'simple_plan.dcm'
   RTKIT::FILE_DOSE = RTKIT::DIR_DOSE_ONLY + 'dose.dcm'
   RTKIT::FILE_RTIMAGE = RTKIT::DIR_RTIMAGE_ONLY + 'rt_image.dcm'
+  RTKIT::FILE_BRACHY_PLAN = 'samples/single_brachy_plan/brachy_plan.dcm'
   # Single, 'special' files:
   RTKIT::FILE_EMPTY_DOSE = 'samples/single_empty_dose/' + 'empty_dose.dcm'
 end

@@ -78,6 +78,23 @@ module RTKIT
       end
 =end
 
+      it "should create a Plan instance when given a Brachy DICOM RTPlan" do
+        # Note: Brachy support is rudimentary: No beams/control points are created,
+        # we only get a simple Plan instance with some basic attributes.
+        dcm = DICOM::DObject.read(FILE_BRACHY_PLAN)
+        plan = Plan.load(dcm, @st)
+        plan.sop_uid.should eql dcm.value('0008,0018')
+        plan.series_uid.should eql dcm.value('0020,000E')
+        plan.modality.should eql dcm.value('0008,0060')
+        plan.class_uid.should eql dcm.value('0008,0016')
+        plan.date.should eql dcm.value('0008,0021')
+        plan.time.should eql dcm.value('0008,0031')
+        plan.description.should eql dcm.value('0008,103E')
+        plan.label.should eql dcm.value('300A,0002')
+        plan.name.should eql dcm.value('300A,0003')
+        plan.plan_description.should eql dcm.value('300A,0004')
+      end
+
     end
 
 
