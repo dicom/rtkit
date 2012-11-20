@@ -211,7 +211,7 @@ module RTKIT
       if args.length == 1
         if args.first.is_a?(Float)
           # Presumably an image position:
-          return @image_positions[args.first.round(2)]
+          return image_by_slice_pos(args.first)
         else
           # Presumably a uid string:
           return @associated_images[args.first && args.first.to_s]
@@ -268,6 +268,24 @@ module RTKIT
 
     private
 
+
+    # Returns an image instance matched by the given slice position.
+    #
+    def image_by_slice_pos(pos)
+      # Step 1: Try for an (exact) match:
+      image = @image_positions[pos.round(2)]
+      # Step 2: If no match, try to search for a close match:
+      # (A close match is defined as the given slice position being within 1/3 of the
+      # slice distance from an existing image instance in the series)
+      if !image && @images.length > 1
+        proximity = @images.collect{|img| (img.pos_slice - pos).abs}
+        if proximity.min < slice_spacing / 3.0
+          index = proximity.index(proximity.min)
+          image = @images[index]
+        end
+      end
+      return image
+    end
 
     # Returns the attributes of this instance in an array (for comparison purposes).
     #

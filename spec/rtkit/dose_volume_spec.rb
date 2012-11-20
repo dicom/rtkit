@@ -516,7 +516,7 @@ module RTKIT
         @uid1 = '1.23.787'
         @uid2 = '1.45.876'
         @pos_slice1 = 66.5
-        @pos_slice2 = 77.7
+        @pos_slice2 = 67.5
         @img1 = SliceImage.new(@uid1, @pos_slice1, @vol)
         @img2 = SliceImage.new(@uid2, @pos_slice2, @vol)
       end
@@ -542,6 +542,16 @@ module RTKIT
       it "should return the matching Image when a minimally deviant slice position is supplied (to address typical float inaccuracy issues)" do
         image = @vol.image(66.5045)
         image.pos_slice.should eql 66.5
+      end
+
+      it "should return the matching Image when a slice position which deviates with less than 1/3 slice gap from a real slice position is given" do
+        image = @vol.image(67.2)
+        image.pos_slice.should eql 67.5
+      end
+
+      it "should return nil when a slice position is given that deviates from any particular image slice position with more than a third of the slice gap" do
+        image = @vol.image(67.0)
+        image.should be_nil
       end
 
     end
