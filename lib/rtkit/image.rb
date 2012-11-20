@@ -129,6 +129,9 @@ module RTKIT
     # (a problem in general for scripting languages).
     #
     def flood_fill(col, row, image, fill_value)
+      # If the given starting point is out of bounds, put it at the array boundary:
+      col = col > image.shape[0] ? -1 : col
+      row = row > image.shape[1] ? -1 : row
       existing_value = image[col, row]
       queue = Array.new
       queue.push([col, row])

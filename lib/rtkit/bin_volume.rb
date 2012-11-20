@@ -84,12 +84,17 @@ module RTKIT
       raise ArgumentError, "Invalid argument 'image_volume'. Expected ImageSeries or DoseVolume, got #{image_volume.class}." unless [ImageSeries, DoseVolume].include?(image_volume.class)
       # Create the BinVolume instance:
       bv = self.new(roi.image_series, :source => roi)
+      missed_slices = 0
       # Add BinImages for each of the ROIs slices:
       roi.slices.each do |slice|
         image = image_volume.image(slice.pos)
-        BinImage.from_contours(slice.contours, image, bv)
-        #bv.add(slice.bin_image)
+        if image
+          BinImage.from_contours(slice.contours, image, bv)
+        else
+          missed_slices += 1
+        end
       end
+      RTKIT.logger.warn("The BinVolume created from ROI '#{roi.name}' missed #{missed_slices} slices. #{bv.bin_images.length} slices were successfully created.") if missed_slices > 0
       return bv
     end
 
