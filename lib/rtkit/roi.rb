@@ -153,6 +153,7 @@ module RTKIT
       # Change struct association if indicated:
       if series.struct != @struct
         @struct.remove_roi(self)
+        StructureSet.new(RTKIT.series_uid, series) unless series.struct
         series.struct.add_roi(self)
         @struct = series.struct
       end

@@ -303,6 +303,15 @@ module RTKIT
         @ss1.rois.collect{|roi| roi.__id__}.should eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
       end
 
+      it "should successfully add the ROI to a struct-less ImageSeries instance (creating a new StructureSet instance)" do
+        roi = ROI.new(@name, @number, @f, @ss1)
+        struct_less_is = ImageSeries.new('1.767.232', 'CT', @f1, @st)
+        roi.attach_to(struct_less_is)
+        roi.frame.should eql struct_less_is.frame
+        struct_less_is.rois.include?(roi).should be_true
+        roi.image_series.should eql struct_less_is
+      end
+
     end
 
 
@@ -551,6 +560,7 @@ module RTKIT
 
       it "should give this value for this ROI (NB: But the expected value is not an exact, principal value!!)" do
         # This test is just for consistency at the moment, and should be replaced by a (set of) principal test(s) on volume.
+        # According to Oncentra 4.1, this volume is 708.845, and according to dicompyler 0.4.1 it is 933.75 cm^3.
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         roi = d.patient.study.image_series.first.struct.roi('External')
         roi.size.round(1).should eql 770.6

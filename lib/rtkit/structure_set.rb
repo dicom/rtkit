@@ -190,6 +190,15 @@ module RTKIT
       state.hash
     end
 
+    # Assigns a new image series parent to this structure set.
+    #
+    # @note This method is a temporary fix! A final specification on the relationship
+    #   between image series, structure sets and rois is pending.
+    #
+    def image_series=(img_series)
+      @image_series = [img_series]
+    end
+
     # Returns the Plan instance mathcing the specified SOP Instance UID (if an argument is used).
     # If a specified UID doesn't match, nil is returned.
     # If no argument is passed, the first Plan instance associated with the StructureSet is returned.
