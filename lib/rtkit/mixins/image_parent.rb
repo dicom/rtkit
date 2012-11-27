@@ -18,8 +18,8 @@ module RTKIT
         return @slice_spacing
       else
         if @images.length > 1
-          # Collect slice positions:
-          slice_positions = NArray.to_na(@images.collect{|image| image.pos_slice})
+          # Collect slice positions and sort them:
+          slice_positions = NArray.to_na(@images.collect{|image| image.pos_slice}.sort)
           spacings = (slice_positions[1..-1] - slice_positions[0..-2]).abs
           @slice_spacing = spacings.to_a.most_common_value
         end

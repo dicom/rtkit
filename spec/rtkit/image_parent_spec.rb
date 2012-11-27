@@ -54,6 +54,14 @@ module RTKIT
         @is.slice_spacing.should eql 5.0
       end
 
+      it "should return the expected slice spacing on an image series where images have been added in a different order than their slice positions" do
+        @im1 = SliceImage.new('1.234', -15.0, @is)
+        @im2 = SliceImage.new('1.235', 15.0, @is)
+        @im4 = SliceImage.new('1.237', 0.0, @is)
+        @im5 = SliceImage.new('1.238', 30.0, @is)
+        @is.slice_spacing.should eql 15.0
+      end
+
     end
 
   end
