@@ -15,9 +15,11 @@ module RTKIT
       @is = ImageSeries.new('1.888.434', 'CT', @f, @st)
       @ss = StructureSet.new('1.765.354', @is)
       @plan = Plan.new('1.456.654', @ss)
+      @beam = Beam.new('AP', 1, 'Linac1', 95.0, @plan)
+      @cp = ControlPoint.new(0, 0.0, @beam)
       @rtis = RTImage.new('1.345.789', @plan)
       @uid = '1.234.876'
-      @im = ProjectionImage.new(@uid, @rtis)
+      @im = ProjectionImage.new(@uid, @rtis, :beam => @beam)
     end
 
     describe "::load" do
@@ -642,6 +644,23 @@ module RTKIT
         expected = NArray.int(cols, rows)
         expected[true, 0..-3] = 1
         (@im.narray == expected).should be_true
+      end
+
+    end
+
+
+    context "#to_dcm" do
+
+      it "should return a DICOM object when called on an image instance created from scratch (i.e. non-dicom source)" do
+        @im.columns = 10
+        @im.rows = 15
+        @im.narray = NArray.int(10, 15)
+        @im.pos_x = 0.0
+        @im.pos_y = 5.0
+        @im.row_spacing = 1.0
+        @im.col_spacing = 2.0
+        dcm = @im.to_dcm
+        dcm.should be_a DICOM::DObject
       end
 
     end

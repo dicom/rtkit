@@ -2,6 +2,10 @@
 # Configures some DICOM and UID settings.
 #
 
+# External dependencies:
+require 'dicom'
+require 'narray'
+
 # Logging:
 require_relative 'rtkit/logging'
 # Super classes/modules:
@@ -24,6 +28,12 @@ require_relative 'rtkit/dose_volume'
 require_relative 'rtkit/slice_image'
 require_relative 'rtkit/projection_image'
 require_relative 'rtkit/plane'
+# DRR:
+require_relative 'rtkit/drr/voxel_space'
+require_relative 'rtkit/drr/pixel_space'
+require_relative 'rtkit/drr/beam_geometry'
+require_relative 'rtkit/drr/attenuation'
+require_relative 'rtkit/drr/ray'
 # Dose related:
 require_relative 'rtkit/dose_distribution'
 require_relative 'rtkit/dose'
@@ -55,10 +65,6 @@ require_relative 'rtkit/ruby_extensions'
 require 'find'
 require 'matrix'
 require 'set'
-
-# External dependencies:
-require 'dicom'
-require 'narray'
 
 # Modify the source application entity title of the DICOM module:
 DICOM.source_app_title = "RTKIT"

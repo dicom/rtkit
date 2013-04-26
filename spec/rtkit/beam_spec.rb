@@ -280,6 +280,147 @@ module RTKIT
 =end
 
 
+    context "#create_drr" do
+
+      before :each do
+        3.times do |i|
+          img = SliceImage.new(RTKIT.sop_uid, i, @is)
+          img.columns = 4
+          img.rows = 5
+          img.col_spacing = 2.0
+          img.row_spacing = 4.0
+          img.narray = NArray.new(NArray::SINT, 4, 5)
+        end
+        @cp = ControlPoint.new(0, 100, @beam)
+        @cp.gantry_angle = 0.0
+        @cp.iso = Coordinate.new(0, 0, 0)
+      end
+
+      it "should raise an error when called on a beam which lacks any control points" do
+        expect {Beam.new(@name, @number, @machine, @meterset, @plan).create_drr}.to raise_error(/control point/)
+      end
+
+      it "should raise an ArgumentError when a non-RTImage series is passed as an argument" do
+        expect {@beam.create_drr(42)}.to raise_error(ArgumentError, /'series'/)
+      end
+
+# These 3 tests are surprisingly slow. Find out why and improve.
+=begin
+      it "should return a ProjectionImage instance" do
+        drr = @beam.create_drr
+        drr.class.should eql ProjectionImage
+      end
+
+      it "should pass the 'series' argument to the ProjectionImage" do
+          rts = RTImage.new('1.345.789', @plan)
+          drr = @beam.create_drr(rts)
+          drr.series.should eql rts
+        end
+
+        it "should create a RT Image series (referenced to this beam's plan), and pass it to the ProjectionImage when no series argument is given" do
+          drr = @beam.create_drr
+          drr.series.should be_a RTImage
+          drr.series.plan.should eql @plan
+        end
+=end
+
+      context " [processing arguments]" do
+
+        before :each do
+          @na = mock("NArray")
+          @na.stubs(:'[]=')
+          PixelSpace.stubs(:setup)
+          NilClass.any_instance.stubs(:delta_row).returns(1.0)
+          NilClass.any_instance.stubs(:delta_col).returns(1.0)
+          NilClass.any_instance.stubs(:pos)
+          NilClass.any_instance.stubs(:x)
+          NilClass.any_instance.stubs(:y)
+          BeamGeometry.any_instance.stubs(:setup)
+          BeamGeometry.any_instance.stubs(:create_drr)
+          ProjectionImage.any_instance.stubs(:'narray').returns(@na)
+        end
+
+        it "should pass the 'columns' argument to the PixelSpace initializer" do
+          columns = 6
+          PixelSpace.expects(:setup).with(columns, anything, anything, anything, anything, anything, anything)
+          drr = @beam.create_drr(series=nil, :columns => columns)
+        end
+
+        it "should pass the 'rows' argument to the PixelSpace initializer" do
+          rows = 5
+          PixelSpace.expects(:setup).with(anything, rows, anything, anything, anything, anything, anything)
+          drr = @beam.create_drr(series=nil, :rows => rows)
+        end
+
+        it "should pass the 'delta_row' argument to the PixelSpace initializer" do
+          delta_col = 2.5
+          PixelSpace.expects(:setup).with(anything, anything, delta_col, anything, anything, anything, anything)
+          drr = @beam.create_drr(series=nil, :delta_col => delta_col)
+        end
+
+        it "should pass the 'delta_row' argument to the PixelSpace initializer" do
+          delta_row = 2.5
+          PixelSpace.expects(:setup).with(anything, anything, anything, delta_row, anything, anything, anything)
+          drr = @beam.create_drr(series=nil, :delta_row => delta_row)
+        end
+
+        it "should pass 1600.0 as a default 'sdd' argument (source detector distance) to the PixelSpace initializer" do
+          PixelSpace.expects(:setup).with(anything, anything, anything, anything, anything, 1600.0, anything)
+          drr = @beam.create_drr
+        end
+
+        it "should pass the 'sdd' argument to the PixelSpace initializer" do
+          sdd = 800.0
+          PixelSpace.expects(:setup).with(anything, anything, anything, anything, anything, sdd, anything)
+          drr = @beam.create_drr(series=nil, :sdd => sdd)
+        end
+
+        it "should pass 1000.0 as a default 'sid' argument (source isocenter distance) to the BeamGeometry initializer" do
+          NilClass.any_instance.stubs(:create_drr)
+          BeamGeometry.expects(:setup).with(anything, 1000.0, anything, anything)
+          drr = @beam.create_drr
+        end
+
+        it "should pass the 'sid' argument to the BeamGeometry initializer" do
+          sid = 400.0
+          NilClass.any_instance.stubs(:create_drr)
+          BeamGeometry.expects(:setup).with(anything, sid, anything, anything)
+          drr = @beam.create_drr(series=nil, :sid => sid)
+        end
+
+        it "should get the 'gantry_angle' parameter from the first control point and pass it to the PixelSpace & BeamGeometry initializers" do
+          @cp.gantry_angle = 32.4
+          NilClass.any_instance.stubs(:create_drr)
+          PixelSpace.expects(:setup).with(anything, anything, anything, anything, @cp.gantry_angle, anything, anything)
+          BeamGeometry.expects(:setup).with(@cp.gantry_angle, anything, anything, anything)
+          drr = @beam.create_drr
+        end
+
+        it "should get the 'isocenter' parameter from the first control point and pass it to the PixelSpace & BeamGeometry initializers" do
+          @cp.iso = Coordinate.new(1.5, -4.4, 3.7)
+          NilClass.any_instance.stubs(:create_drr)
+          PixelSpace.expects(:setup).with(anything, anything, anything, anything, anything, anything, @cp.iso)
+          BeamGeometry.expects(:setup).with(anything, anything, @cp.iso, anything)
+          drr = @beam.create_drr
+        end
+
+      end
+
+# This was very slow. We should create a smaller dataset for such a test.
+=begin
+      it "should create a reasonable DRR when run on this dataset" do
+        # Acceptance test.
+        ds = DataSet.read(DIR_SIMPLE_PHANTOM_CASE)
+        beam = ds.patient.study.iseries.struct.plan.beams.first
+        drr = beam.create_drr
+drr.to_dcm.write(File.join(TMPDIR, 'drr_test.dcm'))
+        drr.class.should eql ProjectionImage
+      end
+=end
+
+    end
+
+
     context "#delivery_type=()" do
 
       it "should raise an ArgumentError when a non-String is passed as an argument" do
