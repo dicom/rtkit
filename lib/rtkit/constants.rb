@@ -1,5 +1,9 @@
 module RTKIT
 
+  # Specific Character Set.
+  SPECIFIC_CHARACTER_SET = '0008,0005'
+  # Image Type.
+  IMAGE_TYPE = '0008,0008'
   # Instance Creation Date.
   IMAGE_DATE = '0008,0012'
   # Instance Creation Time.
@@ -16,12 +20,22 @@ module RTKIT
   STUDY_TIME = '0008,0030'
   # Series Time.
   SERIES_TIME = '0008,0031'
+  # Accession Number.
+  ACCESSION_NUMBER = '0008,0050'
   # Modality.
   MODALITY = '0008,0060'
+  # Conversion Type.
+  CONVERSION_TYPE = '0008,0064'
+  # Manufacturer.
+  MANUFACTURER = '0008,0070'
+  # Timezone Offset From UTC.
+  TIMEZONE_OFFSET_FROM_UTC = '0008,0201'
   # Study description.
   STUDY_DESCR = '0008,1030'
   # Series description.
   SERIES_DESCR = '0008,103E'
+  # Manufacturer's Model Name.
+  MANUFACTURERS_MODEL_NAME = '0008,1090'
   # Referenced SOP Class UID.
   REF_SOP_CLASS_UID = '0008,1150'
   # Referenced SOP Instance UID.
@@ -34,6 +48,8 @@ module RTKIT
   BIRTH_DATE = '0010,0030'
   # Patient's Name.
   SEX = '0010,0040'
+  # Software Version(s).
+  SOFTWARE_VERSION = '0018,1020'
   # Patient Position.
   PATIENT_POSITION = '0018,5100'
   # Study Instance UID.
@@ -42,6 +58,10 @@ module RTKIT
   SERIES_UID = '0020,000E'
   # Study ID.
   STUDY_ID = '0020,0010'
+  # Series Number.
+  SERIES_NUMBER = '0020,0011'
+  # Patient Orientation.
+  PATIENT_ORIENTATION = '0020,0020'
   # Image Position (Patient).
   IMAGE_POSITION = '0020,0032'
   # Image Orientation (Patient):
@@ -50,6 +70,10 @@ module RTKIT
   FRAME_OF_REF = '0020,0052'
   # Position Reference Indicator.
   POS_REF_INDICATOR = '0020,1040'
+  # Samples per Pixel.
+  SAMPLES_PER_PIXEL = '0028,0002'
+  # Photometric Interpretation.
+  PHOTOMETRIC_INTERPRETATION = '0028,0004'
   # Number of Frames.
   NR_FRAMES = '0028,0008'
   # Rows.
@@ -58,10 +82,44 @@ module RTKIT
   COLUMNS = '0028,0011'
   # Pixel Spacing.
   SPACING = '0028,0030'
+  # Bits Allocated.
+  BITS_ALLOCATED = '0028,0100'
+  # Bits Stored.
+  BITS_STORED = '0028,0101'
+  # High Bit.
+  HIGH_BIT = '0028,0102'
+  # Pixel Representation.
+  PIXEL_REPRESENTATION = '0028,0103'
+  # Window Center.
+  WINDOW_CENTER = '0028,1050'
+  # Window Width.
+  WINDOW_WIDTH = '0028,1051'
+  # RT Image Label.
+  RT_IMAGE_LABEL = '3002,0002'
+  # RT Image Name.
+  RT_IMAGE_NAME = '3002,0003'
+  # RT Image Description.
+  RT_IMAGE_DESCRIPTION = '3002,0004'
+  # RT Image Plane.
+  RT_IMAGE_PLANE = '3002,000C'
+  # X-Ray Image Receptor Translation.
+  X_RAY_IMAGE_RECEPTOR_TRANSLATION = '3002,000D'
+  # X-Ray Image Receptor Angle.
+  X_RAY_IMAGE_RECEPTOR_ANGLE = '3002,000E'
   # Image Plane Pixel Spacing.
   IMAGE_PLANE_SPACING = '3002,0011'
   # RT Image Position.
   RT_IMAGE_POSITION = '3002,0012'
+  # Radiation Machine Name.
+  RADIATION_MACHINE_NAME = '3002,0020'
+  # Radiation Machine SAD.
+  RADIATION_MACHINE_SAD = '3002,0022'
+  # Radiation Machine SSD.
+  RADIATION_MACHINE_SSD = '3002,0024'
+  # RT Image SID.
+  RT_IMAGE_SID = '3002,0026'
+  # Exposure Sequence.
+  EXPOSURE_SEQUENCE = '3002,0030'
   # Grid Frame Offset Vector.
   GRID_FRAME_OFFSETS = '3004,000C'
   # Dose Grid Scaling.
@@ -190,6 +248,8 @@ module RTKIT
   SSD = '300A,0130'
   # Cumulative Meterset Weight.
   CUM_METERSET_WEIGHT = '300A,0134'
+  # Gantry Pitch Angle.
+  GANTRY_PITCH_ANGLE = '300A,014A'
   # Patient Setup Sequence.
   PATIENT_SETUP_SQ = '300A,0180'
   # Patient Setup Number.
