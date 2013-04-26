@@ -26,6 +26,23 @@ module RTKIT
       end
     end
 
+    # Creates a VoxelSpace instance from the image instances belonging
+    # to this image series.
+    #
+    # @return [VoxelSpace] the created VoxelSpace instance
+    #
+    def to_voxel_space
+      raise "This image series has no associated images. Unable to create a VoxelSpace." unless @images.length > 0
+      img = @images.first
+      # Create the voxel space:
+      vs = VoxelSpace.create(img.columns, img.rows, @images.length, img.col_spacing, img.row_spacing, slice_spacing, Coordinate.new(img.pos_x, img.pos_y, img.pos_slice))
+      # Fill it with pixel values:
+      @images.each_with_index do |image, i|
+        vs[true, true, i] = image.narray
+      end
+      vs
+    end
+
     # Updates the position that is registered for the image for this series.
     #
     def update_image_position(image, new_pos)
