@@ -1,10 +1,10 @@
 module RTKIT
 
-  # Contains a X,Y,Z triplet, which along with other Coordinates, defines a Contour.
+  # Contains a X,Y,Z coordinate triplet, describing a position in 3-dimensional space.
   #
   # === Relations
   #
-  # * The Coordinate belongs to a Contour.
+  # * The Coordinate may belong to a Contour.
   #
   class Coordinate
 
@@ -27,19 +27,22 @@ module RTKIT
     # * <tt>contour</tt> -- The Contour instance (if any) that this Coordinate belongs to.
     #
     def initialize(x, y, z, contour=nil)
-      raise ArgumentError, "Invalid argument 'x'. Expected Float, got #{x.class}." unless x.is_a?(Float)
-      raise ArgumentError, "Invalid argument 'y'. Expected Float, got #{y.class}." unless y.is_a?(Float)
-      raise ArgumentError, "Invalid argument 'z'. Expected Float, got #{z.class}." unless z.is_a?(Float)
       raise ArgumentError, "Invalid argument 'contour'. Expected Contour (or nil), got #{contour.class}." if contour && !contour.is_a?(Contour)
       @contour = contour
-      @x = x
-      @y = y
-      @z = z
+      @x = x.to_f
+      @y = y.to_f
+      @z = z.to_f
       # Register ourselves with the Contour:
       @contour.add_coordinate(self) if contour
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_coordinate)
@@ -49,7 +52,11 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
@@ -57,12 +64,16 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Coordinate] self
+    #
     def to_coordinate
       self
     end
 
 
-    # Returns a string where the x, y & z values are separated by a '\'.
+    # Gives a string with the x, y & z instance values separated by a '\'.
+    #
+    # @return [String] the x, y & z instance values joined by a '\'
     #
     def to_s
       [@x, @y, @z].join("\\")
@@ -72,7 +83,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array<String>] an array of attributes
     #
     def state
        [@x, @y, @z]

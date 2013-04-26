@@ -1,4 +1,4 @@
-# encoding: ASCII-8BIT
+# encoding: UTF-8
 
 require 'spec_helper'
 
@@ -26,15 +26,15 @@ module RTKIT
     context "::new" do
 
       it "should raise an ArgumentError when a non-Float is passed as 'x' argument" do
-        expect {Coordinate.new('42.0', @y, @z, @c)}.to raise_error(ArgumentError, /x/)
+        expect {Coordinate.new(['42.0'], @y, @z, @c)}.to raise_error
       end
 
       it "should raise an ArgumentError when a non-Float is passed as 'y' argument" do
-        expect {Coordinate.new(@x, 42, @z, @c)}.to raise_error(ArgumentError, /y/)
+        expect {Coordinate.new(@x, [42], @z, @c)}.to raise_error
       end
 
       it "should raise an ArgumentError when a non-Float is passed as 'z' argument" do
-        expect {Coordinate.new(@x, @y, 0, @c)}.to raise_error(ArgumentError, /z/)
+        expect {Coordinate.new(@x, @y, [0], @c)}.to raise_error
       end
 
       it "should raise an ArgumentError when a non-Contour is passed as 'contour' argument" do
@@ -51,6 +51,21 @@ module RTKIT
 
       it "should pass the 'z' argument to the 'z' attribute" do
         @coord.z.should eql @z
+      end
+
+      it "should convert the 'x' argument to a float when storing the attribute" do
+        c = Coordinate.new(1, -2, 3)
+        c.x.should eql 1.0
+      end
+
+      it "should convert the 'y' argument to a float when storing the attribute" do
+        c = Coordinate.new(1, -2, 3)
+        c.y.should eql -2.0
+      end
+
+      it "should convert the 'z' argument to a float when storing the attribute" do
+        c = Coordinate.new(1, -2, 3)
+        c.z.should eql 3.0
       end
 
       it "should pass the 'contour' argument to the 'contour' attribute" do
