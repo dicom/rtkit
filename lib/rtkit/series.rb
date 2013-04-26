@@ -55,6 +55,34 @@ module RTKIT
       @description = options[:description]
     end
 
+    # Inserts general series, study and patient level attributes from
+    # this instance, as well as from related study, patient and frame
+    # instances to a DICOM object.
+    #
+    # @param [DObject] dcm a DICOM object typically belonging to an image instance of this series
+    # @return [DObject] a DICOM object with attributes added
+    #
+    def add_attributes_to_dcm(dcm)
+      # Series level:
+      dcm.add_element(SOP_CLASS, @class_uid)
+      dcm.add_element(SERIES_UID, @series_uid)
+      dcm.add_element(SERIES_NUMBER, '1')
+      # Study level:
+      dcm.add_element(STUDY_DATE, @study.date)
+      dcm.add_element(STUDY_TIME, @study.time)
+      dcm.add_element(STUDY_UID, @study.study_uid)
+      dcm.add_element(STUDY_ID, @study.id)
+      # Frame level:
+      dcm.add_element(PATIENT_ORIENTATION, '')
+      dcm.add_element(FRAME_OF_REF, @study.iseries.frame.uid)
+      dcm.add_element(POS_REF_INDICATOR, '')
+      # Patient level:
+      dcm.add_element(PATIENTS_NAME, @study.patient.name)
+      dcm.add_element(PATIENTS_ID, @study.patient.id)
+      dcm.add_element(BIRTH_DATE, @study.patient.birth_date)
+      dcm.add_element(SEX, @study.patient.sex)
+    end
+
     # Returns true if the series is of a modality which means it contains multiple images (CT, MR, RTImage, RTDose).
     # Returns false if not.
     #
