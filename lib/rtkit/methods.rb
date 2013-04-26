@@ -6,6 +6,15 @@ module RTKIT
     # Module methods:
     #++
 
+    # Gives a date string in the DICOM format.
+    #
+    # @param [Time] date a Time object which is to be converted
+    # @return [String] the DICOM date string
+    #
+    def date_str(date=Time.now)
+      date.strftime('%Y%m%d')
+    end
+
     # Finds all files contained in the specified folder or folders (including any sub-folders).
     # Returns an array containing the discovered file strings.
     #
@@ -50,11 +59,10 @@ module RTKIT
     # * <tt>instances</tt> -- Integer. The number of UIDs to generate. Defaults to 1.
     #
     def generate_uids(prefix, instances=1)
-      raise ArgumentError, "Invalid argument 'prefix'. Expected (integer) String, got #{prefix.class}." unless prefix.is_a?(String)
-      raise ArgumentError, "Invalid argument 'instances'. Expected Integer (when defined), got #{instances.class}." if instances && !instances.is_a?(Integer)
-      raise ArgumentError, "Invalid argument 'prefix'. Expected non-zero Integer (String), got #{prefix}." if prefix.to_i == 0
-      raise ArgumentError, "Invalid argument 'instances'. Expected positive Integer (when defined), got #{instances}." if instances && instances < 0
       prefix = prefix.to_i
+      raise ArgumentError, "Invalid argument 'instances'. Expected Integer (when defined), got #{instances.class}." if instances && !instances.is_a?(Integer)
+      raise ArgumentError, "Invalid argument 'prefix'. Expected non-zero Integer, got #{prefix}." if prefix == 0
+      raise ArgumentError, "Invalid argument 'instances'. Expected positive Integer (when defined), got #{instances}." if instances && instances < 0
       # NB! For UIDs, leading zeroes after a dot is not allowed, and must be removed:
       date = Time.now.strftime("%Y%m%d").to_i.to_s
       time = Time.now.strftime("%H%M%S").to_i.to_s
@@ -98,6 +106,15 @@ module RTKIT
     #
     def study_uid
       return self.generate_uids('1').first
+    end
+
+    # Gives a time string in the DICOM format.
+    #
+    # @param [Time] date a Time object which is to be converted
+    # @return [String] the DICOM time string
+    #
+    def time_str(time=Time.now)
+      time.strftime('%H%M%S')
     end
 
   end
