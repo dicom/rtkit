@@ -7,6 +7,10 @@ module RTKIT
 
   describe StructureSet do
 
+    before :all do
+      RTKIT.logger.level = Logger::ERROR
+    end
+
     before :each do
       @ds = DataSet.new
       @p = Patient.new('John', '12345', @ds)
@@ -56,6 +60,36 @@ module RTKIT
 
       it "should set up an ImageSeries reference when no corresponding image slices have been loaded" do
         ss = StructureSet.load(@dcm, @st)
+        ss.image_series.length.should eql 1
+      end
+
+      it "should identify and set up an ImageSeries reference when the first referenced frame doesn't contain a proper study/series/instance hierarchy (with no corresponding image slices having been loaded)" do
+        # Set up a Structure Set DICOM object to use:
+        dcm = DICOM::DObject.new
+        dcm.add_element(SOP_UID, RTKIT.sop_uid)
+        dcm.add_element(MODALITY, 'RTSTRUCT')
+        s = dcm.add_sequence(REF_FRAME_OF_REF_SQ)
+        i = s.add_item
+        i.add_element(FRAME_OF_REF, RTKIT.frame_uid)
+        i = s.add_item
+        i.add_element(FRAME_OF_REF, RTKIT.frame_uid)
+        s = i.add_sequence(RT_REF_STUDY_SQ)
+        i = s.add_item
+        i.add_element(REF_SOP_CLASS_UID, '1.2.840.10008.3.1.2.3.2')
+        i.add_element(REF_SOP_UID, RTKIT.study_uid)
+        s = i.add_sequence(RT_REF_SERIES_SQ)
+        i = s.add_item
+        i.add_element(SERIES_UID, RTKIT.series_uid)
+        s = i.add_sequence(CONTOUR_IMAGE_SQ)
+        sop_uids = RTKIT.sop_uids(2)
+        i = s.add_item
+        i.add_element(REF_SOP_CLASS_UID, '1.2.840.10008.5.1.4.1.1.2')
+        i.add_element(REF_SOP_UID, sop_uids.first)
+        i = s.add_item
+        i.add_element(REF_SOP_CLASS_UID, '1.2.840.10008.5.1.4.1.1.2')
+        i.add_element(REF_SOP_UID, sop_uids.last)
+        # Execute test:
+        ss = StructureSet.load(dcm, @st)
         ss.image_series.length.should eql 1
       end
 

@@ -55,23 +55,30 @@ module RTKIT
       raise ArgumentError, "Invalid argument 'study'. Expected Study, got #{study.class}." unless study.is_a?(Study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject with modality 'RTSTUCT', got #{dcm.value(MODALITY)}." unless dcm.value(MODALITY) == 'RTSTRUCT'
       # Extract the Referenced Frame UID:
-      begin
-        ref_frame_of_ref = dcm[REF_FRAME_OF_REF_SQ][0].value(FRAME_OF_REF)
-      rescue
-        ref_frame_of_ref = nil
+      frame_uid = nil
+      img_series_uid = nil
+      dcm[REF_FRAME_OF_REF_SQ].each_item do |frame_item|
+        frame_uid = frame_item.value(FRAME_OF_REF)
+        if frame_item.exists?(RT_REF_STUDY_SQ)
+          frame_item[RT_REF_STUDY_SQ].each_item do |study_item|
+            if study_item.exists?(RT_REF_SERIES_SQ)
+              study_item[RT_REF_SERIES_SQ].each_item do |series_item|
+                img_series_uid = series_item.value(SERIES_UID)
+                break if img_series_uid
+              end
+            end
+            break if img_series_uid
+          end
+        end
+        break if img_series_uid
       end
-      # Extract referenced Image Series UID:
-      begin
-        ref_series_uid = dcm[REF_FRAME_OF_REF_SQ][0][RT_REF_STUDY_SQ][0][RT_REF_SERIES_SQ][0].value(SERIES_UID)
-      rescue
-        ref_series_uid = nil
-      end
+      raise "Invalid structure set. Frame UID reference (#{frame_uid}) and/or image series UID reference (#{img_series_uid}) missing." unless frame_uid && img_series_uid
       # Create the Frame if it doesn't exist:
-      f = study.patient.dataset.frame(ref_frame_of_ref)
-      f = Frame.new(ref_frame_of_ref, study.patient) unless f
+      f = study.patient.dataset.frame(frame_uid)
+      f = Frame.new(frame_uid, study.patient) unless f
       # Create the ImageSeries if it doesnt exist:
-      is = f.series(ref_series_uid)
-      is = ImageSeries.new(ref_series_uid, 'CT', f, study) unless is
+      is = f.series(img_series_uid)
+      is = ImageSeries.new(img_series_uid, 'CT', f, study) unless is
       study.add_series(is)
       return is
     end
@@ -387,23 +394,53 @@ module RTKIT
     end
 =end
 
+    # Loads the (first occuring set of) UID references for frame of reference
+    # as well as the image series from the Referenced Frame of Reference Sequence.
+    #
+    # @param [DObject] dcm a structure set DICOM object
+    # @return [Array<String, NilClass>] the frame uid and image series uid string pair (if found, otherwise nil)
+    #
+    def load_image_series_reference(dcm)
+      frame_uid = nil
+      img_series_uid = nil
+      dcm[REF_FRAME_OF_REF_SQ].each_item do |frame_item|
+        if frame_item.exists?(RT_REF_STUDY_SQ)
+          frame_item[RT_REF_STUDY_SQ].each_item do |study_item|
+            if study_item.exists?(RT_REF_SERIES_SQ)
+              study_item[RT_REF_SERIES_SQ].each_item do |series_item|
+                img_series_uid = series_item.value(SERIES_UID)
+                break if img_series_uid
+              end
+            end
+            break if img_series_uid
+          end
+        end
+        break if img_series_uid
+      end
+      return frame_uid, img_series_uid
+    end
+
     # Loads the ROI Items contained in the structure set and creates ROI instances.
     #
     def load_rois
-      # Load the information in a nested hash:
-      item_group = Hash.new
-      @dcm[STRUCTURE_SET_ROI_SQ].each do |roi_item|
-        item_group[roi_item.value(ROI_NUMBER)] = {:roi => roi_item}
-      end
-      @dcm[ROI_CONTOUR_SQ].each do |contour_item|
-        item_group[contour_item.value(REF_ROI_NUMBER)][:contour] = contour_item
-      end
-      @dcm[RT_ROI_OBS_SQ].each do |rt_item|
-        item_group[rt_item.value(REF_ROI_NUMBER)][:rt] = rt_item
-      end
-      # Create a ROI instance for each set of items:
-      item_group.each_value do |roi_items|
-        ROI.create_from_items(roi_items[:roi], roi_items[:contour], roi_items[:rt], self)
+      if @dcm[STRUCTURE_SET_ROI_SQ] && @dcm[ROI_CONTOUR_SQ] && @dcm[RT_ROI_OBS_SQ]
+        # Load the information in a nested hash:
+        item_group = Hash.new
+        @dcm[STRUCTURE_SET_ROI_SQ].each do |roi_item|
+          item_group[roi_item.value(ROI_NUMBER)] = {:roi => roi_item}
+        end
+        @dcm[ROI_CONTOUR_SQ].each do |contour_item|
+          item_group[contour_item.value(REF_ROI_NUMBER)][:contour] = contour_item
+        end
+        @dcm[RT_ROI_OBS_SQ].each do |rt_item|
+          item_group[rt_item.value(REF_ROI_NUMBER)][:rt] = rt_item
+        end
+        # Create a ROI instance for each set of items:
+        item_group.each_value do |roi_items|
+          ROI.create_from_items(roi_items[:roi], roi_items[:contour], roi_items[:rt], self)
+        end
+      else
+        RTKIT.logger.warn "The structure set contained one or more empty ROI sequences. No ROIs extracted."
       end
     end
 
