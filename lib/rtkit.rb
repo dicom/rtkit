@@ -6,8 +6,16 @@
 require 'dicom'
 require 'narray'
 
-# Logging:
-require_relative 'rtkit/logging'
+# Gem specific extensions:
+require_relative 'rtkit/extensions/ruby'
+
+# General module features/settings:
+require_relative 'rtkit/general/logging'
+require_relative 'rtkit/general/version'
+require_relative 'rtkit/general/constants'
+require_relative 'rtkit/general/variables'
+require_relative 'rtkit/general/methods'
+
 # Super classes/modules:
 require_relative 'rtkit/series'
 require_relative 'rtkit/image'
@@ -53,13 +61,6 @@ require_relative 'rtkit/beam'
 require_relative 'rtkit/control_point'
 require_relative 'rtkit/collimator'
 require_relative 'rtkit/collimator_setup'
-# Module settings:
-require_relative 'rtkit/version'
-require_relative 'rtkit/constants'
-require_relative 'rtkit/variables'
-require_relative 'rtkit/methods'
-# Extensions to the Ruby library:
-require_relative 'rtkit/ruby_extensions'
 
 # Ruby Standard Library dependencies:
 require 'find'

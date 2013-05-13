@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require File.expand_path('../lib/rtkit/version', __FILE__)
+require File.expand_path('../lib/rtkit/general/version', __FILE__)
 
 Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
