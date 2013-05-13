@@ -7,7 +7,9 @@ require 'dicom'
 require 'narray'
 
 # Gem specific extensions:
-require_relative 'rtkit/extensions/ruby'
+require_relative 'rtkit/extensions/array'
+require_relative 'rtkit/extensions/n_array'
+require_relative 'rtkit/extensions/string'
 
 # General module features/settings:
 require_relative 'rtkit/general/logging'
