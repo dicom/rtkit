@@ -1,3 +1,5 @@
+# Extensions to the Array class of the Ruby standard library.
+#
 class Array
 
   # Compares an array (self) with a target array to determine an array of indices which can be

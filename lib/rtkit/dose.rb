@@ -13,7 +13,6 @@ module RTKIT
   # * The Dose class can be considered a subclass of Float (although strictly
   #    speaking it is rather a Float delegated class.
   #
-  require 'delegate'
   class Dose < DelegateClass(Float)
 
     # The DoseDistribution that the single Dose value is derived from.

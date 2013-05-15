@@ -84,7 +84,7 @@ module RTKIT
     # Gives the linear attenuation coefficients corresponding
     # to the given hounsfield units.
     #
-    # @param [NArray<Integer>] hu Hounsfield units
+    # @param [NArray<Integer>] h_units Hounsfield units
     # @return [NArray<Float>] the calculated attenuation coefficients for these hounsfield units
     #
     def attenuation_coefficients(h_units)

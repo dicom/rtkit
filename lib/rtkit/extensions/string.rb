@@ -1,3 +1,5 @@
+# Extensions to the String class of the Ruby standard library.
+#
 class String
 
   # Converts a string (containing a x,y,z coordinate triplet (floats)

@@ -1,3 +1,5 @@
+# Extensions to the NArray class of the NArray gem.
+#
 class NArray
 
   # Expands a vector with another vector.

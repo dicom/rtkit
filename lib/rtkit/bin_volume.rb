@@ -201,6 +201,12 @@ module RTKIT
       end
     end
 
+    # Rearranges the binary image instances belonging to this volume by the
+    # order given in the argument.
+    #
+    # @param [Array<Integer>] order an array of indices
+    # @return [Array<BinImage>] the reordered images
+    #
     def reorder_images(order)
       @bin_images = @bin_images.sort_by_order(order)
     end

@@ -6,6 +6,12 @@
 require 'dicom'
 require 'narray'
 
+# Ruby Standard Library dependencies:
+require 'find'
+require 'matrix'
+require 'set'
+require 'delegate'
+
 # Gem specific extensions:
 require_relative 'rtkit/extensions/array'
 require_relative 'rtkit/extensions/n_array'
@@ -63,11 +69,6 @@ require_relative 'rtkit/beam'
 require_relative 'rtkit/control_point'
 require_relative 'rtkit/collimator'
 require_relative 'rtkit/collimator_setup'
-
-# Ruby Standard Library dependencies:
-require 'find'
-require 'matrix'
-require 'set'
 
 # Modify the source application entity title of the DICOM module:
 DICOM.source_app_title = "RTKIT"

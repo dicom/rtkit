@@ -1,5 +1,8 @@
 module RTKIT
 
+  # Contains code for describing the geometry of a voxel space,
+  # relative to a beam of interest.
+  #
   class BeamGeometry
 
     attr_reader :attenuation
