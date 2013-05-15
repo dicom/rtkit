@@ -7,10 +7,12 @@ module RTKIT
   #
   module ImageParent
 
-    # Returns the slice spacing (a float value in units of mm), which describes
+    # Gives the slice spacing (a float value in units of mm), which describes
     # the distance between two neighbouring images in this image series.
-    # NB! If the image series contains 0 or 1 image, a slice spacing can not be
-    # determined and nil is returned.
+    #
+    # @note If the image series contains a single (or zero) images,
+    #   a slice spacing can not be determined and nil is returned.
+    # @return [Float, NilClass] the distance between slices (or nil if undefined)
     #
     def slice_spacing
       if @slice_spacing
@@ -43,7 +45,10 @@ module RTKIT
       vs
     end
 
-    # Updates the position that is registered for the image for this series.
+    # Updates the position that is registered for the image instance for this series.
+    #
+    # @param [Image] image an instance belonging to this image series
+    # @param [Float] new_pos a new slice position to be associated with the image instance
     #
     def update_image_position(image, new_pos)
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)

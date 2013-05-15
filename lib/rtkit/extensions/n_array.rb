@@ -22,8 +22,11 @@ class NArray
   end
 
 
-  # Checks if an image array is segmented. Returns true if it is, and false if not.
-  # We define the image to be segmented if it contains at least positive 3 pixel values.
+  # Checks if a pixel array is considered 'segmented'. In this context, the
+  # NArray represents an image array, and the image is considered to be
+  # segmented if it contains at least 3 non-zero pixel values.
+  #
+  # @return [Boolean] true if segmented, and false if not
   #
   def segmented?
     (self.gt 0).where.length > 2 ? true : false

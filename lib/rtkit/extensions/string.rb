@@ -1,7 +1,9 @@
 class String
 
-  # Converts a string (containing a '\' separated x,y,z coordinate triplet)
-  # to a Coordinate instance.
+  # Converts a string (containing a x,y,z coordinate triplet (floats)
+  # separated by '\') to a Coordinate instance.
+  #
+  # @return [Coordinate] the created coordinate
   #
   def to_coordinate
     values = self.split("\\").collect {|str| str.to_f}

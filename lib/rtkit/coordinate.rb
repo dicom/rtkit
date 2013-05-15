@@ -8,23 +8,21 @@ module RTKIT
   #
   class Coordinate
 
-    # The Contour that the Coordinate belongs to.
+    # The Contour which the Coordinate belongs to.
     attr_reader :contour
-    # The X location (in units of mm).
+    # The X position (in units of mm).
     attr_reader :x
-    # The Y location (in units of mm).
+    # The Y position (in units of mm).
     attr_reader :y
-    # The Z location (in units of mm).
+    # The Z position (in units of mm).
     attr_reader :z
 
     # Creates a new Coordinate instance.
     #
-    # === Parameters
-    #
-    # * <tt>x</tt> -- Float. The location of the Contour point along the x-axis (in units of mm).
-    # * <tt>y</tt> -- Float. The location of the Contour point along the y-axis (in units of mm).
-    # * <tt>z</tt> -- Float. The location of the Contour point along the z-axis (in units of mm).
-    # * <tt>contour</tt> -- The Contour instance (if any) that this Coordinate belongs to.
+    # @param [Float] x the position of the point along the x axis (in units of mm)
+    # @param [Float] y the position of the point along the y axis (in units of mm)
+    # @param [Float] z the position of the point along the z axis (in units of mm)
+    # @param [Contour] contour the Contour instance (if any) which the coordinate belongs to
     #
     def initialize(x, y, z, contour=nil)
       raise ArgumentError, "Invalid argument 'contour'. Expected Contour (or nil), got #{contour.class}." if contour && !contour.is_a?(Contour)

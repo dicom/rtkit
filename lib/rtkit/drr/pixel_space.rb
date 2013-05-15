@@ -177,6 +177,8 @@ module RTKIT
 
     # Converts the pixel space to one with a different typecode (e.g. from integer to float).
     #
+    # @return [PixelSpace] the pixel space with an altered type code
+    #
     def to_type(code)
       # Set up the array:
       ps = PixelSpace.new(code, @columns, @rows)

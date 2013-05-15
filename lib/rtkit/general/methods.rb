@@ -15,12 +15,12 @@ module RTKIT
       date.strftime('%Y%m%d')
     end
 
-    # Finds all files contained in the specified folder or folders (including any sub-folders).
+    # Finds all files contained in the specified folder or folders (including
+    # any sub-folders).
     # Returns an array containing the discovered file strings.
     #
-    # === Parameters
-    #
-    # * <tt>path_or_paths</tt> -- String or Array of strings. The path(s) in which to find all files.
+    # @param [String, Array<String>] path_or_paths one or more directory paths
+    # @return [Array<String>] path strings for the files contained by the given directories
     #
     def files(path_or_paths)
       raise ArgumentError, "Invalid argument 'path_or_paths'. Expected String or Array, got #{paths.class}." unless [String, Array].include?(path_or_paths.class)
@@ -41,28 +41,28 @@ module RTKIT
       return files
     end
 
-    # Generates and returns a random Frame Instance UID string.
+    # Generates a random Frame Instance UID string.
+    #
+    # @return [String] a (random) frame instance UID value
     #
     def frame_uid
       return self.generate_uids('9').first
     end
 
-    # Generates one or several random UID strings.
-    # The UIDs are based on the RTKIT dicom_root attribute, a type prefix, a datetime part,
-    # a random number part, and an index part (when multiple UIDs are requested,
-    # e.g. for a SOP Instances in a Series).
-    # Returns the UIDs in a string array.
+    # Generates one or several random UID values.
+    # The UIDs are based on the RTKIT dicom_root attribute, a type prefix,
+    # a datetime part, a random number part, and an index part (when multiple
+    # UIDs are requested, e.g. for a SOP Instances in a Series).
     #
-    # === Parameters
-    #
-    # * <tt>prefix</tt> -- String. A (numerical) type string which sits between the dicom root and the random part of the UID.
-    # * <tt>instances</tt> -- Integer. The number of UIDs to generate. Defaults to 1.
+    # @param [Integer] prefix an integer value which is put between the dicom root and the random part of the UID
+    # @param [Integer] instances the desired number of UID values
+    # @return [Array<String>] a collection of (random) UID values
     #
     def generate_uids(prefix, instances=1)
       prefix = prefix.to_i
-      raise ArgumentError, "Invalid argument 'instances'. Expected Integer (when defined), got #{instances.class}." if instances && !instances.is_a?(Integer)
-      raise ArgumentError, "Invalid argument 'prefix'. Expected non-zero Integer, got #{prefix}." if prefix == 0
-      raise ArgumentError, "Invalid argument 'instances'. Expected positive Integer (when defined), got #{instances}." if instances && instances < 0
+      instances = instances.to_i
+      raise ArgumentError, "Invalid argument 'prefix'. Expected positive Integer, got #{prefix}." if prefix < 1
+      raise ArgumentError, "Invalid argument 'instances'. Expected positive Integer, got #{instances}." if instances < 1
       # NB! For UIDs, leading zeroes after a dot is not allowed, and must be removed:
       date = Time.now.strftime("%Y%m%d").to_i.to_s
       time = Time.now.strftime("%H%M%S").to_i.to_s
@@ -79,30 +79,35 @@ module RTKIT
       return uids
     end
 
-    # Generates and returns a random Series Instance UID string.
+    # Generates a random Series Instance UID string.
+    #
+    # @return [String] a (random) series instance UID value
     #
     def series_uid
       return self.generate_uids('2').first
     end
 
-    # Generates and returns a random SOP Instance UID string.
+    # Generates a random SOP Instance UID string.
+    #
+    # @return [String] a (random) SOP instance UID value
     #
     def sop_uid
       return self.generate_uids('3').first
     end
 
-    # Generates and returns a collection of random SOP Instance UID strings.
+    # Generates a collection of random SOP Instance UID strings.
     #
-    # === Parameters
-    #
-    # * <tt>instances</tt> -- Integer. The number of UIDs to generate.
+    # @param [Integer] instances the desired number of SOP instance UID values
+    # @return [Array<String>] a collection of (random) SOP instance UID values
     #
     def sop_uids(instances)
       raise ArgumentError, "Invalid argument 'instances'. Expected Integer, got #{instances.class}." unless instances.is_a?(Integer)
       return self.generate_uids('3', instances)
     end
 
-    # Generates and returns a random Study Instance UID string.
+    # Generates a random Study Instance UID string.
+    #
+    # @return [String] a (random) study instance UID value
     #
     def study_uid
       return self.generate_uids('1').first
@@ -110,7 +115,7 @@ module RTKIT
 
     # Gives a time string in the DICOM format.
     #
-    # @param [Time] date a Time object which is to be converted
+    # @param [Time] time a Time object which is to be converted
     # @return [String] the DICOM time string
     #
     def time_str(time=Time.now)
