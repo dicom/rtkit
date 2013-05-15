@@ -1,36 +1,5 @@
 class Array
 
-  # Rearranges the array (self) so that its elements appear in exactly
-  # the same sequence as another array (the argument).
-  # If the two arrays do not contain the same set of elements, an error is raised.
-  #
-  # === Examples
-  #
-  #    a = [5, 2, 10, 1]
-  #    b = [10, 2, 1, 5]
-  #    b.assimilate!(a)
-  #    b
-  #    => [5, 2, 10, 1]
-  #
-  # NB! Not in use atm!
-  #
-  def assimilate!(other)
-    if self.length != other.length
-      raise ArgumentError, "Arrays 'self' and 'other' are of unequal length. Unable to compare."
-    else
-      # Validate equality:
-      self.each_index do |i|
-        index = other.index(self[i])
-        if index
-          self[i] = other[index]
-        else
-          raise "An element (index #{i}) in self was not found in the other array. Unable to assimilate."
-        end
-      end
-    end
-    return self
-  end
-
   # Compares an array (self) with a target array to determine an array of indices which can be
   # used to extract the elements of self in order to create an array which shares the exact
   # order of elements as the target array.
