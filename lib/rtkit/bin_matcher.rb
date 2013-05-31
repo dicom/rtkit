@@ -11,10 +11,8 @@ module RTKIT
 
     # Creates a new BinMatcher instance.
     #
-    # === Parameters
-    #
-    # * <tt>volumes</tt> -- An array of BinVolume instances to be matched.
-    # * <tt>master</tt> -- A master BinVolume which the other volumes will be compared against.
+    # @param [Array<BinVolume>] volumes a collection of binary volumes to be matched
+    # @param [BinVolume] master a reference binary volume which the other volumes will be compared against
     #
     def initialize(volumes=nil, master=nil)
       raise ArgumentError, "Invalid argument 'volumes'. Expected Array, got #{volumes.class}." if volumes && volumes.class != Array
@@ -24,7 +22,13 @@ module RTKIT
       @master = master
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_bin_matcher)
@@ -36,35 +40,41 @@ module RTKIT
 
     # Adds a BinVolume instance to the matcher.
     #
+    # @param [BinVolume] volume a binary volume to be associated with this BinMatcher instance
+    #
     def add(volume)
       raise ArgumentError, "Invalid argument 'volume'. Expected BinVolume, got #{volume.class}." unless volume.is_a?(BinVolume)
       @volumes << volume
     end
 
-    # Returns an array of volumes, (reversly) sorted by their sensitivity score.
-    # The volumes are sorted in such a way that the best scoring volume (highest sensitivity) appears first.
-    # If no volumes are defined, an empty array is returned.
+    # Gives a sorted array of volumes, (reversely) sorted by their sensitivity
+    # score. The volumes are sorted in such a way that the best scoring
+    # volume (highest sensitivity) appears first. If no volumes are defined,
+    # an empty array is returned.
+    #
+    # @return [Array<BinVolume>] a sorted array of binary volumes
     #
     def by_sensitivity
       return (@volumes.sort_by {|v| v.sensitivity}).reverse
     end
 
-    # Returns an array of volumes, (reversly) sorted by their specificity score.
-    # The volumes are sorted in such a way that the best scoring volume (highest specificity) appears first.
-    # If no volumes are defined, an empty array is returned.
+    # Gives a sorted array of volumes, (reversely) sorted by their specificity
+    # score. The volumes are sorted in such a way that the best scoring
+    # volume (highest specificity) appears first. If no volumes are defined,
+    # an empty array is returned.
+    #
+    # @return [Array<BinVolume>] a sorted array of binary volumes
     #
     def by_specificity
       return (@volumes.sort_by {|v| v.specificity}).reverse
     end
 
-    # Ensures that a valid comparison can be done by making sure that every volume
-    # has a BinImage for any image that is referenced among the BinVolumes.
-    # If one or more BinVolumes are missing one or more BinImages,
-    # empty BinImages will be created for these BinVolumes.
+    # Ensures that a valid comparison between volumes can be done, by making
+    # sure that every volume has a BinImage for any image that is referenced
+    # among the BinVolumes. If some BinVolumes are missing one or more
+    # BinImages, empty BinImages will be created for these BinVolumes.
     #
-    # === Notes
-    #
-    # * The master volume (if present) is also processed in this method.
+    # @note The master volume (if present) is also processed by this method.
     #
     def fill_blanks
       if @volumes.length > 0
@@ -93,7 +103,11 @@ module RTKIT
       end
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
@@ -106,12 +120,11 @@ module RTKIT
       @master = volume
     end
 
-    # Returns an array of NArrays from the BinVolumes of this instance.
-    # Returns an empty array if no volumes are defined.
+    # Creates an array of 3D NArrays from the binary volumes of this instance.
+    # Note that the master volume (if present) is excluded, and if no volumes
+    # associated, an empty array is returned.
     #
-    # === Notes
-    #
-    # * Only the volumes are returned. The master volume (if present) is not returned with this method.
+    # @return [Array<NArray>] an array of 3D NArray from the associated binary volumes
     #
     def narrays(sort_slices=true)
       n = Array.new
@@ -157,11 +170,11 @@ module RTKIT
     end
 =end
 
-    # Scores the volumes of the BinMatcher instance against the reference (master) volume,
-    # by using Dice's coeffecient.
+    # Scores the volumes of the BinMatcher instance against the reference
+    # (master) volume, by using Dice's coeffecient. The score is
+    # stored in the 'dice' attribute of each binary volume instance.
     #
-    # For more information, see:
-    # http://en.wikipedia.org/wiki/Dice%27s_coefficient
+    # @see http://en.wikipedia.org/wiki/Dice%27s_coefficient
     #
     def score_dice
       if @master
@@ -175,11 +188,12 @@ module RTKIT
       end
     end
 
-    # Scores the volumes of the BinMatcher instance against the reference (master) volume,
-    # by using Sensitivity and Specificity.
+    # Scores the volumes of the BinMatcher instance against the reference
+    # (master) volume, by using Sensitivity and Specificity. The scores are
+    # stored in the 'sensitivity' and 'specificity' attribute of each binary
+    # volume instance.
     #
-    # For more information, see:
-    # http://en.wikipedia.org/wiki/Sensitivity_and_specificity
+    # @see http://en.wikipedia.org/wiki/Sensitivity_and_specificity
     #
     def score_ss
       if @master
@@ -193,14 +207,14 @@ module RTKIT
       end
     end
 
-    # Rearranges the BinImages belonging to the BinVolumes of this instance,
-    # by matching the BinImages by their Image instance references,
-    # to ensure that the NArrays extracted from these volumes are truly comparable.
+    # Rearranges the binary images belonging to the associated binary volumes
+    # (note that the master volume (if present) is excluded), by matching the
+    # binary images by their image instance references. This is done to ensure
+    # that the 3D NArrays which are extracted from these volumes are truly
+    # comparable.
     #
-    # === Notes
-    #
-    # * The master volume (if present) is not processed in this method.
-    # * Raises an exception if any irregularities in number of BinImages or Image references occurs.
+    # @raise Raises an exception if there are any irregularities in the number
+    #   of BinImage instances or Image references.
     #
     def sort_volumes
       # It only makes sense to sort if we have at least two volumes:
@@ -223,6 +237,8 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Beam] self
+    #
     def to_bin_matcher
       self
     end
@@ -231,7 +247,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@volumes, @master]

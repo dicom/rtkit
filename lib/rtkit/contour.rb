@@ -24,16 +24,15 @@ module RTKIT
     # Contour Geometric Type.
     attr_reader :type
 
-    # Creates a new Contour instance from x, y and z coordinate arrays.
-    # This method also creates and connects any child Coordinates as indicated by the coordinate arrays.
-    # Returns the Contour instance.
+    # Creates a new Contour instance from x, y and z coordinate arrays. This
+    # method also creates and connects any child Coordinate instances as
+    # indicated by the coordinate arrays.
     #
-    # === Parameters
-    #
-    # * <tt>x</tt> -- An array of x coordinates (Floats).
-    # * <tt>y</tt> -- An array of y coordinates (Floats).
-    # * <tt>z</tt> -- An array of z coordinates (Floats).
-    # * <tt>slice</tt> -- The Slice instance that this Contour belongs to.
+    # @param [Array<Float>] x an array of x coordinates
+    # @param [Array<Float>] y an array of y coordinates
+    # @param [Array<Float>] z an array of z coordinates
+    # @param [Slice] slice the Slice instance which the Contour shall be associated with
+    # @return [Contour] the created Contour instance
     #
     def self.create_from_coordinates(x, y, z, slice)
       raise ArgumentError, "Invalid argument 'x'. Expected Array, got #{x.class}." unless x.is_a?(Array)
@@ -51,14 +50,12 @@ module RTKIT
       return c
     end
 
-    # Creates a new Contour instance from a contour item.
-    # This method also creates and connects any Coordinates as indicated by the item.
-    # Returns the Contour instance.
+    # Creates a new Contour instance from a contour item. This method also
+    # creates and connects any Coordinates as indicated by the item.
     #
-    # === Parameters
-    #
-    # * <tt>contour_item</tt> -- An array of contour items from the Contour Sequence in ROI Contour Sequence, belonging to the same slice.
-    # * <tt>slice</tt> -- The Slice instance that this Contour belongs to.
+    # @param [DICOM::Item] contour_item a DICOM item from which to create the Contour
+    # @param [Slice] slice the Slice instance which the Contour shall be associated with
+    # @return [Contour] the created Contour instance
     #
     def self.create_from_item(contour_item, slice)
       raise ArgumentError, "Invalid argument 'contour_item'. Expected Item, got #{contour_item.class}." unless contour_item.is_a?(DICOM::Item)
@@ -76,15 +73,10 @@ module RTKIT
 
     # Creates a new Contour instance.
     #
-    # === Parameters
-    #
-    # * <tt>slice</tt> -- The Slice instance that this Contour belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:number</tt> -- Integer. The Contour Number.
-    # * <tt>:type</tt> -- String. The Contour Geometric Type. Defaults to 'CLOSED_PLANAR'.
+    # @param [Slice] slice the Slice instance which the Contour shall be associated with
+    # @param [Hash] options the options to use for creating the Contour
+    # @option options [Integer] :number the contour number
+    # @option options [String] :type the contour geometric type (defaults to 'CLOSED_PLANAR')
     #
     def initialize(slice, options={})
       raise ArgumentError, "Invalid argument 'slice'. Expected Slice, got #{slice.class}." unless slice.is_a?(Slice)
@@ -99,7 +91,13 @@ module RTKIT
       @slice.add_contour(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_contour)
@@ -111,21 +109,27 @@ module RTKIT
 
     # Adds a Coordinate instance to this Contour.
     #
+    # @param [Coordinate] coordinate a coordinate instance to be associated with this contour
+    #
     def add_coordinate(coordinate)
       raise ArgumentError, "Invalid argument 'coordinate'. Expected Coordinate, got #{coordinate.class}." unless coordinate.is_a?(Coordinate)
       @coordinates << coordinate unless @coordinates.include?(coordinate)
     end
 
-    # Returns all Coordinates of this Contour, packed to a string in the format
-    # used in the Contour Data DICOM Element (3006,0050).
-    # Returns an empty string if the Contour contains no coordinates.
+    # Creates a string where the coordinates of this contour are packed to a
+    # string in the format used in the Contour Data DICOM Element (3006,0050).
+    #
+    # @return [String] an encoded coordinate string (or an empty string if no coordinates are associated)
     #
     def contour_data
       x, y, z = coords
       return [x, y, z].transpose.flatten.join("\\")
     end
 
-    # Returns all Coordinates of this Contour, in arrays of x, y and z coordinates.
+    # Extracts and transposes all coordinates of this contour, such that the
+    # coordinates are given in arrays of x, y and z coordinates.
+    #
+    # @return [Array] the coordinates of this contour, converted to x, y and z arrays
     #
     def coords
       x, y, z = Array.new, Array.new, Array.new
@@ -138,11 +142,9 @@ module RTKIT
     end
 
     # Creates and connects Coordinate instances with this Contour instance
-    # by processing the value of the Contour Data element.
+    # by processing the value of the Contour Data element value.
     #
-    # === Parameters
-    #
-    # * <tt>contour_data</tt> -- The value of the Contour Data Element (A String of backslash-separated of xyz coordinate triplets).
+    # @param [String, NilClass] contour_data a string containing x,y,z coordinate triplets separated by '\'
     #
     def create_coordinates(contour_data)
       raise ArgumentError, "Invalid argument 'contour_data'. Expected String (or nil), got #{contour_data.class}." unless [String, NilClass].include?(contour_data.class)
@@ -160,29 +162,27 @@ module RTKIT
       end
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-=begin
-    # Returns the number of Coordinates (Corner Points) belonging to this Contour.
-    #
-    def length
-      @coordinates.length
-    end
-
-    alias_method :size, :length
-=end
-
     # Returns self.
+    #
+    # @return [Contour] self
     #
     def to_contour
       self
     end
 
-    # Creates and returns a Contour Sequence Item from the attributes of the Contour.
+    # Creates a Contour Sequence Item from the attributes of the Contour.
+    #
+    # @return [DICOM::Item] the created DICOM item
     #
     def to_item
       # FIXME: We need to decide on how to principally handle the situation when an image series has not been
@@ -203,7 +203,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@coordinates, @number, @type]

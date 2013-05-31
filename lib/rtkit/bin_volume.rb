@@ -8,8 +8,9 @@ module RTKIT
     attr_reader :bin_images
     # Dice's Coeffecient.
     attr_accessor :dice
-    # A NArray associated with this BinVolume (NB! This is a cached copy. If you want to ensure to
-    # extract an narray which corresponds to the BinVolume's Images, use the narray method instead.
+    # A NArray associated with this BinVolume (NB! This is a cached copy.
+    # If you want to ensure to extract an narray which corresponds to the
+    # BinVolume's Images, use the narray method instead.
     attr_accessor :narr
     # A score (fraction) of the segmented volume compared to a master volume, ranging from 0 (worst) to 1 (all true voxels segmented in this volume).
     attr_accessor :sensitivity
@@ -20,21 +21,18 @@ module RTKIT
     # A score (fraction) of the segmented volume compared to a master volume, ranging from 0 (worst) to 1 (none of the true remaining voxels are segmented in this volume).
     attr_accessor :specificity
 
-    # Creates a new BinVolume instance from a DoseVolume.
-    # The BinVolume is typically defined from a ROI delineation against an image series,
+    # Creates a new BinVolume instance from a DoseVolume. The BinVolume is
+    # typically defined from a ROI delineation against an image series,
     # but it may also be applied to an rtdose 'image' series.
-    # Returns the BinVolume instance.
     #
-    # === Notes
-    #
-    # * Even though listed as optional parameters, at least one of the min and max
+    # @note Even though listed as optional parameters, at least one of the min and max
     #   options must be specified in order to construct a valid binary volume.
     #
-    # === Parameters
-    #
-    # * <tt>image_volume</tt> -- The image volume which the binary volume will be based on (a DoseVolume or an ImageSeries).
-    # * <tt>min</tt> -- Float. An optional lower dose limit from which to define the the binary volume.
-    # * <tt>max</tt> -- Float. An optional upper dose limit from which to define the the binary volume.
+    # @param [DoseVolume] dose_volume the dose volume from which to derive the binary volume
+    # @param [Float, NilClass] min an (optional) lower dose limit from which to define the the binary volume
+    # @param [Float, NilClass] max an (optional) upper dose limit from which to define the the binary volume
+    # @param [ImageSeries, DoseVolume] image_volume the reference image series (image references for the binary images will be picked from this series)
+    # @return [BinVolume] the created BinVolume instance
     #
     def self.from_dose(dose_volume, min=nil, max=nil, image_volume)
       raise ArgumentError, "Invalid argument 'dose_volume'. Expected DoseVolume, got #{dose_volume.class}." unless dose_volume.class == DoseVolume
@@ -69,15 +67,13 @@ module RTKIT
       return bv
     end
 
-    # Creates a new BinVolume instance from a ROI.
-    # The BinVolume is typically defined from a ROI delineation against an image series,
+    # Creates a new BinVolume instance from a ROI. The BinVolume is
+    # typically defined from a ROI delineation against an image series,
     # but it may also be applied to an rtdose 'image' series.
-    # Returns the BinVolume instance.
     #
-    # === Parameters
-    #
-    # * <tt>roi</tt> -- A ROI from which to define the binary volume.
-    # * <tt>image_volume</tt> -- The image volume which the binary volume will be based on (an ImageSeries or a DoseVolume).
+    # @param [ROI] roi the ROI from which to define the binary volume
+    # @param [ImageSeries, DoseVolume] image_volume the reference image series (image references for the binary images will be picked from this series)
+    # @return [BinVolume] the created BinVolume instance
     #
     def self.from_roi(roi, image_volume)
       raise ArgumentError, "Invalid argument 'roi'. Expected ROI, got #{roi.class}." unless roi.is_a?(ROI)
@@ -98,14 +94,13 @@ module RTKIT
       return bv
     end
 
-    # Creates a new BinVolume instance from an image series (i.e. ImageSeries or DoseVolume).
-    # A BinVolume created this way specified the entire volume: i.e. the Binvolume
-    # has the same dimensions as the image series, and all pixels are 1.
-    # Returns the BinVolume instance.
+    # Creates a new BinVolume instance from an image series (i.e. ImageSeries
+    # or DoseVolume). A BinVolume created this way specifies the entire volume:
+    # i.e. the Binvolume has the same dimensions as the image series, and all
+    # pixels are 1.
     #
-    # === Parameters
-    #
-    # * <tt>image_volume</tt> -- The image volume which the binary volume will be based on (an ImageSeries or a DoseVolume).
+    # @param [ImageSeries, DoseVolume] image_volume the reference image series (image references for the binary images will be picked from this series)
+    # @return [BinVolume] the created BinVolume instance
     #
     def self.from_volume(image_volume)
       raise ArgumentError, "Invalid argument 'image_volume'. Expected ImageSeries or DoseVolume, got #{image_volume.class}." unless [ImageSeries, DoseVolume].include?(image_volume.class)
@@ -124,15 +119,10 @@ module RTKIT
 
     # Creates a new BinVolume instance.
     #
-    # === Parameters
-    #
-    # * <tt>series</tt> -- The image series (e.g. ImageSeries or DoseVolume) which forms the reference data of the BinVolume.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:images</tt> -- An array of BinImage instances that is assigned to this BinVolume.
-    # * <tt>:source</tt> -- The object which is the source of the binary (segmented) data (i.e. ROI or Dose/Hounsfield threshold).
+    # @param [ImageSeries, DoseVolume] series the image series which forms the reference data of the binary volume
+    # @param [Hash] options the options to use for creating the BinVolume
+    # @option options [Array<BinImage>] :images beam type (defaults to 'STATIC')
+    # @option options [ROI, RTDose] :source treatment delivery type (defaults to 'TREATMENT')
     #
     def initialize(series, options={})
       raise ArgumentError, "Invalid argument 'series'. Expected ImageSeries or DoseVolume, got #{series.class}." unless [ImageSeries, DoseVolume].include?(series.class)
@@ -144,7 +134,13 @@ module RTKIT
       @source = options[:source]
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_bin_volume)
@@ -156,12 +152,16 @@ module RTKIT
 
     # Adds a BinImage instance to the volume.
     #
+    # @param [BinImage] bin_image a binary image object
+    #
     def add(bin_image)
       raise ArgumentError, "Invalid argument 'bin_image'. Expected BinImage, got #{bin_image.class}." unless bin_image.is_a?(BinImage)
       @bin_images << bin_image
     end
 
-    # Returns the number of columns in the images of the volume.
+    # Gives the the number of columns in the images of the volume.
+    #
+    # @return [Integer, NilClass] the number of columns in the associated binary image arrays
     #
     def columns
       return @bin_images.first.columns if @bin_images.first
@@ -169,18 +169,27 @@ module RTKIT
 
     # Returns the number of frames (slices) in the set of images that makes up this volume.
     #
+    # @return [Integer] the number of frames in the associated binary image set
+    #
     def frames
       return @bin_images.length
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns 3d volume array consisting of the 2d Narray images from the BinImage instances that makes up this volume.
-    # Returns nil if no BinImage instances are connected to this BinVolume.
+    # Creates a 3D volume array consisting of the 2d Narray images from the
+    # BinImage instances that makes up this volume.
+    #
+    # @param [Boolean] sort_slices
+    # @return [NArray, NilClass] a 3D numerical array (or nil if no binary images are associated)
     #
     def narray(sort_slices=true)
       if @bin_images.length > 0
@@ -202,7 +211,7 @@ module RTKIT
     end
 
     # Rearranges the binary image instances belonging to this volume by the
-    # order given in the argument.
+    # given order.
     #
     # @param [Array<Integer>] order an array of indices
     # @return [Array<BinImage>] the reordered images
@@ -211,7 +220,9 @@ module RTKIT
       @bin_images = @bin_images.sort_by_order(order)
     end
 
-    # Returns the number of rows in the images of the volume.
+    # Gives the the number of rows in the images of the volume.
+    #
+    # @return [Integer, NilClass] the number of rows in the associated binary image arrays
     #
     def rows
       return @bin_images.first.rows if @bin_images.first
@@ -219,25 +230,22 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [BinImage] self
+    #
     def to_bin_volume
       self
     end
 
     # Creates a ROI instance from the segmentation of this BinVolume.
-    # Returns the ROI instance.
     #
-    # === Parameters
-    #
-    # * <tt>struct</tt> -- A StructureSet instance which the ROI will be connected to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:algorithm</tt> -- String. The ROI Generation Algorithm. Defaults to 'Automatic'.
-    # * <tt>:name</tt> -- String. The ROI Name. Defaults to 'BinVolume'.
-    # * <tt>:number</tt> -- Integer. The ROI Number. Defaults to the first available ROI Number in the StructureSet.
-    # * <tt>:interpreter</tt> -- String. The ROI Interpreter. Defaults to 'RTKIT'.
-    # * <tt>:type</tt> -- String. The ROI Interpreted Type. Defaults to 'CONTROL'.
+    # @param [StructureSet] struct the structure set instance which the created ROI will be associated with
+    # @param [Hash] options the options to use for creating the ROI
+    # @option options [String] :algorithm the ROI generation algorithm (defaults to 'STATIC')
+    # @option options [String] :name the ROI name (defaults to 'BinVolume')
+    # @option options [Integer] :number the ROI number (defaults to the first available ROI Number in the StructureSet)
+    # @option options [String] :interpreter the ROI interpreter (defaults to 'RTKIT')
+    # @option options [String] :type the ROI interpreted type (defaults to 'CONTROL')
+    # @return [ROI] the created ROI instance (including slice references from the associated binary images)
     #
     def to_roi(struct, options={})
       raise ArgumentError, "Invalid argument 'struct'. Expected StructureSet, got #{struct.class}." unless struct.is_a?(StructureSet)
@@ -260,7 +268,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@bin_images, @dice, @narr, @sensitivity, @specificity]

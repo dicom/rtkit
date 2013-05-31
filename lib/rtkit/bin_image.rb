@@ -16,15 +16,14 @@ module RTKIT
     attr_reader :narray_indices
 
     # Creates a new BinImage instance from an array of contours.
-    # The BinVolume is typically defined from a ROI delineation against an image series,
-    # but it may also be applied to an rtdose 'image' series.
-    # Returns the BinVolume instance.
+    # The BinImage is typically defined from a ROI delineation against an image
+    # instance from a CT/MR image series, but it may also be applied to an
+    # rtdose 'image' series.
     #
-    # === Parameters
-    #
-    # * <tt>contours</tt> -- An array of contours from which to fill in a binary image.
-    # * <tt>image</tt> -- The SliceImage that this BinImage instance will be based on.
-    # * <tt>bin_volume</tt> -- The BinVolume instance that this bin_image belongs to.
+    # @param [Array<Contour>] contours the contours from which to derive the binary image
+    # @param [SliceImage] image the image slice which this binary image is related to (derived from)
+    # @param [BinVolume] bin_volume the binary volume which this binary image belongs to
+    # @return [BinImage] the created BinImage instance
     #
     def self.from_contours(contours, image, bin_volume)
       raise ArgumentError, "Invalid argument 'contours'. Expected Array, got #{contours.class}." unless contours.is_a?(Array)
@@ -45,10 +44,8 @@ module RTKIT
 
     # Creates a new BinImage instance.
     #
-    # === Parameters
-    #
-    # * <tt>narray</tt> -- A binary, two-dimensional NArray.
-    # * <tt>image</tt> -- The Image instance that this BinImage is associated with.
+    # @param [NArray] narray a binary two-dimensional array
+    # @param [SliceImage] image the image slice which this binary image is associated with
     #
     def initialize(narray, image)
       raise ArgumentError, "Invalid argument 'narray'. Expected NArray, got #{narray.class}." unless narray.is_a?(NArray)
@@ -60,7 +57,13 @@ module RTKIT
       @image = image
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_bin_image)
@@ -70,8 +73,12 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Adds a binary image array to the image array of this instance.
-    # Any segmented pixels in the new array (value = 1), is added (value set eql to 1) to the instance array.
+    # Adds a binary image array to the image array of this instance. This is
+    # achieved by adding the segmented pixels of the new array (pixels with
+    # value = 1) to the instance array (which may or may not already contain
+    # segmented pixels).
+    #
+    # @param [NArray] pixels a binary two-dimensional array
     #
     def add(pixels)
       raise ArgumentError, "Invalid argument 'pixels'. Expected NArray, got #{pixels.class}." unless pixels.is_a?(NArray)
@@ -81,13 +88,11 @@ module RTKIT
       @narray[(pixels > 0).where] = 1
     end
 
-    # Calculates the area defined by true/false (1/0) pixels.
-    # By default, the area of the true pixels are returned.
-    # Returns a float value, in units of millimeters squared.
+    # Calculates the area defined by true/false (i.e. 1/0) pixels.
+    # By default, the area of the 'true' pixels are returned.
     #
-    # === Parameters
-    #
-    # * <tt>type</tt> -- Boolean. Pixel type of interest.
+    # @param [Boolean] type pixel type of interest (i.e. the 'true' or 'false' pixels)
+    # @return [Float] the calculated area (in units of millimeters squared)
     #
     def area(type=true)
       if type
@@ -99,22 +104,27 @@ module RTKIT
       return number * @image.pixel_area
     end
 
-    # Returns the col_spacing attribute from the Image reference.
-    # This attribute defines the physical distance (in millimeters) between columns in the pixel data (i.e. horisontal spacing).
+    # Gives the col_spacing attribute of the associated image.
+    #
+    # @return [Float] the distance between columns in the pixel data (in units of millimeters)
     #
     def col_spacing
       return @image.col_spacing
     end
 
-    # Returns the number of columns in the binary array.
+    # Gives the the number of columns in the binary array.
+    #
+    # @return [Integer] the number of columns in the binary array
     #
     def columns
       return @narray.shape[0]
     end
 
-    # Applies the contour indices of this instance to an empty image (2D NArray)
-    # to create a 'contour image'.
+    # Applies the contour indices of this instance to an empty image
+    # (two-dimensional NArray) to create a 'contour image'.
     # Each separate contour is indicated by individual integers (e.g. 1,2,3 etc).
+    #
+    # @return [NArray] a contoured numerical array
     #
     def contour_image
       img = NArray.byte(columns, rows)
@@ -124,19 +134,14 @@ module RTKIT
       return img
     end
 
-    # Extracts the contour indices of the (filled) structures contained in the BinImage,
-    # by performing a contour tracing algorithm on the binary image.
-    # Returns an array filled with contour Selection instances, with length
-    # equal to the number of separated structures in the image.
+    # Extracts the contour indices of the (filled) structures contained in the
+    # BinImage, by performing a contour tracing algorithm on the binary image.
     #
-    # === Notes
+    # @see The contours are established using a contour tracing algorithm called "Radial Sweep":
+    #   http://www.imageprocessingplace.com/downloads_V3/root_downloads/tutorials/contour_tracing_Abeer_George_Ghuneim/ray.html
     #
-    # * The contours are established using a contour tracing algorithm called "Radial Sweep":
-    # * http://www.imageprocessingplace.com/downloads_V3/root_downloads/tutorials/contour_tracing_Abeer_George_Ghuneim/ray.html
-    #
-    # === Restrictions
-    #
-    # * Does not detect inner contour of hollow structures (holes).
+    # @note Does not detect inner contour of hollow structures (holes).
+    # @return [Array<Selection>] an array filled with contour Selection instances (the length of the array equals the number of separate structures in the image)
     #
     def contour_indices
       # Create the array to be returned:
@@ -164,19 +169,27 @@ module RTKIT
       return contours
     end
 
-    # Returns the cosines attribute from the Image reference.
+    # Gives the cosines attribute of the associated image.
+    #
+    # @return [Array] the 6 directional cosines of the pixel data
     #
     def cosines
       return @image.cosines
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
     # Sets a new binary array for this BinImage instance.
+    #
+    # @param [NArray] image a binary two-dimensional array
     #
     def narray=(image)
       raise ArgumentError, "Invalid argument 'image'. Expected NArray, got #{image.class}." unless image.is_a?(NArray)
@@ -188,44 +201,50 @@ module RTKIT
       @narray_indices = NArray.int(columns, rows).indgen!
     end
 
-    # Returns the pos_slice attribute from the Image reference.
-    # This attribute defines the physical position (in millimeters) of the image slice.
-    # Returns nil if there is no Image reference.
+    # Gives the pos_slice attribute from the Image reference.
+    #
+    # @return [Float, NilClass] the slice position of the associated image (in units of millimeters)
     #
     def pos_slice
       return @image ? @image.pos_slice : nil
     end
 
-    # Returns the pos_x attribute from the Image reference.
-    # This attribute defines the physical position (in millimeters) of the first (left) column in the pixel data.
+    # Gives the pos_x attribute of the associated image.
+    #
+    # @return [Float] the x coordinate of the upper left hand corner of the image (in units of millimeters)
     #
     def pos_x
       return @image.pos_x
     end
 
-    # Returns the pos_y attribute from the Image reference.
-    # This attribute defines the physical position (in millimeters) of the first (top) row in the pixel data.
+    # Gives the pos_y attribute of the associated image.
+    #
+    # @return [Float] the y coordinate of the upper left hand corner of the image (in units of millimeters)
     #
     def pos_y
       return @image.pos_y
     end
 
-    # Returns the row_spacing attribute from the Image reference.
-    # This attribute defines the physical distance (in millimeters) between rows in the pixel data (i.e. vertical spacing).
+    # Gives the row_spacing attribute of the associated image.
+    #
+    # @return [Float] the distance between pixel rows (i.e. vertical spacing) (in units of millimeters)
     #
     def row_spacing
       return @image.row_spacing
     end
 
-    # Returns the number of rows in the binary array.
+    # Gives the the number of rows in the binary array.
+    #
+    # @return [Integer] the number of rows in the binary array
     #
     def rows
       return @narray.shape[1]
     end
 
-    # Creates a Selection containing all 'segmented' indices of this instance, i.e.
-    # indices of all pixels with a value of 1.
-    # Returns the Selection instance.
+    # Creates a Selection containing all 'true' (segmented) indices of this
+    # instance, i.e. indices of all pixels with a value of 1.
+    #
+    # @return [Selection] the indices of the 'true' pixels of this binary image
     #
     def selection
       s = Selection.new(self)
@@ -235,28 +254,26 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [BinImage] self
+    #
     def to_bin_image
       self
     end
 
     # Converts the BinImage instance to a single image BinVolume instance.
     #
-    # === Parameters
-    #
-    # * <tt>series</tt> -- The image series (e.g. ImageSeries or DoseVolume) which forms the reference data of the BinVolume.
-    # * <tt>source</tt> -- The object which is the source of the binary (segmented) data (i.e. ROI or Dose/Hounsfield threshold).
+    # @param [ImageSeries, DoseVolume] series an image series which forms the reference data of the BinVolume
+    # @param [ROI, RTDose] source the object which is the source of the binary (segmented) data (i.e. ROI or dose/hounsfield threshold)
+    # @return [BinVolume] a binary volume containing a single binary image
     #
     def to_bin_volume(series, source=nil)
       bin_volume = BinVolume.new(series, :images => [self], :source => source)
     end
 
     # Creates an array of Contour instances from the segmentation of this BinImage.
-    # Returns the array of Contours.
-    # Returns an empty array if no Contours are created (empty BinImage).
     #
-    # === Parameters
-    #
-    # * <tt>slice</tt> -- A Slice instance which the Contours will be connected to.
+    # @param [Slice] slice the Slice instance which the created contours will be associated with
+    # @return [Array<Contour>] an array of contour instances (or an empty array if no contours are created)
     #
     def to_contours(slice)
       raise ArgumentError, "Invalid argument 'slice. Expected Slice, got #{slice.class}." unless slice.is_a?(Slice)
@@ -274,10 +291,12 @@ module RTKIT
       return contours
     end
 
-    # Dumps the BinImage instance to a DObject.
-    # This is achieved by copying the Elements of the DICOM object of the Image instance referenced by this BinImage,
-    # and replacing its pixel data with the NArray of this instance.
-    # Returns the DObject instance.
+    # Creates a DICOM object from the BinImage instance. This is achieved by
+    # copying the elements of the DICOM object of the Image instance
+    # referenced by this BinImage, and replacing its pixel data with the
+    # NArray of this instance.
+    #
+    # @return [DICOM::DObject] the created DICOM object
     #
     def to_dcm
       # Use the original DICOM object as a starting point (keeping all non-sequence elements):
@@ -313,12 +332,9 @@ module RTKIT
     end
 
     # Creates a Slice instance from the segmentation of this BinImage.
-    # This method also creates and connects any child structures as indicated in the item (e.g. Contours).
-    # Returns the Slice instance.
     #
-    # === Parameters
-    #
-    # * <tt>roi</tt> -- A ROI instance which the Slice will be connected to.
+    # @param [ROI] roi the ROI instance which the created Slice will be associated with
+    # @return [Slice] the created slice instance (including contour references if the binary image is segmented)
     #
     def to_slice(roi)
       raise ArgumentError, "Invalid argument 'roi'. Expected ROI, got #{roi.class}." unless roi.is_a?(ROI)
@@ -329,23 +345,17 @@ module RTKIT
       return s
     end
 
-    # Writes the BinImage to a DICOM file given by the specified file string.
-    #
-    def write(path)
-      dcm = to_dcm
-      dcm.write(path)
-    end
-
 
     private
 
 
     # Determines a set of pixel indices which enclose the structure.
     #
-    # === Notes
+    # @see This implementation uses Roman Khudeevs algorithm:
+    #   A New Flood-Fill Algorithm for Closed Contour.
+    #   https://docs.google.com/viewer?a=v&q=cache:UZ6bo7pXRoIJ:file.lw23.com/file1/01611214.pdf+flood+fill+from+contour+coordinate&hl=no&gl=no&pid=bl&srcid=ADGEEShV4gbKYYq8cDagjT7poT677cIL44K0QW8SR0ODanFy-CD1CHEQi2RvHF8MND7_PXPGYRJMJAcMJO-NEXkM-vU4iA2rNljVetbzuARWuHtKLJKMTNjd3vaDWrIeSU4rKLCVwvff&sig=AHIEtbSAnH6fp584c0_Krv298n-tgpNcJw&pli=1
     #
-    # * Uses Roman Khudeevs algorithm: A New Flood-Fill Algorithm for Closed Contour
-    # * https://docs.google.com/viewer?a=v&q=cache:UZ6bo7pXRoIJ:file.lw23.com/file1/01611214.pdf+flood+fill+from+contour+coordinate&hl=no&gl=no&pid=bl&srcid=ADGEEShV4gbKYYq8cDagjT7poT677cIL44K0QW8SR0ODanFy-CD1CHEQi2RvHF8MND7_PXPGYRJMJAcMJO-NEXkM-vU4iA2rNljVetbzuARWuHtKLJKMTNjd3vaDWrIeSU4rKLCVwvff&sig=AHIEtbSAnH6fp584c0_Krv298n-tgpNcJw&pli=1
+    # @return [Selection] the contour's indices
     #
     def external_contour
       start_index = (@narray > 0).where[0] - 1
@@ -384,7 +394,8 @@ module RTKIT
     # This is a recursive method which extracts a contour, determines all pixels
     # belonging to this contour, removes them from the binary image, then
     # repeats collecting contours until there are no more pixels left.
-    # Returns an array of contour selections.
+    #
+    # @return [Array<Selection>] an array of indices for all the contours derived from the segmented image
     #
     def extract_contours
       contours = Array.new
@@ -411,11 +422,13 @@ module RTKIT
       return contours
     end
 
-    # Returns contour indices (Selection) from the first (if any) structure
+    # Gives the contour indices (Selection) from the first (if any) structure
     # found in the binary image of this instance.
     #
     # FIXME: For now, a rather simple corner detection algorithm is integrated and used.
     # At some stage this could be replaced/supplemented with a proper ('lossy') corner detection algorithm.
+    #
+    # @return [Array<Selection>] an array containing two sets of indices: corner indices as well as all contour indices
     #
     def extract_single_contour
       # Set up an array to keep track of the pixels belonging to the current contour being analyzed by the algorithm:
@@ -521,8 +534,6 @@ module RTKIT
 
     # Determines all pixel indices which belongs to the specified (continuous) contour indices.
     #
-    # === Notes
-    #
     # This is achieved by applying an external contour (around the original contour),
     # and identifying the indices that are enclosed by this external contour. This identification
     # is carried out by scanning line by line, and marking pixels which lies between two external
@@ -530,6 +541,9 @@ module RTKIT
     #
     # * Uses Roman Khudeevs algorithm: A New Flood-Fill Algorithm for Closed Contour
     # * https://docs.google.com/viewer?a=v&q=cache:UZ6bo7pXRoIJ:file.lw23.com/file1/01611214.pdf+flood+fill+from+contour+coordinate&hl=no&gl=no&pid=bl&srcid=ADGEEShV4gbKYYq8cDagjT7poT677cIL44K0QW8SR0ODanFy-CD1CHEQi2RvHF8MND7_PXPGYRJMJAcMJO-NEXkM-vU4iA2rNljVetbzuARWuHtKLJKMTNjd3vaDWrIeSU4rKLCVwvff&sig=AHIEtbSAnH6fp584c0_Krv298n-tgpNcJw&pli=1
+    #
+    # @param [Selection] contour a set of pixel indices defining a contour
+    # @return [Selection] a set of all pixel indices delimited by the given contour
     #
     def roi_indices(contour)
       raise ArgumentError, "Invalid argument 'contour'. Expected Selection, got #{contour.class}." unless contour.is_a?(Selection)
@@ -568,7 +582,9 @@ module RTKIT
       return Selection.create_from_array((img.eq roi_value).where.to_a, self)
     end
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@narray]

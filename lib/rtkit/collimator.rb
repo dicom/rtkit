@@ -18,13 +18,12 @@ module RTKIT
     # Collimator type.
     attr_reader :type
 
-    # Creates a new Collimator instance from the RT Beam Limiting Device item of the RTPlan file.
-    # Returns the Collimator instance.
+    # Creates a new Collimator instance from the RT Beam Limiting Device item
+    # of the RTPlan file.
     #
-    # === Parameters
-    #
-    # * <tt>coll_item</tt> -- The patient setup item from the DObject of a RTPlan file.
-    # * <tt>beam</tt> -- The Beam instance that this Collimator belongs to.
+    # @param [DICOM::Item] coll_item a DICOM item from which to create the Collimator
+    # @param [Beam] beam the Beam instance which the Collimator shall be associated with
+    # @return [Collimator] the created Collimator instance
     #
     def self.create_from_item(coll_item, beam)
       raise ArgumentError, "Invalid argument 'coll_item'. Expected DICOM::Item, got #{coll_item.class}." unless coll_item.is_a?(DICOM::Item)
@@ -41,16 +40,11 @@ module RTKIT
 
     # Creates a new Collimator instance.
     #
-    # === Parameters
-    #
-    # * <tt>type</tt> -- String. The RT Beam Limiting Device Type.
-    # * <tt>num_pairs</tt> -- Integer. The Number of Leaf/Jaw Pairs.
-    # * <tt>beam</tt> -- The Beam instance that this Collimator belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:boundaries</tt> -- Array/String. The Leaf Position Boundaries (300A,00BE). Defaults to nil.
+    # @param [String] type the RT beam limiting device type
+    # @param [Integer] num_pairs the number of leaf/jaw pairs
+    # @param [Beam] beam the beam instance which this collimator belongs to
+    # @param [Hash] options the options to use for creating the Collimator
+    # @option options [Array<String>, NilClass, #to_s] :boundaries the leaf position boundaries (300A,00BE) (defaults to nil)
     #
     def initialize(type, num_pairs, beam, options={})
       raise ArgumentError, "Invalid argument 'beam'. Expected Beam, got #{beam.class}." unless beam.is_a?(Beam)
@@ -64,7 +58,13 @@ module RTKIT
       @beam.add_collimator(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_collimator)
@@ -74,14 +74,52 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Generates a Fixnum hash value for this instance.
+    # Sets new leaf position boundaries  (an array of coordinates).
+    #
+    # @param [Array<String>, NilClass, #to_s] value the leaf position boundaries (300A,00BE)
+    #
+    def boundaries=(value)
+      if !value
+        @boundaries = nil
+      elsif value.is_a?(Array)
+        @boundaries = value
+      else
+        # Split the string & convert to float:
+        @boundaries = value.to_s.split("\\").collect {|str| str.to_f}
+      end
+    end
+
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Creates and returns a Beam Limiting Device Sequence Item
-    # from the attributes of the Collimator.
+    # Sets a new number of leaf/jaw pairs.
+    #
+    # @param [#to_i] value the number of leaf/jaw pairs (300A,00BC)
+    #
+    def num_pairs=(value)
+      raise ArgumentError, "Argument 'value' must be defined (got #{value.class})." unless value
+      @num_pairs = value.to_i
+    end
+
+    # Returns self.
+    #
+    # @return [Collimator] self
+    #
+    def to_collimator
+      self
+    end
+
+    # Creates a Beam Limiting Device Sequence Item from the attributes of the
+    # Collimator.
+    #
+    # @return [DICOM::Item] the created DICOM item
     #
     def to_item
       item = DICOM::Item.new
@@ -98,45 +136,9 @@ module RTKIT
       return item
     end
 
-    # Sets new Leaf Position Boundaries  (an array of positions).
+    # Sets a new RT beam limiting device type.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Array/String. The Leaf Position Boundaries (300A,00BE).
-    #
-    def boundaries=(value)
-      if !value
-        @boundaries = nil
-      elsif value.is_a?(Array)
-        @boundaries = value
-      else
-        # Split the string & convert to float:
-        @boundaries = value.to_s.split("\\").collect {|str| str.to_f}
-      end
-    end
-
-    # Sets a new RT Beam Limiting Device Type.
-    #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Integer. The Number of Leaf/Jaw Pairs (300A,00BC).
-    #
-    def num_pairs=(value)
-      raise ArgumentError, "Argument 'value' must be defined (got #{value.class})." unless value
-      @num_pairs = value.to_i
-    end
-
-    # Returns self.
-    #
-    def to_collimator
-      self
-    end
-
-    # Sets a new RT Beam Limiting Device Type.
-    #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The RT Beam Limiting Device Type (300A,00B8).
+    # @param [#to_s] value the RT beam limiting device type (300A,00B8)
     #
     def type=(value)
       raise ArgumentError, "Argument 'value' must be defined (got #{value.class})." unless value
@@ -147,7 +149,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@boundaries, @num_pairs, @type]

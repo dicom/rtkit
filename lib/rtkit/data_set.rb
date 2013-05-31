@@ -26,11 +26,10 @@ module RTKIT
     # An array of Patient instances loaded for this DataSet.
     attr_reader :patients
 
-    # Creates (and returns) a new DataSet instance from an array of DICOM objects.
+    # Creates a new DataSet instance from an array of DICOM objects.
     #
-    # === Parameters
-    #
-    # * <tt>objects</tt> -- An array of DICOM::DObject instances which will be loaded into the DataSet.
+    # @param [Array<DICOM::DObject>] objects an array of DICOM objects which will be loaded into the DataSet
+    # @return [DataSet] the created DataSet instance
     #
     def self.load(objects)
       raise ArgumentError, "Invalid argument 'objects'. Expected Array, got #{objects.class}." unless objects.is_a?(Array)
@@ -72,12 +71,11 @@ module RTKIT
       return ds
     end
 
-    # Creates (and returns) a new DataSet instance from a specified path,
-    # by reading and loading the DICOM files found in this directory (including its sub-directories).
+    # Creates a new DataSet instance from a specified path,
+    # by reading and loading the DICOM files found in this directory (including any sub-directories).
     #
-    # === Parameters
-    #
-    # * <tt>path</tt> -- A path to the directory containing the DICOM files you want to load.
+    # @param [String] path a path to the directory containing the DICOM files to be loaded
+    # @return [DataSet] the created DataSet instance
     #
     def self.read(path)
       raise ArgumentError, "Invalid argument 'path'. Expected String, got #{path.class}." unless path.is_a?(String)
@@ -111,7 +109,13 @@ module RTKIT
       @associated_patients = Hash.new
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_data_set)
@@ -124,11 +128,12 @@ module RTKIT
     # Adds a DICOM object to the dataset, by adding it
     # to an existing Patient, or creating a new Patient.
     #
-    # === Restrictions
+    # @note To ensure a correct relationship between objects of different
+    #   modality, please add DICOM objects in the specific order: images,
+    #   structs, plans, doses, rtimages. Alternatively, use the class method
+    #   DataSet.load(objects), which handles this automatically.
     #
-    # To ensure a correct relationship between objects of different modality, please add
-    # DICOM objects in the specific order: images, structs, plans, doses, rtimages
-    # Alternatively, use the class method DataSet.load(objects), which handles this automatically.
+    # @param [DICOM::DObject] dcm a DICOM object to be added to this data set
     #
     def add(dcm)
       id = dcm.value(PATIENTS_ID)
@@ -142,6 +147,8 @@ module RTKIT
 
     # Adds a Frame to this DataSet.
     #
+    # @param [Frame] frame a Frame object to be added to this data set
+    #
     def add_frame(frame)
       raise ArgumentError, "Invalid argument 'frame'. Expected Frame, got #{frame.class}." unless frame.is_a?(Frame)
       # Do not add it again if the frame already belongs to this instance:
@@ -151,6 +158,8 @@ module RTKIT
 
     # Adds a Patient to this DataSet.
     #
+    # @param [Patient] patient a Patient object to be added to this data set
+    #
     def add_patient(patient)
       raise ArgumentError, "Invalid argument 'patient'. Expected Patient, got #{patient.class}." unless patient.is_a?(Patient)
       # Do not add it again if the patient already belongs to this instance:
@@ -158,13 +167,13 @@ module RTKIT
       @associated_patients[patient.id] = patient
     end
 
-    # Returns the Frame instance mathcing the specified Frame's UID (if an UID argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Frame instance associated with the DataSet is returned.
+    # Gives the Frame instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The Frame of Reference UID.
+    # @overload frame(uid)
+    #   @param [String] uid the frame of reference UID
+    #   @return [Frame, NilClass] the matched frame (or nil if no frame is matched)
+    # @overload frame
+    #   @return [Frame, NilClass] the first frame of this instance (or nil if there are no referenced frames)
     #
     def frame(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -177,19 +186,23 @@ module RTKIT
       end
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the Patient instance mathcing the specified Patient's ID (if an ID argument is used).
-    # If a specified ID doesn't match, nil is returned.
-    # If no argument is passed, the first Patient instance associated with the DataSet is returned.
+    # Gives the Patient instance mathcing the specified ID value.
     #
-    # === Parameters
-    #
-    # * <tt>id</tt> -- String. The value of the Patient's ID element.
+    # @overload patient(type)
+    #   @param [String] id the patient's ID
+    #   @return [Patient, NilClass] the matched patient (or nil if no patient is matched)
+    # @overload patient
+    #   @return [Patient, NilClass] the first patient of this instance (or nil if there are no referenced patients)
     #
     def patient(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -221,8 +234,8 @@ module RTKIT
     end
 
     # Prints the nested structure of the DataSet from a radiotherapy point of
-    # view, where the various series beneath the patient-study level in a
-    # hiearchy of image series, structure set, rt plan, rt dose and rt image,
+    # view, where the various series beneath the patient-study level is presented
+    # in a hiearchy of image series, structure set, rt plan, rt dose and rt image,
     # in accordance with the object hiearchy used by RTKIT.
     #
     def print_rt
@@ -251,16 +264,19 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [DataSet] self
+    #
     def to_data_set
       self
     end
 
 
-    # Following methods are private:
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@frames, @patients]

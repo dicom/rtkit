@@ -34,16 +34,15 @@ module RTKIT
     # Primary dosimeter unit.
     attr_reader :unit
 
-    # Creates a new beam instance from the beam item of the RTPlan file
+    # Creates a new beam instance from the beam item of the RTPlan file,
     # which contains the information related to a particular beam.
-    # This method also creates and connects any child structures as indicated in the items (e.g. ControlPoints).
-    # Returns the Beam instance.
+    # This method also creates and connects any child structures as indicated
+    # in this item (e.g. ControlPoint instances).
     #
-    # === Parameters
-    #
-    # * <tt>beam_item</tt> -- The Beam's Item from the Beam Sequence in the DObject of a RTPlan file.
-    # * <tt>meterset</tt> -- The Beam's meterset (e.g. monitor units) value.
-    # * <tt>plan</tt> -- The Plan instance that this Beam belongs to.
+    # @param [DICOM::Item] beam_item the Beam's Item from the Beam Sequence in the DObject of a RTPlan file
+    # @param [Float] meterset the Beam's meterset (e.g. monitor units) value
+    # @param [Plan] plan the Plan instance which this Beam belongs to
+    # @return [Beam] the created Beam instance
     #
     def self.create_from_item(beam_item, meterset, plan)
       raise ArgumentError, "Invalid argument 'beam_item'. Expected DICOM::Item, got #{beam_item.class}." unless beam_item.is_a?(DICOM::Item)
@@ -77,23 +76,18 @@ module RTKIT
 
     # Creates a new Beam instance.
     #
-    # === Parameters
-    #
-    # * <tt>name</tt> -- String. The Beam name.
-    # * <tt>number</tt> -- Integer. The Beam number.
-    # * <tt>machine</tt> -- The name of the treatment machine.
-    # * <tt>meterset</tt> -- The Beam's meterset (e.g. monitor units) value.
-    # * <tt>plan</tt> -- The Plan instance that this Beam belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:type</tt> -- String. Beam type. Defaults to 'STATIC'.
-    # * <tt>:delivery_type</tt> -- String. Treatment delivery type. Defaults to 'TREATMENT'.
-    # * <tt>:description</tt> -- String. Beam description. Defaults to the 'name' attribute.
-    # * <tt>:rad_type</tt> -- String. Radiation type. Defaults to 'PHOTON'.
-    # * <tt>:sad</tt> -- Float. Source-axis distance. Defaults to 1000.0.
-    # * <tt>:unit</tt> -- String. The primary dosimeter unit. Defaults to 'MU'.
+    # @param [String] name the beam name
+    # @param [Integer] number the beam number
+    # @param [String] machine the name of the treatment machine
+    # @param [Float] meterset the Beam's meterset (e.g. monitor units) value
+    # @param [Plan] plan the Plan instance which this Beam belongs to
+    # @param [Hash] options the options to use for creating the Beam
+    # @option options [Boolean] :type beam type (defaults to 'STATIC')
+    # @option options [Boolean] :delivery_type treatment delivery type (defaults to 'TREATMENT')
+    # @option options [Boolean] :description beam description (defaults to the value of the name attribute)
+    # @option options [Boolean] :rad_type radiation type (defaults to 'PHOTON')
+    # @option options [Boolean] :sad source-axis distance (defaults to 1000.0)
+    # @option options [Boolean] :unit the primary dosimeter unit (defaults to 'MU')
     #
     def initialize(name, number, machine, meterset, plan, options={})
       raise ArgumentError, "Invalid argument 'plan'. Expected Plan, got #{plan.class}." unless plan.is_a?(Plan)
@@ -119,7 +113,13 @@ module RTKIT
       @plan.add_beam(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_beam)
@@ -131,6 +131,8 @@ module RTKIT
 
     # Adds a Collimator instance to this Beam.
     #
+    # @param [Collimator] coll a collimator instance to be associated with this beam
+    #
     def add_collimator(coll)
       raise ArgumentError, "Invalid argument 'coll'. Expected Collimator, got #{coll.class}." unless coll.is_a?(Collimator)
       @collimators << coll unless @associated_collimators[coll.type]
@@ -139,13 +141,17 @@ module RTKIT
 
     # Adds a ControlPoint instance to this Beam.
     #
+    # @param [ControlPoint] cp a control point instance to be associated with this beam
+    #
     def add_control_point(cp)
       raise ArgumentError, "Invalid argument 'cp'. Expected ControlPoint, got #{cp.class}." unless cp.is_a?(ControlPoint)
       @control_points << cp unless @associated_control_points[cp]
       @associated_control_points[cp] = true
     end
 
-    # Creates and returns a Beam Sequence Item from the attributes of the Beam.
+    # Creates a Beam Sequence Item from the attributes of the Beam instance.
+    #
+    # @return [DICOM::Item] a beam sequence item
     #
     def beam_item
       item = DICOM::Item.new
@@ -162,13 +168,13 @@ module RTKIT
       return item
     end
 
-    # Returns the Collimator instance mathcing the specified type (if an argument is used).
-    # If a specified type doesn't match, nil is returned.
-    # If no argument is passed, the first Collimator instance associated with the Beam is returned.
+    # Gives the Collimator instance mathcing the specified type.
     #
-    # === Parameters
-    #
-    # * <tt>type</tt> -- Integer. The Collimator's type.
+    # @overload collimator(type)
+    #   @param [String] type collimator device type
+    #   @return [Collimator, NilClass] the matched collimator (or nil if no collimator is matched)
+    # @overload collimator
+    #   @return [Collimator, NilClass] the first collimator of this instance (or nil if no child collimators exists)
     #
     def collimator(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -180,13 +186,13 @@ module RTKIT
       end
     end
 
-    # Returns the ControlPoint instance mathcing the specified index (if an argument is used).
-    # If a specified index doesn't match, nil is returned.
-    # If no argument is passed, the first ControlPoint instance associated with the Beam is returned.
+    # Gives the ControlPoint instance mathcing the specified index.
     #
-    # === Parameters
-    #
-    # * <tt>index</tt> -- Integer. The ControlPoint's index.
+    # @overload control_point(index)
+    #   @param [String] index the control_point index
+    #   @return [ControlPoint, NilClass] the matched control_point (or nil if no control_point is matched)
+    # @overload control_point
+    #   @return [ControlPoint, NilClass] the first control_point of this instance (or nil if no child control points exists)
     #
     def control_point(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -202,8 +208,8 @@ module RTKIT
     # Computes a digitally reconstructed radiograph (DRR), using the geometry
     # and settings of this beam, applied to the referenced (CT) image series.
     #
-    # @note For now this only works correctly when used with an image series
-    #   which have a patient orientation of HFS (head first supine).
+    # @note For now this is only supported for an image series
+    #   having a patient orientation of HFS (head first supine).
     #
     # @param [RTImage] series an RT image series which the DRR is assigned to
     # @param [Hash] options optional parameters to use for DRR creation
@@ -255,9 +261,7 @@ module RTKIT
 
     # Sets a new treatment delivery type for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The treatment delivery type.
+    # @param [String] value the treatment delivery type
     #
     def delivery_type=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
@@ -266,16 +270,18 @@ module RTKIT
 
     # Sets a new description for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The beam description.
+    # @param [String] value the beam description
     #
     def description=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
       @description = value
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
@@ -283,9 +289,7 @@ module RTKIT
 
     # Sets a new machine for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The machine of the beam.
+    # @param [String] value the machine of the beam
     #
     def machine=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
@@ -294,9 +298,7 @@ module RTKIT
 
     # Sets a new meterset for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The beam meterset.
+    # @param [Float] value the beam meterset
     #
     def meterset=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected Float, got #{value.class}." unless value.is_a?(Float)
@@ -305,9 +307,7 @@ module RTKIT
 
     # Sets a new name for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The beam name.
+    # @param [String] value the beam name
     #
     def name=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
@@ -316,9 +316,7 @@ module RTKIT
 
     # Sets a new number for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Integer. The beam number.
+    # @param [Integer] value the beam number
     #
     def number=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected Integer, got #{value.class}." unless value.is_a?(Integer)
@@ -327,16 +325,16 @@ module RTKIT
 
     # Sets a new radiation type for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The radiation type.
+    # @param [String] value the radiation type
     #
     def rad_type=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
       @rad_type = value
     end
 
-    # Creates and returns a Referenced Beam Sequence Item from the attributes of the Beam.
+    # Creates a Referenced Beam Sequence Item from the attributes of the Beam instance.
+    #
+    # @return [DICOM::Item] a referenced beam sequence item
     #
     def ref_beam_item
       item = DICOM::Item.new
@@ -349,9 +347,7 @@ module RTKIT
 
     # Sets a new source-axis distance for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The source-axis distance.
+    # @param [Float] value the source-axis distance
     #
     def sad=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected Float, got #{value.class}." unless value.is_a?(Float)
@@ -360,15 +356,15 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Beam] self
+    #
     def to_beam
       self
     end
 
     # Sets a new beam type for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The beam type.
+    # @param [String] value the beam type
     #
     def type=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
@@ -377,9 +373,7 @@ module RTKIT
 
     # Sets a new primary dosimeter unit for this Beam.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The primary dosimeter unit.
+    # @param [String] value the primary dosimeter unit
     #
     def unit=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
@@ -390,7 +384,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@delivery_type, @description, @machine, @meterset, @name, @number, @rad_type, @sad, @type, @unit, @control_points]
