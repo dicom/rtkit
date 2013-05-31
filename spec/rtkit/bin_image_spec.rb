@@ -547,21 +547,6 @@ module RTKIT
 
     end
 
-
-    context "#write" do
-
-      it "should write a DICOM object to the specified path" do
-        dcm = DICOM::DObject.read(FILE_IMAGE)
-        narr = NArray.byte(512, 171)
-        @image.stubs(:dcm).returns(dcm)
-        b = BinImage.new(narr, @image)
-        File.exists?(TMPDIR + 'bin_image.dcm').should be_false
-        b.write(TMPDIR + 'bin_image.dcm')
-        File.exists?(TMPDIR + 'bin_image.dcm').should be_true
-      end
-
-    end
-
   end
 
 end
