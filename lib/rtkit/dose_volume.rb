@@ -23,13 +23,13 @@ module RTKIT
     # The SOP Instance UID.
     attr_reader :sop_uid
 
-    # Creates a new Volume instance by loading image information from the specified DICOM object.
-    # The volume object's SOP Instance UID string value is used to uniquely identify a volume.
+    # Creates a new Volume instance by loading image information from the
+    # specified DICOM object. The volume object's SOP Instance UID string
+    # value is used to uniquely identify a volume.
     #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- An instance of a DICOM object (DObject).
-    # * <tt>series</tt> -- The Series instance that this Volume belongs to.
+    # @param [DICOM::DObject] dcm an RTDOSE DICOM object from which to create the DoseVolume
+    # @param [Series] series the Series instance (typically RTDose) which the DoseVolume shall be associated with
+    # @return [DoseVolume] the created DoseVolume instance
     #
     def self.load(dcm, series)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -44,18 +44,16 @@ module RTKIT
       return volume
     end
 
-    # Creates a new Volume instance. The SOP Instance UID tag value is used to uniquely identify a volume.
+    # Creates a new Volume instance. The SOP Instance UID tag value is used to
+    # uniquely identify a volume.
     #
     # === Parameters
     #
-    # * <tt>sop_uid</tt> -- The SOP Instance UID string.
-    # * <tt>frame</tt> -- The Frame instance that this DoseVolume belongs to.
-    # * <tt>series</tt> -- The Series instance that this Image belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:sum</tt> -- Boolean. If true, the DoseVolume will not be added as a (beam) volume to the parent RTDose.
+    # @param [String] sop_uid the SOP Instance UID string
+    # @param [String] frame the Frame instance which this DoseVolume is associated with
+    # @param [String] series the Series instance which this DoseVolume is associated with
+    # @param [Hash] options the options to use for creating the dose volume
+    # @option options [Boolean] :sum if true, the DoseVolume will not be added as a (beam) volume to the parent RTDose
     #
     def initialize(sop_uid, frame, series, options={})
       raise ArgumentError, "Invalid argument 'sop_uid'. Expected String, got #{sop_uid.class}." unless sop_uid.is_a?(String)
@@ -79,7 +77,13 @@ module RTKIT
       @frame.add_series(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_dose_volume)
@@ -89,8 +93,10 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Registers a DICOM Object to the dose Volume, and processes it
-    # to create (and reference) a (dose) Image instance (frame) linked to this dose Volume.
+    # Registers a DICOM object to the dose volume, and processes it to create
+    # (and reference) a (dose) image instance (frame) linked to this dose volume.
+    #
+    # @param [DICOM::DObject] dcm an RTDOSE DICOM object
     #
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -129,6 +135,8 @@ module RTKIT
 
     # Adds an Image to this Volume.
     #
+    # @param [Image] image an image instance to be associated with this dose volume
+    #
     def add_image(image)
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
       @images << image unless @associated_images[image.uid]
@@ -138,23 +146,15 @@ module RTKIT
 
     # Creates a binary volume object consisting of a series of binary
     # (dose thresholded) images, extracted from this dose volume.
-    # Returns a BinVolume instance with binary image references equal to
-    # the number of dose images defined for this DoseVolume.
     #
-    # === Notes
+    # @note Even though listed as optional parameters, at least one of the :min
+    #   and :max options must be specified in order to construct a valid binary volume.
     #
-    # * Even though listed as optional parameters, at least one of the :min and :max
-    #   options must be specified in order to construct a valid binary volume.
-    #
-    # === Parameters
-    #
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:min</tt> -- Float. The lower dose threshold for dose elements to be included in the resulting dose bin volume.
-    # * <tt>:max</tt> -- Float. The upper dose threshold for dose elements to be included in the resulting dose bin volume.
-    # * <tt>:volume</tt> -- By default the BinVolume is created against the images of this DoseVolume. Optionally, an ImageSeries used by the ROI's of this Study can be specified.
+    # @param [Hash] options the options to use for creating the binary volume
+    # @option options [Float] :min the lower dose threshold for dose elements to be included in the resulting dose bin volume
+    # @option options [Float] :max the upper dose threshold for dose elements to be included in the resulting dose bin volume
+    # @option options [Float] :volume by default the BinVolume is created against the images of this DoseVolume, however, by setting this option, an ImageSeries used by the ROIs of this Study can be specified
+    # @return [BinVolume] a binary volume with binary image references equal to the number of dose images defined for this DoseVolume
     #
     def bin_volume(options={})
       raise ArgumentError, "Need at least one dose limit parameter. Neither :min nor :max was specified." unless options[:min] or options[:max]
@@ -162,12 +162,11 @@ module RTKIT
       return BinVolume.from_dose(self, options[:min], options[:max], volume)
     end
 
-    # Returns the dose distribution for a specified ROI (or entire volume)
+    # Extracts the dose distribution for a specified ROI (or entire volume)
     # and a specified beam (or all beams).
     #
-    # === Parameters
-    #
-    # * <tt>roi</tt> -- A specific ROI for which to evalute the dose in (if omitted, the entire volume is evaluted).
+    # @param [ROI] roi a specific ROI for which to evalute the dose in (if omitted, the entire volume is evaluted)
+    # @return [DoseDistribution] the dose distribution for the selected region of interest
     #
     def distribution(roi=nil)
       raise ArgumentError, "Invalid argument 'roi'. Expected ROI, got #{roi.class}." if roi && !roi.is_a?(ROI)
@@ -183,28 +182,37 @@ module RTKIT
       dose_distribution = DoseDistribution.create(bin_vol)
     end
 
-    # Returns the 3D dose pixel NArray retrieved from the #narray method,
-    # multiplied with the scaling coefficient, which in effect yields
-    # a 3D dose array.
+    # Gives the 3D dose pixel NArray retrieved from the #narray method,
+    # multiplied with the scaling coefficient, which in effect yields a 3D dose
+    # array.
+    #
+    # @return [NArray<Float>] a 3D dose array
     #
     def dose_arr
       # Convert integer array to float array and multiply:
       return narray.to_type(4) * @scaling
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the Image instance mathcing the specified SOP Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Image instance associated with the Volume is returned.
+    # Gives the Image instance mathcing the specified UID or image position.
     #
-    # === Parameters
-    #
-    # * <tt>uid_or_pos</tt> -- String/Float. The value of the SOP Instance UID element or the image position.
+    # @overload image(pos)
+    #   @param [Float] pos image slice position
+    #   @return [Image, NilClass] the matched image (or nil if no image is matched)
+    # @overload image(uid)
+    #   @param [String] uid image UID
+    #   @return [Image, NilClass] the matched image (or nil if no image is matched)
+    # @overload image
+    #   @return [Image, NilClass] the first image of this instance (or nil if no child images exists)
     #
     def image(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -222,10 +230,12 @@ module RTKIT
       end
     end
 
-    # Builds a 3D dose pixel NArray from the dose images
-    # belonging to this DoseVolume. The array has shape [frames, columns, rows]
-    # and contains pixel values. To convert to dose values, the array must be
-    # multiplied with the scaling attribute.
+    # Builds a 3D dose pixel NArray from the dose images belonging to this
+    # DoseVolume. The array has shape [frames, columns, rows] and contains
+    # pixel values. To convert to dose values, the array must be multiplied
+    # with the scaling attribute.
+    #
+    # @return [NArray<Float>] a 3D numerical array
     #
     def narray
       if @images.length > 0
@@ -239,9 +249,7 @@ module RTKIT
 
     # Sets a new dose grid scaling.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The dose grid scaling (3004,000E).
+    # @param [NilClass, #to_f] value the dose grid scaling (3004,000E)
     #
     def scaling=(value)
       @scaling = value && value.to_f
@@ -249,12 +257,17 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [DoseVolume] self
+    #
     def to_dose_volume
       self
     end
 
 =begin
     # Updates the position that is registered for the image for this series.
+    #
+    # @param [Image] image an image instance to update
+    # @param [Float] new_pos the new slice position for the given image
     #
     def update_image_position(image, new_pos)
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
@@ -270,6 +283,9 @@ module RTKIT
 
 
     # Returns an image instance matched by the given slice position.
+    #
+    # @param [Float] pos image slice position
+    # @return [Image, NilClass] the matched image (or nil if no image is matched)
     #
     def image_by_slice_pos(pos)
       # Step 1: Try for an (exact) match:
@@ -287,7 +303,9 @@ module RTKIT
       return image
     end
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@images, @scaling, @sop_uid]

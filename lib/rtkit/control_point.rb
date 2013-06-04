@@ -2,8 +2,6 @@ module RTKIT
 
   # Contains DICOM data and methods related to a ControlPoint.
   #
-  # === Notes
-  #
   # The first control point in a given beam defines the intial setup, and contains
   # all applicable parameters. The rest of the control points contains the parameters
   # which change at any control point.
@@ -53,13 +51,12 @@ module RTKIT
     # Table top vertical position (float).
     attr_reader :table_top_vertical
 
-    # Creates a new control point instance from a Control Point Sequence Item (from an RTPlan file).
-    # Returns the ControlPoint instance.
+    # Creates a new control point instance from the Control Point Sequence Item
+    # of the RTPlan file.
     #
-    # === Parameters
-    #
-    # * <tt>cp_item</tt> -- An item from the Control Point Sequence in the DObject of a RTPlan file.
-    # * <tt>beam</tt> -- The Beam instance that this ControlPoint belongs to.
+    # @param [DICOM::Item] cp_item a DICOM item from which to create the ControlPoint
+    # @param [Beam] beam the Beam instance which the ControlPoint shall be associated with
+    # @return [ControlPoint] the created ControlPoint instance
     #
     def self.create_from_item(cp_item, beam)
       raise ArgumentError, "Invalid argument 'cp_item'. Expected DICOM::Item, got #{cp_item.class}." unless cp_item.is_a?(DICOM::Item)
@@ -95,21 +92,9 @@ module RTKIT
 
     # Creates a new ControlPoint instance.
     #
-    # === Parameters
-    #
-    # * <tt>index</tt> -- Integer. The control point index.
-    # * <tt>meterset</tt> -- The control point's cumulative meterset weight.
-    # * <tt>beam</tt> -- The Beam instance that this ControlPoint belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:type</tt> -- String. Beam type. Defaults to 'STATIC'.
-    # * <tt>:delivery_type</tt> -- String. Treatment delivery type. Defaults to 'TREATMENT'.
-    # * <tt>:description</tt> -- String. Beam description. Defaults to the 'name' attribute.
-    # * <tt>:rad_type</tt> -- String. Radiation type. Defaults to 'PHOTON'.
-    # * <tt>:sad</tt> -- Float. Source-axis distance. Defaults to 1000.0.
-    # * <tt>:unit</tt> -- String. The primary dosimeter unit. Defaults to 'MU'.
+    # @param [#to_i] index the control point index
+    # @param [#to_f] cum_meterset the control point's cumulative meterset weight
+    # @param [Beam] beam the Beam instance which the ControlPoint shall be associated with
     #
     def initialize(index, cum_meterset, beam)
       raise ArgumentError, "Invalid argument 'beam'. Expected Beam, got #{beam.class}." unless beam.is_a?(Beam)
@@ -124,7 +109,13 @@ module RTKIT
       @beam.add_control_point(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_control_point)
@@ -136,19 +127,22 @@ module RTKIT
 
     # Adds a CollimatorSetup instance to this ControlPoint.
     #
+    # @param [CollimatorSetup] coll a collimator setup instance to be associated with this control point
+    #
     def add_collimator(coll)
       raise ArgumentError, "Invalid argument 'coll'. Expected CollimatorSetup, got #{coll.class}." unless coll.is_a?(CollimatorSetup)
       @collimators << coll unless @associated_collimators[coll.type]
       @associated_collimators[coll.type] = coll
     end
 
-    # Returns the CollimatorSetup instance mathcing the specified device type string (if an argument is used).
-    # If a specified type doesn't match, nil is returned.
-    # If no argument is passed, the first CollimatorSetup instance associated with the ControlPoint is returned.
+    # Gives the CollimatorSetup instance mathcing the specified type (RT Beam
+    # Limiting Device Type).
     #
-    # === Parameters
-    #
-    # * <tt>type</tt> -- String. The RT Beam Limiting Device Type value.
+    # @overload collimator(type)
+    #   @param [String] type collimator device type
+    #   @return [CollimatorSetup, NilClass] the matched collimator setup (or nil if no collimator setup is matched)
+    # @overload collimator
+    #   @return [CollimatorSetup, NilClass] the first collimator setup of this instance (or nil if no child collimator setups exists)
     #
     def collimator(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -162,9 +156,7 @@ module RTKIT
 
     # Sets a new beam limiting device angle.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The beam limiting device angle (300A,0120).
+    # @param [NilClass, #to_f] value the beam limiting device angle (300A,0120)
     #
     def collimator_angle=(value)
       @collimator_angle = value && value.to_f
@@ -172,9 +164,7 @@ module RTKIT
 
     # Sets a new beam limiting device rotation direction.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The beam limiting device rotation direction (300A,0121).
+    # @param [NilClass, #to_s] value the beam limiting device rotation direction (300A,0121)
     #
     def collimator_direction=(value)
       @collimator_direction = value && value.to_s
@@ -182,9 +172,8 @@ module RTKIT
 
     # Sets a new cumulative meterset weight.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The cumulative meterset weight (300A,0134).
+    # @param [#to_f] value the cumulative meterset weight (300A,0134)
+    # @raise [ArgumentError] if the value is undefined
     #
     def cum_meterset=(value)
       raise ArgumentError, "Argument 'value' must be defined (got #{value.class})." unless value
@@ -193,9 +182,7 @@ module RTKIT
 
     # Sets a new nominal beam energy.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The nominal beam energy (300A,0114).
+    # @param [NilClass, #to_f] value the nominal beam energy (300A,0114)
     #
     def energy=(value)
       @energy = value && value.to_f
@@ -203,9 +190,7 @@ module RTKIT
 
     # Sets a new gantry angle.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The gantry angle (300A,011E).
+    # @param [NilClass, #to_f] value the gantry angle (300A,011E).
     #
     def gantry_angle=(value)
       @gantry_angle = value && value.to_f
@@ -213,15 +198,17 @@ module RTKIT
 
     # Sets a new gantry rotation direction.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The gantry rotation direction (300A,011F).
+    # @param [NilClass, #to_s] value the gantry rotation direction (300A,011F)
     #
     def gantry_direction=(value)
       @gantry_direction = value && value.to_s
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
@@ -229,9 +216,8 @@ module RTKIT
 
     # Sets a new control point index.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Integer. The control point index (300A,0112).
+    # @param [#to_i] value the control point index (300A,0112)
+    # @raise [ArgumentError] if the value is undefined
     #
     def index=(value)
       raise ArgumentError, "Argument 'value' must be defined (got #{value.class})." unless value
@@ -240,9 +226,7 @@ module RTKIT
 
     # Sets a new isosenter position (a coordinate triplet of positions x, y, z).
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Coordinate/String. The isocenter position (300A,0112).
+    # @param [NilClass, String, Coordinate] value the isocenter position (300A,0112)
     #
     def iso=(value)
       @iso = value && value.to_coordinate
@@ -250,9 +234,7 @@ module RTKIT
 
     # Sets a new patient support angle.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The patient support angle (300A,0122).
+    # @param [NilClass, #to_f] value the patient support angle (300A,0122)
     #
     def pedestal_angle=(value)
       @pedestal_angle = value && value.to_f
@@ -260,9 +242,7 @@ module RTKIT
 
     # Sets a new patient support rotation direction.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The patient support rotation direction (300A,0123).
+    # @param [NilClass, #to_s] value the patient support rotation direction (300A,0123)
     #
     def pedestal_direction=(value)
       @pedestal_direction = value && value.to_s
@@ -270,9 +250,7 @@ module RTKIT
 
     # Sets a new source to surface distance.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The source to surface distance (300A,012C).
+    # @param [NilClass, #to_f] value the source to surface distance (300A,012C)
     #
     def ssd=(value)
       @ssd = value && value.to_f
@@ -280,9 +258,7 @@ module RTKIT
 
     # Sets a new table top eccentric angle.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The table top eccentric angle (300A,0125).
+    # @param [NilClass, #to_f] value the table top eccentric angle (300A,0125)
     #
     def table_top_angle=(value)
       @table_top_angle = value && value.to_f
@@ -290,9 +266,7 @@ module RTKIT
 
     # Sets a new table top eccentric rotation direction.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The table top eccentric rotation direction (300A,0126).
+    # @param [NilClass, #to_s] value the table top eccentric rotation direction (300A,0126)
     #
     def table_top_direction=(value)
       @table_top_direction = value && value.to_s
@@ -300,9 +274,7 @@ module RTKIT
 
     # Sets a new table top lateral position.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The table top lateral position (300A,0125).
+    # @param [NilClass, #to_f] value the table top lateral position (300A,0125)
     #
     def table_top_lateral=(value)
       @table_top_lateral = value && value.to_f
@@ -310,9 +282,7 @@ module RTKIT
 
     # Sets a new table top longitudinal position.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The table top longitudinal position (300A,0125).
+    # @param [NilClass, #to_f] value the table top longitudinal position (300A,0125)
     #
     def table_top_longitudinal=(value)
       @table_top_longitudinal = value && value.to_f
@@ -320,9 +290,7 @@ module RTKIT
 
     # Sets a new table top vertical position.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The table top vertical position (300A,0125).
+    # @param [NilClass, #to_f] value the table top vertical position (300A,0125)
     #
     def table_top_vertical=(value)
       @table_top_vertical = value && value.to_f
@@ -330,11 +298,15 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [ControlPoint] self
+    #
     def to_control_point
       self
     end
 
-    # Creates and returns a Control Point Sequence Item from the attributes of the ControlPoint.
+    # Creates a Control Point Sequence Item from the attributes of the ControlPoint.
+    #
+    # @return [DICOM::Item] the created DICOM item
     #
     def to_item
       item = DICOM::Item.new
@@ -355,7 +327,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@collimators, @collimator_angle, @collimator_direction, @cum_meterset, @energy,

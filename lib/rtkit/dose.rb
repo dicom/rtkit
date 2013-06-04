@@ -11,7 +11,7 @@ module RTKIT
   #
   # * A Dose (value) belongs to the DoseDistribution from which it was created.
   # * The Dose class can be considered a subclass of Float (although strictly
-  #    speaking it is rather a Float delegated class.
+  #    speaking it is actually a Float delegated class.
   #
   class Dose < DelegateClass(Float)
 
@@ -22,19 +22,23 @@ module RTKIT
 
     # Creates a new Dose instance.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. A dose value.
-    # * <tt>distribution</tt> -- The DoseDistribution which this single Dose value belongs to.
+    # @param [#to_f] value the dose value
+    # @param [DoseDistribution] distribution the dose distribution which this single dose value originates from
     #
     def initialize(value, distribution)
       raise ArgumentError, "Invalid argument 'distribution'. Expected DoseDistribution, got #{distribution.class}." unless distribution.is_a?(DoseDistribution)
       super(value.to_f)
-      @value = value
+      @value = value.to_f
       @distribution = distribution
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_dose)
@@ -44,13 +48,19 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
     # Returns self.
+    #
+    # @return [Dose] self
     #
     def to_dose
       self
@@ -59,7 +69,9 @@ module RTKIT
 
     private
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@value, @distribution]

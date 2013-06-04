@@ -20,17 +20,13 @@ module RTKIT
     # The Frame of Reference UID.
     attr_reader :uid
 
-    # Creates a new Frame instance. The Frame of Reference UID tag value uniquely identifies the Frame.
+    # Creates a new Frame instance. The Frame of Reference UID tag value
+    # uniquely identifies the Frame.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- The Frame of Reference UID string.
-    # * <tt>patient</tt> -- The Patient instance that this Frame belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:indicator</tt> -- The Position Reference Indicator string.
+    # @param [String] uid the frame of reference UID
+    # @param [Patient] patient the Patient instance which this Frame is associated with
+    # @param [Hash] options the options to use for creating the frame
+    # @option options [Boolean] :indicator the Position Reference Indicator string
     #
     def initialize(uid, patient, options={})
       raise ArgumentError, "Invalid argument 'uid'. Expected String, got #{uid.class}." unless uid.is_a?(String)
@@ -48,7 +44,13 @@ module RTKIT
       @patient.dataset.add_frame(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_frame)
@@ -60,6 +62,8 @@ module RTKIT
 
     # Adds an Image to this Frame.
     #
+    # @param [Image] image an image instance to be associated with this frame
+    #
     def add_image(image)
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
       @associated_instance_uids[image.uid] = image
@@ -69,6 +73,8 @@ module RTKIT
 
     # Adds a ROI to this Frame.
     #
+    # @param [ROI] roi a region of interest instance to be associated with this frame
+    #
     def add_roi(roi)
       raise ArgumentError, "Invalid argument 'roi'. Expected ROI, got #{roi.class}." unless roi.is_a?(ROI)
       @rois << roi unless @rois.include?(roi)
@@ -76,25 +82,31 @@ module RTKIT
 
     # Adds an ImageSeries to this Frame.
     #
+    # @param [ImageSeries, DoseVolume] series an image series instance to be associated with this frame
+    #
     def add_series(series)
       raise ArgumentError, "Invalid argument 'series' Expected ImageSeries or DoseVolume, got #{series.class}." unless [ImageSeries, DoseVolume].include?(series.class)
       @image_series << series
       @associated_series[series.uid] = series
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the Image instance mathcing the specified SOP Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Image of the first ImageSeries instance associated with the Frame is returned.
+    # Gives the Image instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the Series Instance UID element.
+    # @overload image(uid)
+    #   @param [String] uid image UID
+    #   @return [Image, NilClass] the matched image (or nil if no image is matched)
+    # @overload image
+    #   @return [Image, NilClass] the first image of the first image series associated with this frame (or nil if no child images exists)
     #
     def image(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -107,8 +119,10 @@ module RTKIT
       end
     end
 
-    # Returns a ROI that matches the specified number or name.
-    # Returns nil if no match is found.
+    # Gives the ROI that matches the specified number or name.
+    #
+    # @param [String, Fixnum] name_or_number a region of interest name or number
+    # @return [ROI, NilClass] the matched region of interest (or nil if no ROI was matched)
     #
     def roi(name_or_number)
       raise ArgumentError, "Invalid argument 'name_or_number'. Expected String or Integer, got #{name_or_number.class}." unless [String, Integer, Fixnum].include?(name_or_number.class)
@@ -124,13 +138,13 @@ module RTKIT
       return nil
     end
 
-    # Returns the ImageSeries instance mathcing the specified Series Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Series instance associated with the Frame is returned.
+    # Gives the ImageSeries instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the Series Instance UID element.
+    # @overload series(uid)
+    #   @param [String] uid a series instance UID value
+    #   @return [ImageSeries, NilClass] the matched image series (or nil if no image series is matched)
+    # @overload series
+    #   @return [ImageSeries, NilClass] the first image series of this instance (or nil if no child image series exists)
     #
     def series(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -145,6 +159,8 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Frame] self
+    #
     def to_frame
       self
     end
@@ -153,7 +169,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@frame_uid, @image_series, @indicator]
