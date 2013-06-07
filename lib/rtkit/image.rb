@@ -29,7 +29,13 @@ module RTKIT
     # The SOP Instance UID.
     attr_reader :uid
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_image)
@@ -41,24 +47,32 @@ module RTKIT
 
     # Sets the col_spacing attribute.
     #
-    def col_spacing=(space)
-      @col_spacing = space && space.to_f
+    # @param [NilClass, #to_f] value the distance between column centers (0028,0030)
+    #
+    def col_spacing=(value)
+      @col_spacing = value && value.to_f
     end
 
     # Sets the columns attribute.
     #
-    def columns=(cols)
-      #raise ArgumentError, "Invalid argument 'cols'. Expected a positive integer, got #{cols}" unless cols > 0
-      @columns = cols && cols.to_i
+    # @param [NilClass, #to_i] value the number of columns in the image (0028,0011)
+    #
+    def columns=(value)
+      #raise ArgumentError, "Invalid argument 'value'. Expected a positive integer, got #{value}" unless value > 0
+      @columns = value && value.to_i
     end
 
-    # Converts from two NArrays of image X & Y indices to physical coordinates X, Y & Z (in mm).
-    # The X, Y & Z coordinates are returned in three NArrays of equal size as the input index NArrays.
-    # The image coordinates are calculated using the direction cosines of the Image Orientation (Patient) element (0020,0037).
+    # Converts from two NArrays of image X & Y indices to physical coordinates
+    # X, Y & Z (in mm). The X, Y & Z coordinates are returned in three NArrays
+    # of equal size as the input index NArrays. The image coordinates are
+    # calculated using the direction cosines of the Image Orientation (Patient)
+    # element (0020,0037).
     #
-    # === Notes
-    #
-    # * For details about Image orientation, refer to the DICOM standard: PS 3.3 C.7.6.2.1.1
+    # @see For details about Image orientation, refer to the DICOM standard: PS 3.3 C.7.6.2.1.1
+    # @param [NArray] column_indices a numerical array (vector) of pixel column indices
+    # @param [NArray] row_indices a numerical array (vector) of pixel row indices
+    # @raise if one of the several image attributes necessary for coordinate calculation is invalid or missing
+    # @return [Array<NArray>] x, y, & z coordinate numerical array vectors
     #
     def coordinates_from_indices(column_indices, row_indices)
       raise ArgumentError, "Invalid argument 'column_indices'. Expected NArray, got #{column_indices.class}." unless column_indices.is_a?(NArray)
@@ -80,13 +94,18 @@ module RTKIT
       return x, y, z
     end
 
-    # Converts from three (float) NArrays of X, Y & Z physical coordinates (in mm) to image slice indices X & Y.
-    # The X & Y indices are returned in two NArrays of equal size as the input coordinate NArrays.
-    # The image indices are calculated using the direction cosines of the Image Orientation (Patient) element (0020,0037).
+    # Converts from three (float) NArrays of X, Y & Z physical coordinates
+    # (in mm) to image column and row indices. The column and row indices are
+    # returned in two NArrays of equal size as the input coordinate NArrays.
+    # The pixel indices are calculated using the direction cosines of the Image
+    # Orientation (Patient) element (0020,0037).
     #
-    # === Notes
-    #
-    # * For details about Image orientation, refer to the DICOM standard: PS 3.3 C.7.6.2.1.1
+    # @see For details about Image orientation, refer to the DICOM standard: PS 3.3 C.7.6.2.1.1
+    # @param [NArray] x a numerical array (vector) of pixel coordinates
+    # @param [NArray] y a numerical array (vector) of pixel coordinates
+    # @param [NArray] z a numerical array (vector) of pixel coordinates
+    # @raise if one of the several image attributes necessary for index calculation is invalid or missing
+    # @return [Array<NArray>] column & row index numerical array vectors
     #
     def coordinates_to_indices(x, y, z)
       raise ArgumentError, "Invalid argument 'x'. Expected NArray, got #{x.class}." unless x.is_a?(NArray)
@@ -105,9 +124,15 @@ module RTKIT
       return column_indices, row_indices
     end
 
-    # Fills the provided image array with lines of a specified value, based on two vectors of column and row indices.
-    # The image is expected to be a (two-dimensional) NArray.
-    # Returns the processed image array.
+    # Fills the provided pixel array with lines of a specified value, based on
+    # two vectors of column and row indices.
+    #
+    # @param [Array] column_indices an array (vector) of pixel column indices
+    # @param [Array] row_indices an array (vector) of pixel row indices
+    # @param [NArray] image a two-dimensional numerical pixel array
+    # @param [Integer] value the value used for marking pixel lines
+    # @raise if there are any discrepancies among the provided image parameters
+    # @return [NArray] a pixel array marked with lines
     #
     def draw_lines(column_indices, row_indices, image, value)
       raise ArgumentError, "Invalid argument 'column_indices'. Expected Array, got #{column_indices.class}." unless column_indices.is_a?(Array)
@@ -122,11 +147,18 @@ module RTKIT
       return image
     end
 
-    # Iterative, queue based flood fill algorithm.
-    # Replaces all pixels of a specific value that are contained by pixels of different value.
-    # The replacement value along with the starting coordinates are passed as parameters to this method.
-    # It seems a recursive method is not suited for Ruby due to its limited stack space
-    # (a problem in general for scripting languages).
+    # Replaces all pixels of a specific value that are contained by pixels of
+    # a different value.
+    #
+    # Uses an iterative, queue based flood fill algorithm. It seems that a
+    # recursive method is not suited for Ruby, due to its limited stack space
+    # (which is known to be a problem in general for scripting languages).
+    #
+    # @param [Integer] col the starting column index
+    # @param [Integer] row the starting row index
+    # @param [NArray] image a two-dimensional numerical pixel array
+    # @param [Integer] fill_value the value used for marking pixels
+    # @return [NArray] a marked pixel array
     #
     def flood_fill(col, row, image, fill_value)
       # If the given starting point is out of bounds, put it at the array boundary:
@@ -159,14 +191,22 @@ module RTKIT
       return image
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Converts general image indices to specific column and row indices based on the
-    # provided image indices and the number of columns in the image.
+    # Converts general image indices to specific column and row indices based
+    # on the geometry of the image (the number of columns).
+    #
+    # @param [NArray, Array] indices general pixel array indices
+    # @param [Integer] n_cols the number of columns in the reference image
+    # @return [Array<NArray, Array>] column & row indices
     #
     def indices_general_to_specific(indices, n_cols)
       if indices.is_a?(Array)
@@ -180,7 +220,13 @@ module RTKIT
       return column_indices, row_indices
     end
 
-    # Converts specific x and y indices to general image indices based on the provided specific indices and x size of the NArray image.
+    # Converts specific x and y indices to general image indices based on the
+    # the geometry of the image (the number of columns).
+    #
+    # @param [NArray, Array] column_indices specific pixel array column indices
+    # @param [NArray, Array] row_indices specific pixel array row indices
+    # @param [Integer] n_cols the number of columns in the reference image
+    # @return [NArray, Array] general pixel array indices
     #
     def indices_specific_to_general(column_indices, row_indices, n_cols)
       if column_indices.is_a?(Array)
@@ -193,8 +239,13 @@ module RTKIT
       end
     end
 
-    # Sets the pixels attribute (as well as the columns
-    # and rows attributes - derived from the pixel array - not ATM!!!).
+    # Sets the pixel data ('narray' attribute).
+    #
+    # @note The provided pixel array's dimensions must correspond with the
+    #   column and row attributes of the image instance.
+    #
+    # @param [NArray] narr a two-dimensional numerical pixel array
+    # @raise [ArgumentError] if the dimensions of the given array doesn't match the properties of the image instance
     #
     def narray=(narr)
       raise ArgumentError, "Invalid argument 'narray'. Expected NArray, got #{narr.class}" unless narr.is_a?(NArray)
@@ -203,7 +254,8 @@ module RTKIT
     end
 
     # Calculates the area of a single pixel of this image.
-    # Returns a float value, in units of millimeters squared.
+    #
+    # @return [Float] the calculated pixel area (in units of square millimeters)
     #
     def pixel_area
       return @row_spacing * @col_spacing
@@ -217,7 +269,9 @@ module RTKIT
     end
 
     # A convenience method for printing image information.
-    # NB! This has been used only for debugging, and will soon be removed.
+    #
+    # @deprecated NB! This has been used only for debugging, and will soon be removed.
+    # @param [NArray] narr a numerical array
     #
     def print_img(narr=@narray)
       puts "Image dimensions: #{@columns}*#{@rows}"
@@ -228,43 +282,47 @@ module RTKIT
 
     # Sets the pos_x attribute.
     #
-    def pos_x=(pos)
-      @pos_x = pos && pos.to_f
+    # @param [NilClass, #to_f] value the image position (patient) x coordinate (0020,0032)
+    #
+    def pos_x=(value)
+      @pos_x = value && value.to_f
     end
 
     # Sets the pos_y attribute.
     #
-    def pos_y=(pos)
-      @pos_y = pos && pos.to_f
+    # @param [NilClass, #to_f] value the image position (patient) y coordinate (0020,0032)
+    #
+    def pos_y=(value)
+      @pos_y = value && value.to_f
     end
 
     # Sets the row_spacing attribute.
     #
-    def row_spacing=(space)
-      @row_spacing = space && space.to_f
+    # @param [NilClass, #to_f] value the distance between row centers (0028,0030)
+    #
+    def row_spacing=(value)
+      @row_spacing = value && value.to_f
     end
 
     # Sets the rows attribute.
     #
-    def rows=(rows)
+    # @param [NilClass, #to_i] value the number of rows in the image (0028,0010)
+    #
+    def rows=(value)
       #raise ArgumentError, "Invalid argument 'rows'. Expected a positive integer, got #{rows}" unless rows.to_i > 0
-      @rows = rows && rows.to_i
+      @rows = value && value.to_i
     end
 
-    # Sets the resolution of the image. This modifies the pixel data
-    # (in the specified way) and the column/row attributes as well.
-    # The image will either be expanded or cropped depending on whether
-    # the specified resolution is bigger or smaller than the existing one.
+    # Sets the resolution of the image. This modifies both the pixel data
+    # (in the specified way) as well as the column & row attributes. The image
+    # will either be expanded or cropped depending on whether the specified
+    # resolution is bigger or smaller than the existing one.
     #
-    # === Parameters
-    #
-    # * <tt>columns</tt> -- Integer. The number of columns applied to the cropped/expanded image.
-    # * <tt>rows</tt> -- Integer. The number of rows applied to the cropped/expanded image.
-    #
-    # === Options
-    #
-    # * <tt>:hor</tt> -- Symbol. The side (in the horisontal image direction) to apply the crop/border (:left, :right or :even (default)).
-    # * <tt>:ver</tt> -- Symbol. The side (in the vertical image direction) to apply the crop/border (:bottom, :top or :even (default)).
+    # @param [Integer] columns the number of columns in the resized image
+    # @param [Integer] rows the number of rows in the resized image
+    # @param [Hash] options the options to use for changing the image resolution
+    # @option options [Float] :hor the side (in the horisontal image direction) at which to apply the crop/border operation (:left, :right or :even (default))
+    # @option options [Float] :ver the side (in the vertical image direction) at which to apply the crop/border operation (:bottom, :top or :even (default))
     #
     def set_resolution(columns, rows, options={})
       options[:hor] = :even unless options[:hor]
@@ -319,7 +377,7 @@ module RTKIT
 
     # Returns self.
     #
-    # @return [Image] self
+    # @return [DoseVolume] self
     #
     def to_image
       self
@@ -329,9 +387,17 @@ module RTKIT
     private
 
 
-    # Draws a single line in the (NArray) image matrix based on a start- and an end-point.
-    # The method uses an iterative Bresenham Line Algorithm.
+    # Draws a single line in the (NArray) image matrix based on a start- and
+    # an end-point. The method uses an iterative Bresenham Line Algorithm.
     # Returns the processed image array.
+    #
+    # @param [Array] x0 the column index of the starting point
+    # @param [Array] x1 the column index of the end point
+    # @param [Array] y0 the row index of the starting point
+    # @param [Array] y1 the row index of the end point
+    # @param [NArray] image a two-dimensional numerical pixel array
+    # @param [Integer] value the value used for marking the pixel line
+    # @return [NArray] a pixel array marked with the single line
     #
     def draw_line(x0, x1, y0, y1, image, value)
       steep = ((y1-y0).abs) > ((x1-x0).abs)
@@ -376,8 +442,15 @@ module RTKIT
       return image
     end
 
-    # Searches left and right to find the 'border' in a row of pixels the image array.
-    # Returns a column and row index. Used by the flood_fill() method.
+    # Searches left and right to find the 'border' in a row of pixels in the
+    # image array. This private method is used by the flood_fill() method.
+    #
+    # @param [Integer] col the column index of the origin
+    # @param [Integer] row the row index of the origin
+    # @param [Integer] existing_value the value of the pixels we want to find a border for (i.e. we are searching for the occurance of a value other than this particular one)
+    # @param [Symbol] direction the direction of travel (:east, :west, :north, :south)
+    # @param [NArray] image a two-dimensional numerical pixel array
+    # @return [Array<Integer>] column and row pixel indices
     #
     def ff_find_border(col, row, existing_value, direction, image)
       next_col, next_row = ff_neighbour(col, row, direction)
@@ -394,9 +467,15 @@ module RTKIT
       return col, row
     end
 
-    # Returns the neighbour index based on the specified direction.
-    # Used by the flood_fill() method and its dependency; the ff_find_border() method.
+    # Gives the neighbour column and row indices based on a specified origin
+    # point and a direction of travel. This private method is used by
+    # flood_fill() and its dependency; ff_find_border()
     # :east => to the right when looking at an array image printout on the screen
+    #
+    # @param [Integer] col the column index of the origin
+    # @param [Integer] row the row index of the origin
+    # @param [Symbol] direction the direction of travel (:east, :west, :north, :south)
+    # @return [Array<Integer>] column and row pixel indices
     #
     def ff_neighbour(col, row, direction)
       case direction
@@ -408,4 +487,5 @@ module RTKIT
     end
 
   end
+
 end

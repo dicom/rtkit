@@ -1,6 +1,7 @@
 module RTKIT
 
-  # The ImageSeries class contains methods that are specific for the slice based image modalites (e.g. CT, MR).
+  # The ImageSeries class contains methods that are specific for the slice
+  # based image modalites (e.g. CT, MR).
   #
   # === Inheritance
   #
@@ -21,13 +22,13 @@ module RTKIT
     # An array of Structure Sets associated with this Image Series.
     attr_reader :structs
 
-    # Creates a new ImageSeries instance by loading series information from the specified DICOM object.
-    # The Series' UID string value is used to uniquely identify an ImageSeries.
+    # Creates a new ImageSeries instance by loading series information from the
+    # specified DICOM object. The Series' UID string value is used to uniquely
+    # identify an ImageSeries.
     #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- An instance of a DICOM object (DICOM::DObject) with an image type modality (e.g. CT or MR).
-    # * <tt>study</tt> -- The Study instance that this ImageSeries belongs to.
+    # @param [DICOM::DObject] dcm an image type modality DICOM object from which to create the ImageSeries
+    # @param [Study] study the Study instance which the ImageSeries shall be associated with
+    # @return [ImageSeries] the created ImageSeries instance
     #
     def self.load(dcm, study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -53,20 +54,15 @@ module RTKIT
 
     # Creates a new ImageSeries instance.
     #
-    # === Parameters
-    #
-    # * <tt>series_uid</tt> -- The Series Instance UID string.
-    # * <tt>modality</tt> -- The Modality string of the ImageSeries, e.g. 'CT' or 'MR'.
-    # * <tt>frame</tt> -- The Frame instance that this ImageSeries belongs to.
-    # * <tt>study</tt> -- The Study instance that this ImageSeries belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:class_uid</tt> -- String. The SOP Class UID (DICOM tag '0008,0016').
-    # * <tt>:date</tt> -- String. The Series Date (DICOM tag '0008,0021').
-    # * <tt>:time</tt> -- String. The Series Time (DICOM tag '0008,0031').
-    # * <tt>:description</tt> -- String. The Series Description (DICOM tag '0008,103E').
+    # @param [String] series_uid the Series Instance UID string
+    # @param [String] modality the modality string of the image series (e.g. 'CT' or 'MR')
+    # @param [String] frame the Frame instance which this ImageSeries is associated with
+    # @param [Study] study the Study instance which this ImageSeries is associated with
+    # @param [Hash] options the options to use for creating the image series
+    # @option options [String] :class_uid the SOP Class UID (DICOM tag '0008,0016')
+    # @option options [String] :date the Series Date (DICOM tag '0008,0021')
+    # @option options [String] :time the Series Time (DICOM tag '0008,0031')
+    # @option options [String] :description the Series Description (DICOM tag '0008,103E')
     #
     def initialize(series_uid, modality, frame, study, options={})
       raise ArgumentError, "Invalid argument 'series_uid'. Expected String, got #{series_uid.class}." unless series_uid.is_a?(String)
@@ -91,7 +87,13 @@ module RTKIT
       @frame.add_series(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_image_series)
@@ -101,13 +103,18 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Adds a DICOM image object to the ImageSeries, by creating a new SliceImage instance linked to this ImageSeries.
+    # Registers a DICOM object to the image series, and processes it to create
+    # (and reference) a slice image instance linked to this image series.
+    #
+    # @param [DICOM::DObject] dcm an image type modality DICOM object
     #
     def add(dcm)
       SliceImage.load(dcm, self)
     end
 
     # Adds an Image to this ImageSeries.
+    #
+    # @param [Image] image an image instance to be associated with this image series
     #
     def add_image(image)
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
@@ -121,6 +128,8 @@ module RTKIT
 
     # Adds a StructureSet to this ImageSeries.
     #
+    # @param [Image] struct a structure set instance to be associated with this image series
+    #
     def add_struct(struct)
       raise ArgumentError, "Invalid argument 'struct'. Expected StructureSet, got #{struct.class}." unless struct.is_a?(StructureSet)
       # Do not add it again if the struct already belongs to this instance:
@@ -129,8 +138,15 @@ module RTKIT
     end
 
 =begin
-    # Returns the array position in the sorted array of slices that is closest to the provided slice.
-    # If slice value is out of bounds (it is further from boundaries than the slice interval), false is returned.
+    # Gives the index in the sorted array of slices that positionally is
+    # closest to the provided slice.
+    #
+    # @note If the slice value is out of bounds (it is further from the
+    #   boundaries than the slice interval), then false is returned.
+    # @param [Float] slice the slice position
+    # @param [Array<Float>] slices an array of slice positions
+    # @return [Fixnum, FalseClass] the determined slice index (or false if no match)
+    #
     def corresponding_slice(slice, slices)
       above_pos = (0...slices.length).select{|x| slices[x]>=slice}.first
       below_pos = (0...slices.length).select{|x| slices[x]<=slice}.last
@@ -151,19 +167,26 @@ module RTKIT
     end
 =end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the Image instance mathcing the specified SOP Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Image instance associated with the ImageSeries is returned.
+    # Gives the Image instance mathcing the specified UID or image position.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the SOP Instance UID element of the Image.
+    # @overload image(pos)
+    #   @param [Float] pos image slice position
+    #   @return [SliceImage, NilClass] the matched image (or nil if no image is matched)
+    # @overload image(uid)
+    #   @param [String] uid image UID
+    #   @return [SliceImage, NilClass] the matched image (or nil if no image is matched)
+    # @overload image
+    #   @return [SliceImage, NilClass] the first image of this instance (or nil if no child images exists)
     #
     def image(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -181,13 +204,11 @@ module RTKIT
       end
     end
 
-    # Analyses the Image instances belonging to this ImageSeries to determine
-    # if there is an Image which matches the specified Plane.
-    # Returns the Image if a match is found, nil if not.
+    # Analyses the images belonging to this ImageSeries to determine if there
+    # is any image with a geometry that matches the specified plane.
     #
-    # === Parameters
-    #
-    # * <tt>plane</tt> -- The Plane instance which images will be matched against.
+    # @param [Plane] plane an image plane to be compared against the associated images
+    # @return [SliceImage, NilClass] the matched image (or nil if no image is matched)
     #
     def match_image(plane)
       raise ArgumentError, "Invalid argument 'plane'. Expected Plane, got #{plane.class}." unless plane.is_a?(Plane)
@@ -211,9 +232,10 @@ module RTKIT
       return matching_image
     end
 
-    # Returns all ROIs having the same Frame of Reference as this
-    # image series from the structure set(s) belonging to this series.
-    # Returns the ROIs in an Array. If no ROIs are matched, an empty array is returned.
+    # Gives all ROIs having the same Frame of Reference as this image series
+    # from the structure set(s) belonging to this series.
+    #
+    # @return [Array<ROI>] the ROIs associated with this image series
     #
     def rois
       frame_rois = Array.new
@@ -223,19 +245,15 @@ module RTKIT
       return frame_rois.flatten
     end
 
-    # Sets the resolution of all images in this image series.
-    # The images will either be expanded or cropped depending on whether
-    # the specified resolution is bigger or smaller than the existing one.
+    # Sets the resolution of the associated images. The images will either be
+    # expanded or cropped depending on whether the specified resolution is
+    # bigger or smaller than the existing one.
     #
-    # === Parameters
-    #
-    # * <tt>columns</tt> -- Integer. The number of columns applied to the cropped/expanded image series.
-    # * <tt>rows</tt> -- Integer. The number of rows applied to the cropped/expanded image series.
-    #
-    # === Options
-    #
-    # * <tt>:hor</tt> -- Symbol. The side (in the horisontal image direction) to apply the crop/border (:left, :right or :even (default)).
-    # * <tt>:ver</tt> -- Symbol. The side (in the vertical image direction) to apply the crop/border (:bottom, :top or :even (default)).
+    # @param [Integer] columns the number of columns in the resized images
+    # @param [Integer] rows the number of rows in the resized images
+    # @param [Hash] options the options to use for changing the image resolution
+    # @option options [Float] :hor the side (in the horisontal image direction) at which to apply the crop/border operation (:left, :right or :even (default))
+    # @option options [Float] :ver the side (in the vertical image direction) at which to apply the crop/border operation (:bottom, :top or :even (default))
     #
     def set_resolution(columns, rows, options={})
       @images.each do |img|
@@ -243,13 +261,13 @@ module RTKIT
       end
     end
 
-    # Returns the StructureSet instance mathcing the specified SOP Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first StructureSet instance associated with the ImageSeries is returned.
+    # Gives the StructureSet instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the SOP Instance UID element.
+    # @overload struct(uid)
+    #   @param [String] uid the structure set SOP instance UID
+    #   @return [StructureSet, NilClass] the matched structure set (or nil if no structure set is matched)
+    # @overload struct
+    #   @return [StructureSet, NilClass] the first structure set of this instance (or nil if no child structure sets exists)
     #
     def struct(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -264,12 +282,18 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [ImageSeries] self
+    #
     def to_image_series
       self
     end
 
-    # Writes all images in this image series to DICOM files in the specified folder.
-    # The file names are set by the image's UID string, followed by a '.dcm' extension.
+    # Writes all images in this image series to DICOM files in the specified
+    # folder. The file names are set by the image's UID string, followed by a
+    # '.dcm' extension.
+    #
+    # @deprecated This method is not considered principal and will probably be removed,
+    # @param [String] path the directory in which to write the files
     #
     def write(path)
       @images.each do |img|
@@ -281,7 +305,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@images, @series_uid, @structs]
