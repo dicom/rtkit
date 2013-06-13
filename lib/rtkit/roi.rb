@@ -4,8 +4,8 @@ module RTKIT
   #
   # === Relations
   #
-  # * An image series has many ROIs, defined through a Structure Set.
-  # * An image slice has only the ROIs which are contoured in that particular slice in the Structure Set.
+  # * An image series has many ROIs, defined through a StructureSet.
+  # * An image slice has only the ROIs which are contoured in that particular slice in the StructureSet.
   # * A ROI has many Slices.
   #
   class ROI
@@ -30,16 +30,15 @@ module RTKIT
     attr_reader :type
 
     # Creates a new ROI instance from the three items of the structure set
-    # which contains the information related to a particular ROI.
-    # This method also creates and connects any child structures as indicated in the items (e.g. Slices).
-    # Returns the ROI instance.
+    # which contains the information related to a particular ROI. This method
+    # also creates and connects any child structures as indicated in the items
+    # (e.g. Slice instances).
     #
-    # === Parameters
-    #
-    # * <tt>roi_item</tt> -- The ROI's Item from the Structure Set ROI Sequence in the DObject of a Structure Set.
-    # * <tt>contour_item</tt> -- The ROI's Item from the ROI Contour Sequence in the DObject of a Structure Set.
-    # * <tt>rt_item</tt> -- The ROI's Item from the RT ROI Observations Sequence in the DObject of a Structure Set.
-    # * <tt>struct</tt> -- The StructureSet instance that this ROI belongs to.
+    # @param [DICOM::Item] roi_item the ROI's Item from the Structure Set ROI Sequence
+    # @param [DICOM::Item] contour_item the ROI's Item from the ROI Contour Sequence
+    # @param [DICOM::Item] rt_item the ROI's Item from the RT ROI Observations Sequence
+    # @param [StructureSet] struct the StructureSet instance which the ROI shall be associated with
+    # @return [ROI] the created ROI instance
     #
     def self.create_from_items(roi_item, contour_item, rt_item, struct)
       raise ArgumentError, "Invalid argument 'roi_item'. Expected DICOM::Item, got #{roi_item.class}." unless roi_item.is_a?(DICOM::Item)
@@ -69,20 +68,15 @@ module RTKIT
 
     # Creates a new ROI instance.
     #
-    # === Parameters
-    #
-    # * <tt>name</tt> -- String. The ROI Name.
-    # * <tt>number</tt> -- Integer. The ROI Number.
-    # * <tt>frame</tt> -- The Frame instance that this ROI belongs to.
-    # * <tt>struct</tt> -- The StructureSet instance that this ROI belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:algorithm</tt> -- String. The ROI Generation Algorithm. Defaults to 'Automatic'.
-    # * <tt>:color</tt> -- String. The ROI Display Color. Defaults to a random color string (format: 'x\y\z' where [x,y,z] is a byte (0-255)).
-    # * <tt>:interpreter</tt> -- String. The ROI Interpreter. Defaults to 'RTKIT'.
-    # * <tt>:type</tt> -- String. The ROI Interpreted Type. Defaults to 'CONTROL'.
+    # @param [String] name the ROI name
+    # @param [Integer] number the ROI number
+    # @param [Frame] frame the Frame instance which this ROI is associated with
+    # @param [StructureSet] struct the StructureSet instance that this ROI belongs to
+    # @param [Hash] options the options to use for creating the ROI
+    # @option options [String] :algorithm the ROI generation algorithm (defaults to 'Automatic')
+    # @option options [String] :color the ROI display color (defaults to a random color string (format: 'x\y\z' where [x,y,z] is a byte (0-255)))
+    # @option options [String] :interpreter the ROI interpreter (defaults to 'RTKIT')
+    # @option options [String] :type the ROI interpreted type (defaults to 'CONTROL')
     #
     def initialize(name, number, frame, struct, options={})
       raise ArgumentError, "Invalid argument 'name'. Expected String, got #{name.class}." unless name.is_a?(String)
@@ -110,7 +104,13 @@ module RTKIT
       @struct.add_roi(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_roi)
@@ -122,6 +122,8 @@ module RTKIT
 
     # Adds a Slice instance to this ROI.
     #
+    # @param [Slice] slice a slice instance to be associated with this ROI
+    #
     def add_slice(slice)
       raise ArgumentError, "Invalid argument 'slice'. Expected Slice, got #{slice.class}." unless slice.is_a?(Slice)
       @slices << slice unless @associated_instance_uids[slice.uid]
@@ -130,23 +132,29 @@ module RTKIT
 
     # Sets the algorithm attribute.
     #
+    # @param [NilClass, #to_s] value the ROI generation algorithm (3006,0036)
+    #
     def algorithm=(value)
       @algorithm = value && value.to_s
     end
 
-    # Attaches a ROI to a specified ImageSeries, by setting the ROIs frame reference to the
-    # Frame which the ImageSeries belongs to, and setting the Image reference of each of the Slices
-    # belonging to the ROI to an Image instance which matches the coordinates of the Slice's Contour(s).
-    # Raises an exception if a suitable match is not found for any Slice.
+    # Attaches a ROI to a specified ImageSeries, by setting the ROIs frame
+    # reference to the Frame which the ImageSeries belongs to, and setting the
+    # Image reference of each of the Slices belonging to the ROI to an Image
+    # instance which matches the coordinates of the Slice's Contour(s).
     #
-    # === Notes
+    # This method can be useful when you have multiple segmentations based on
+    # the same image series from multiple raters (perhaps as part of a
+    # comparison study), and the rater's software has modified the UIDs of the
+    # original image series, so that the references of the returned Structure
+    # Set does not match your original image series. This method uses
+    # coordinate information to calculate plane equations, which allows it to
+    # identify the corresponding image slice even in the case of slice geometry
+    # being non-perpendicular with respect to the patient geometry (direction
+    # cosine values != [0,1]).
     #
-    # This method can be useful when you have multiple segmentations based on the same image series
-    # from multiple raters (perhaps as part of a comparison study), and the rater's software has modified
-    # the UIDs of the original image series, so that the references of the returned Structure Set does
-    # not match your original image series. This method uses coordinate information to calculate plane
-    # equations, which allows it to identify the corresponding image slice even in the case of
-    # slice geometry being non-perpendicular with respect to the patient geometry (direction cosine values != [0,1]).
+    # @param [Series] series the new ImageSeries instance which the ROI shall be associated with
+    # @raise [ArgumentError] if a suitable match is not found for any of the ROI's slices
     #
     def attach_to(series)
       raise ArgumentError, "Invalid argument 'series'. Expected ImageSeries, got #{series.class}." unless series.is_a?(Series)
@@ -167,14 +175,12 @@ module RTKIT
       end
     end
 
-    # Creates a binary volume object consisting of a series of binary (segmented) images,
-    # extracted from the contours defined for the slices of this ROI.
-    # Returns a BinVolume instance with binary image references equal to
-    # the number of slices defined for this ROI.
+    # Creates a binary volume object consisting of a series of binary
+    # (segmented) images which are extracted from the contours defined for the
+    # slices of this ROI.
     #
-    # === Parameters
-    #
-    # * <tt>image_volume</tt> -- By default the BinVolume is created against the ImageSeries of the ROI's StructureSet. Optionally, a DoseVolume can be specified.
+    # @param [ImageSeries, DoseVolume] image_volume the DoseVolume/ImageSeries to create the binary volume against (defaults to the ImageSeries of the ROI's structure set)
+    # @return [BinVolume] a binary volume with binary images equal to the number of slices defined for this ROI
     #
     def bin_volume(image_volume=@struct.image_series.first)
       return BinVolume.from_roi(self, image_volume)
@@ -182,23 +188,24 @@ module RTKIT
 
     # Sets a new color for this ROI.
     #
-    # === Parameters
+    # @param [String] value a properly formatted color string (3 integers 0-255 - each separated by a '\') (3006,002A)
     #
-    # * <tt>col</tt> -- String. A proper color string (3 integers 0-255, each separated by a '\').
-    #
-    def color=(col)
-      raise ArgumentError, "Invalid argument 'col'. Expected String, got #{col.class}." unless col.is_a?(String)
-      colors = col.split("\\")
-      raise ArgumentError, "Invalid argument 'col'. Expected 3 color values, got #{colors.length}." unless colors.length == 3
+    def color=(value)
+      # Make sure that the color string is of valid format before saving it:
+      raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
+      colors = value.split("\\")
+      raise ArgumentError, "Invalid argument 'value'. Expected 3 color values, got #{colors.length}." unless colors.length == 3
       colors.each do |str|
         c = str.to_i
-        raise ArgumentError, "Invalid argument 'col'. Expected valid integer (0-255), got #{str}." if c < 0 or c > 255
-        raise ArgumentError, "Invalid argument 'col'. Expected an integer, got #{str}." if c == 0 and str != "0"
+        raise ArgumentError, "Invalid argument 'value'. Expected valid integer (0-255), got #{str}." if c < 0 or c > 255
+        raise ArgumentError, "Invalid argument 'value'. Expected an integer, got #{str}." if c == 0 and str != "0"
       end
-      @color = col
+      @color = value
     end
 
-    # Creates and returns a ROI Contour Sequence Item from the attributes of the ROI.
+    # Creates a ROI Contour Sequence Item from the attributes of the ROI instance.
+    #
+    # @return [DICOM::Item] a ROI contour sequence item
     #
     def contour_item
       item = DICOM::Item.new
@@ -215,7 +222,10 @@ module RTKIT
       return item
     end
 
-    # Iterates the Contour Sequence Items, collects Contour Items for each slice and passes them along to the Slice class.
+    # Creates Slice instances from the contour sequence items of the contour
+    # sequence, and connects these slices to this ROI instance.
+    #
+    # @param [DICOM::Sequence] contour_sequence a Contour Sequence
     #
     def create_slices(contour_sequence)
       raise ArgumentError, "Invalid argument 'contour_sequence'. Expected DICOM::Sequence, got #{contour_sequence.class}." unless contour_sequence.is_a?(DICOM::Sequence)
@@ -232,12 +242,11 @@ module RTKIT
       end
     end
 
-    # Creates a DoseDistribution based on the delineation of this ROI in the
+    # Creates a DoseDistribution based on the delineation by this ROI in the
     # specified RTDose series.
     #
-    # === Parameters
-    #
-    # * <tt>dose_volume</tt> -- The DoseVolume to extract the dose distribution from. Defaults to the sum of the dose volumes of the first RTDose of the first plan of the parent StructureSet.
+    # @param [DoseVolume] dose_volume the dose volume to extract the dose distribution from (defaults to the sum of the dose volumes of the first RTDose of the first plan of the parent StructureSet)
+    # @raise [ArgumentError] if given a dose volume who's plan does not belong to this ROI's structure set
     #
     def distribution(dose_volume=@struct.plan.rt_dose.sum)
       raise ArgumentError, "Invalid argument 'dose_volume'. Expected DoseVolume, got #{dose_volume.class}." unless dose_volume.is_a?(DoseVolume)
@@ -251,17 +260,25 @@ module RTKIT
 
     # Sets the frame attribute.
     #
-    def frame=(frame)
-      @frame = frame.to_frame
+    # @param [NilClass, #to_frame] value the ROI's referenced Frame instance
+    #
+    def frame=(value)
+      @frame = value.to_frame
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the ImageSeries instance that this ROI is defined in.
+    # Gives the ImageSeries instance which this ROI is defined for.
+    #
+    # @return [ImageSeries] the image series which this ROI belongs to
     #
     def image_series
       return @struct.image_series.first
@@ -269,17 +286,24 @@ module RTKIT
 
     # Sets the interpreter attribute.
     #
+    # @param [NilClass, #to_s] value the ROI interpreter (3006,00A6)
+    #
     def interpreter=(value)
       @interpreter = value && value.to_s
     end
 
     # Sets the name attribute.
     #
+    # @param [NilClass, #to_s] value the ROI name (3006,0026)
+    #
     def name=(value)
       @name = value && value.to_s
     end
 
-    # Returns the number of Contours belonging to this ROI through its Slices.
+    # Gives the number of Contour instances belonging to this ROI (through its
+    # Slices).
+    #
+    # @return [Fixnum] the contour count
     #
     def num_contours
       num = 0
@@ -291,11 +315,15 @@ module RTKIT
 
     # Sets the number attribute.
     #
+    # @param [NilClass, #to_s] value the ROI number (3006,0022 - 3006,0082 - 3006,0084)
+    #
     def number=(value)
       @number = value.to_i
     end
 
-    # Creates and returns a RT ROI Obervations Sequence Item from the attributes of the ROI.
+    # Creates a RT ROI Obervations Sequence Item from the attributes of the ROI instance.
+    #
+    # @return [DICOM::Item] a RT ROI obervations sequence item
     #
     def obs_item
       item = DICOM::Item.new
@@ -306,7 +334,8 @@ module RTKIT
       return item
     end
 
-    # Removes the parent references of the ROI (StructureSet and Frame).
+    # Removes the parent references of the ROI: the StructureSet association
+    # (struct) and Frame association (frame).
     #
     def remove_references
       @frame = nil
@@ -315,7 +344,8 @@ module RTKIT
 
     # Calculates the size (volume) of the ROI by evaluating the ROI's
     # delination in the referenced image series.
-    # Returns a float, giving the volume in units of cubic centimeters,
+    #
+    # @return [Float] the ROI volume (in units of cubic centimeters)
     #
     def size
       volume = 0.0
@@ -334,13 +364,13 @@ module RTKIT
       return volume / 1000.0
     end
 
-    # Returns the Slice instance mathcing the specified SOP Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Slice instance associated with the ROI is returned.
+    # Gives the Slice instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the SOP Instance UID element.
+    # @overload slice(uid)
+    #   @param [String] uid SOP instance UID
+    #   @return [Slice, NilClass] the matched slice (or nil if no slice is matched)
+    # @overload slice
+    #   @return [Slice, NilClass] the first slice of this instance (or nil if no child slices exists)
     #
     def slice(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -353,7 +383,9 @@ module RTKIT
       end
     end
 
-    # Creates and returns a Structure Set ROI Sequence Item from the attributes of the ROI.
+    # Creates a Structure Set ROI Sequence Item from the attributes of the ROI instance.
+    #
+    # @return [DICOM::Item] a structure set ROI sequence item
     #
     def ss_item
       item = DICOM::Item.new
@@ -366,11 +398,15 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [ROI] self
+    #
     def to_roi
       self
     end
 
     # Sets the type attribute.
+    #
+    # @param [NilClass, #to_s] value the RT ROI interpreted type (3006,00A4)
     #
     def type=(value)
       @type = value && value.to_s
@@ -380,13 +416,17 @@ module RTKIT
     private
 
 
-    # Creates and returns a random color string (used for the ROI Display Color element).
+    # Creates a random color string (used for the ROI Display Color element).
+    #
+    # @return [String] a properly formatted DICOM color string (with random colors)
     #
     def random_color
       return "#{rand(256).to_i}\\#{rand(256).to_i}\\#{rand(256).to_i}"
     end
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@algorithm, @color, @interpreter, @name, @number, @slices, @type]

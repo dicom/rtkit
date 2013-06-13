@@ -4,7 +4,8 @@ module RTKIT
   #
   # === Inheritance
   #
-  # * As the SliceImage class inherits from the Image class, all Image methods are available to instances of SliceImage.
+  # * As the SliceImage class inherits from the Image class, all Image methods
+  # are available to instances of SliceImage.
   #
   class SliceImage < Image
 
@@ -17,10 +18,10 @@ module RTKIT
     # specified DICOM object. The image object's SOP Instance UID string
     # value is used to uniquely identify an image.
     #
-    # @param [DObject] dcm  an instance of a DICOM object
+    # @param [DICOM::DObject] dcm  an instance of a DICOM object
     # @param [Series] series the series instance that this image slice belongs to
     # @return [SliceImage] the created SliceImage instance
-    # @raise [ArgumentError] if the given dicom object doesn't have a slice image type modality
+    # @raise [ArgumentError] if the given DICOM object doesn't have a slice image type modality
     #
     def self.load(dcm, series)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -38,9 +39,9 @@ module RTKIT
     # Creates a new SliceImage instance. The SOP Instance UID tag value is
     # used to uniquely identify an image.
     #
-    # @param [String] sop_uid the SOP Instance UID of this image slice
+    # @param [String] sop_uid the SOP Instance UID value
     # @param [String] pos_slice the slice position of this image
-    # @param [Series] series the series instance that this image slice belongs to
+    # @param [Series] series the Series instance which this SliceImage is associated with
     # @raise [ArgumentError] if the referenced series doesn't have a slice image type modality
     #
     def initialize(sop_uid, pos_slice, series)
@@ -55,8 +56,8 @@ module RTKIT
       @series.add_image(self)
     end
 
-    # Creates a filled, binary NArray image ('segmented' image)
-    # based on the provided contour coordinates.
+    # Creates a filled, binary NArray image ('segmented' image) based on the
+    # provided contour coordinates.
     #
     # @param [Array, NArray] coords_x the contour's x coordinates
     # @param [Array, NArray] coords_y the contour's y coordinates
@@ -103,17 +104,17 @@ module RTKIT
 
     # Sets the cosines attribute.
     #
-    # @param [Array] cos the 6 6 direction cosines of the first row and first column of the image
+    # @param [NilClass, Array<#to_f>] values the 6 direction cosines of the first row and first column of the image
     #
-    def cosines=(cos)
-      #raise ArgumentError, "Invalid argument 'cos'. Expected 6 elements, got #{cos.length}" unless cos.length == 6
-      @cosines = cos && cos.to_a.collect! {|val| val.to_f}
+    def cosines=(values)
+      #raise ArgumentError, "Invalid argument 'values'. Expected 6 elements, got #{values.length}" unless values.length == 6
+      @cosines = values && values.to_a.collect! {|val| val.to_f}
     end
 
     # Transfers the pixel data, as well as the related image properties and the
-    # DObject instance itself, to the image instance.
+    # DICOM object itself to the image instance.
     #
-    # @param [DObject] dcm  an instance of a DICOM object
+    # @param [DICOM::DObject] dcm  an instance of a DICOM object
     # @raise [ArgumentError] if the given dicom object doesn't have a slice image type modality
     #
     def load_pixel_data(dcm)
@@ -142,18 +143,18 @@ module RTKIT
 
     # Sets the pos_slice attribute.
     #
-    # @param [#to_f] pos the slice position of the image
+    # @param [NilClass, #to_f] value the slice position of the image
     #
-    def pos_slice=(pos)
-      @series.update_image_position(self, pos)
-      @pos_slice = pos && pos.to_f
+    def pos_slice=(value)
+      @series.update_image_position(self, value)
+      @pos_slice = value && value.to_f
     end
 
     # Converts the Image instance to a DICOM object.
     #
-    # @note This method uses the original DObject instance, updating it with
-    # attributes from the image instance.
-    # @return [DObject] a DICOM object
+    # @note This method uses the image's original DICOM object,
+    #   and updates it with attributes from the image instance.
+    # @return [DICOM::DObject] the processed DICOM object
     #
     def to_dcm
       # Use the original DICOM object as a starting point,

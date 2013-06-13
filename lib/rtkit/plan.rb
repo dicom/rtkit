@@ -29,13 +29,13 @@ module RTKIT
     # The StructureSet that this Plan belongs to.
     attr_reader :struct
 
-    # Creates a new Plan instance by loading the relevant information from the specified DICOM object.
-    # The SOP Instance UID string value is used to uniquely identify a Plan instance.
+    # Creates a new Plan instance by loading the relevant information from the
+    # specified DICOM object. The SOP Instance UID string value is used to
+    # uniquely identify a Plan instance.
     #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- An instance of a DICOM object (DICOM::DObject) with modality 'RTPLAN'.
-    # * <tt>study</tt> -- The Study instance that this RTPlan belongs to.
+    # @param [DICOM::DObject] dcm an RTPLAN DICOM object from which to create the Plan
+    # @param [Study] study the Study instance which the (RT) Plan shall be associated with
+    # @return [Plan] the created Plan instance
     #
     def self.load(dcm, study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -60,8 +60,13 @@ module RTKIT
       return plan
     end
 
-    # Identifies the StructureSet that the Plan object belongs to.
-    # If the referenced instances (StructureSet, ImageSeries & Frame) does not exist, they are created by this method.
+    # Identifies the StructureSet that the Plan object belongs to. If the
+    # referenced instances (StructureSet, ImageSeries & Frame) does not exist,
+    # they are created by this method.
+    #
+    # @param [DICOM::DObject] dcm an RTPLAN DICOM object
+    # @param [Study] study the Study instance which the (RT) Plan shall be associated with
+    # @return [StructureSet] the structure set that the plan instance is to be associated with
     #
     def self.structure_set(dcm, study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -97,18 +102,13 @@ module RTKIT
 
     # Creates a new Plan instance.
     #
-    # === Parameters
-    #
-    # * <tt>sop_uid</tt> -- The SOP Instance UID string.
-    # * <tt>struct</tt> -- The StructureSet that this Plan belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:date</tt> -- String. The Series Date (DICOM tag '0008,0021').
-    # * <tt>:time</tt> -- String. The Series Time (DICOM tag '0008,0031').
-    # * <tt>:description</tt> -- String. The Series Description (DICOM tag '0008,103E').
-    # * <tt>:series_uid</tt> -- String. The Series Instance UID (DICOM tag '0020,000E').
+    # @param [String] sop_uid the SOP Instance UID string
+    # @param [StructureSet] struct the StructureSet instance which this Plan is associated with
+    # @param [Hash] options the options to use for creating the plan
+    # @option options [String] :date the series date (DICOM tag '0008,0021')
+    # @option options [String] :description the series description (DICOM tag '0008,103E')
+    # @option options [String] :series_uid the series instance UID (DICOM tag '0020,000E')
+    # @option options [String] :time the series time (DICOM tag '0008,0031')
     #
     def initialize(sop_uid, struct, options={})
       raise ArgumentError, "Invalid argument 'sop_uid'. Expected String, got #{sop_uid.class}." unless sop_uid.is_a?(String)
@@ -132,7 +132,13 @@ module RTKIT
       @struct.add_plan(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_plan)
@@ -143,7 +149,9 @@ module RTKIT
     alias_method :eql?, :==
 
     # Registers a DICOM Object to the Plan, and processes it
-    # to create (and reference) the fields contained in the object.
+    # to create (and reference) the beams contained in the object.
+    #
+    # @param [DICOM::DObject] dcm an RTPLAN DICOM object
     #
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -153,7 +161,8 @@ module RTKIT
     end
 
     # Adds a Beam to this Plan.
-    # Note: Intended for internal use in the library only.
+    #
+    # @param [Beam] beam a beam instance to be associated with this plan
     #
     def add_beam(beam)
       raise ArgumentError, "Invalid argument 'beam'. Expected Beam, got #{beam.class}." unless beam.is_a?(Beam)
@@ -161,7 +170,8 @@ module RTKIT
     end
 
     # Adds a RTDose series to this Plan.
-    # Note: Intended for internal use in the library only.
+    #
+    # @param [RTDose] rt_dose an RTDose instance to be associated with this plan
     #
     def add_rt_dose(rt_dose)
       raise ArgumentError, "Invalid argument 'rt_dose'. Expected RTDose, got #{rt_dose.class}." unless rt_dose.is_a?(RTDose)
@@ -170,7 +180,8 @@ module RTKIT
     end
 
     # Adds a RTImage Series to this Plan.
-    # Note: Intended for internal use in the library only.
+    #
+    # @param [RTImage] rt_image an RTImage instance to be associated with this plan
     #
     def add_rt_image(rt_image)
       raise ArgumentError, "Invalid argument 'rt_image'. Expected RTImage, got #{rt_image.class}." unless rt_image.is_a?(RTImage)
@@ -178,26 +189,31 @@ module RTKIT
     end
 
     # Sets the Setup reference for this Plan.
-    # Note: Intended for internal use in the library only.
+    #
+    # @param [Setup] setup the patient setup instance to be associated with this plan
     #
     def add_setup(setup)
       raise ArgumentError, "Invalid argument 'setup'. Expected Setup, got #{setup.class}." unless setup.is_a?(Setup)
       @setup = setup
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the RTDose instance mathcing the specified Series Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first RTDose instance associated with the Plan is returned.
+    # Gives the RTDose instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the Series Instance UID element.
+    # @overload rt_dose(uid)
+    #   @param [String] uid RTDose series instance UID
+    #   @return [RTDose, NilClass] the matched RTDose (or nil if no RTDose is matched)
+    # @overload rt_dose
+    #   @return [RTDose, NilClass] the first RTDose of this instance (or nil if no child RTDose instances exists)
     #
     def rt_dose(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -211,6 +227,8 @@ module RTKIT
     end
 
     # Returns self.
+    #
+    # @return [Plan] self
     #
     def to_plan
       self
@@ -240,8 +258,9 @@ module RTKIT
 
     # Loads the Beam Items contained in the RTPlan and creates Beam instances.
     #
-    # @note This method currently only supports setting up external beam RTPlans.
-    #   For brachy plans, no child structures (e.g. beams) are created.
+    # @note This method currently only supports setting up conventional
+    #   external beam RTPlans. For other varieties, such as e.g. brachy plans,
+    #   no child structures (e.g. beams) are created.
     #
     def load_beams
       # Top allow brachy plans to load without crashing, only proceed
@@ -266,7 +285,9 @@ module RTKIT
       end
     end
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@beams, @rt_doses, @rt_images, @setup, @sop_uid]

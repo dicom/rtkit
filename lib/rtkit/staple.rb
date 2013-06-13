@@ -1,9 +1,10 @@
 module RTKIT
 
-  # The Staple class is used for simultaneously evaluating the performance of multiple volume segmentations
-  # (typically derived from a RT Structure Set) as well as establishing the hidden true segmentation based
-  # on probabilistic analysis of the supplied rater decisions. The determined true segmentation can easily
-  # be exported to a RT Structure Set for external use.
+  # The Staple class is used for simultaneously evaluating the performance of
+  # multiple volume segmentations (typically derived from a RT Structure Set)
+  # as well as establishing the hidden true segmentation based on probabilistic
+  # analysis of the supplied rater decisions. The determined true segmentation
+  # can easily be exported to a RT Structure Set for external use.
   #
   # === THEORY
   #
@@ -12,7 +13,8 @@ module RTKIT
   # Probability mass function of the complete data:
   # f(D,T | p,q)
   # Task:
-  # Which performance level parameters (p,q) will maximize the complete data log likelihood function:
+  # Which performance level parameters (p,q) will maximize the complete data
+  # log likelihood function:
   # (p',q') = arg max_pq ln f(D,T | p,q)
   #
   # Indices:  D[i,j]
@@ -20,8 +22,9 @@ module RTKIT
   # Segmentation nr: j
   # Iteration nr: k
   #
-  # The Expectation-Maximization algorithm approaches the problem of maximizing the incomplete data log likelihood
-  # equation by proceeding iteratively with estimation and maximization of the complete data log likelihood function.
+  # The Expectation-Maximization algorithm approaches the problem of maximizing
+  # the incomplete data log likelihood equation by proceeding iteratively with
+  # estimation and maximization of the complete data log likelihood function.
   #
   class Staple
 
@@ -48,14 +51,9 @@ module RTKIT
 
     # Creates a Staple instance for the provided segmented volumes.
     #
-    # === Parameters
-    #
-    # * <tt>bin_matcher</tt> -- An BinMatcher instance containing at least two volumes.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:max_iterations</tt> -- Integer. The maximum number of iterations to use in the STAPLE algorithm. Defaults to 25.
+    # @param [BinMatcher] bin_matcher a collection of at least two comparable volumes
+    # @param [Hash] options the options to use for creating the staple instance
+    # @option options [Integer] :max_iterations the maximum number of iterations to use in the STAPLE algorithm (defaults to 25)
     #
     def initialize(bin_matcher, options={})
       raise ArgumentError, "Invalid argument 'bin_matcher'. Expected BinMatcher, got #{bin_matcher.class}." unless bin_matcher.is_a?(BinMatcher)
@@ -76,7 +74,13 @@ module RTKIT
       @max_iterations = options[:max_iterations] || 25
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_staple)
@@ -86,17 +90,24 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Along each dimension of the input volume, removes any index (slice, column or row) which is empty in all volumes.
-    # The result is a reduced volume used for the analysis, yielding scores with better contrast on specificity.
-    # This implementation aims to be independent of the number of dimensions in the input segmentation.
+    # Along each dimension of the input volumes, removes any index (slice,
+    # column or row) which is empty in all volumes. The result is a reduced
+    # volume used for the analysis, yielding scores with better contrast on
+    # specificity.
     #
     def remove_empty_indices
+      # (Note that this implementation aims to be independent of the number of
+      # dimensions in the input segmentation.)
       # It only makes sense to run this volume reduction if the number of dimensions are 2 or more:
       if @original_volumes.first.dim > 1
         # To be able to reconstruct the volume later on, we need to keep track of the original indices
@@ -124,8 +135,8 @@ module RTKIT
       end
     end
 
-    # Applies the STAPLE algorithm to the dataset to determine the true hidden segmentation
-    # as well as scoring the various segmentations.
+    # Applies the STAPLE algorithm to the dataset to determine the true hidden
+    # segmentation as well as scoring the various segmentations.
     #
     def solve
       set_parameters
@@ -205,6 +216,8 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Staple] self
+    #
     def to_staple
       self
     end
@@ -213,8 +226,9 @@ module RTKIT
     private
 
 
-    # Reshapes the true segmentation vector to a volume which is comparable with the input volumes for the
-    # Staple instance. If volume reduction has been peformed, this must be taken into account.
+    # Reshapes the true segmentation vector to a volume which is comparable
+    # with the input volumes for the Staple instance. If volume reduction has
+    # been peformed, this must be taken into account.
     #
     def construct_segmentation_volume
       if @volumes.first.shape == @original_volumes.first.shape
@@ -230,7 +244,7 @@ module RTKIT
       end
     end
 
-    # Sets the instance variables used by the STAPLE algorithm.
+    # Sets the instance attributes used by the STAPLE algorithm.
     #
     def set_parameters
       # Convert the volumes to vectors:
@@ -266,15 +280,20 @@ module RTKIT
       @weights_current = NArray.float(@n)
     end
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
       [@volumes.collect{|narr| narr.to_a}, @max_iterations]
     end
 
-    # Updates the BinMatcher instance with information following the completion of the Staple analysis.
-    # * Creates a BinVolume instance for the true segmentation and inserts it as a master volume.
-    # * Updates the various volumes of the BinMatcher instance with their determined sensitivity and specificity scores.
+    # Updates the BinMatcher instance with information following the completion
+    # of the Staple analysis.
+    # * Creates a BinVolume instance for the true segmentation and inserts it
+    # as a master volume.
+    # * Updates the various volumes of the BinMatcher instance with their
+    # determined sensitivity and specificity scores.
     #
     def update_bin_matcher
       # Create an empty BinVolume with no ROI reference:
@@ -293,8 +312,10 @@ module RTKIT
       end
     end
 
-    # The number of voxels must be the same for all segmentation vectors going into the STAPLE analysis.
-    # If it is not, an error is raised.
+    # Ensures that the number of voxels are the same for all segmentation
+    # vectors going into the STAPLE analysis.
+    #
+    # raise [IndexError] if the vectors to be compared in the STAPLE analysis are of different lengths
     #
     def verify_equal_vector_lengths
       vector_lengths = @vectors.collect{|vector| vector.length}

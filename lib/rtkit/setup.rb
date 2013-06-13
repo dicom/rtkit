@@ -1,6 +1,7 @@
 module RTKIT
 
-  # Contains DICOM data and methods related to a patient Setup item, defined in a Plan.
+  # Contains DICOM data and methods related to a patient Setup item, defined in
+  # a Plan.
   #
   # === Relations
   #
@@ -24,12 +25,10 @@ module RTKIT
     attr_reader :technique
 
     # Creates a new Setup instance from the patient setup item of the RTPlan file.
-    # Returns the Setup instance.
     #
-    # === Parameters
-    #
-    # * <tt>setup_item</tt> -- The patient setup item from the DObject of a RTPlan file.
-    # * <tt>plan</tt> -- The Plan instance that this Setup belongs to.
+    # @param [DICOM::Item] setup_item the DICOM patient setup item from which to create the Setup
+    # @param [Plan] plan the Plan instance which the Setup shall be associated with
+    # @return [Setup] the created Setup instance
     #
     def self.create_from_item(setup_item, plan)
       raise ArgumentError, "Invalid argument 'setup_item'. Expected DICOM::Item, got #{setup_item.class}." unless setup_item.is_a?(DICOM::Item)
@@ -49,19 +48,14 @@ module RTKIT
 
     # Creates a new Setup instance.
     #
-    # === Parameters
-    #
-    # * <tt>position</tt> -- String. The patient position (orientation).
-    # * <tt>number</tt> -- Integer. The Setup number.
-    # * <tt>plan</tt> -- The Plan instance that this Beam belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:technique</tt> -- String. Setup technique.
-    # * <tt>:offset_vertical</tt> -- Float. Table top vertical setup displacement.
-    # * <tt>:offset_longitudinal</tt> -- Float. Table top longitudinal setup displacement.
-    # * <tt>:offset_lateral</tt> -- Float. Table top lateral setup displacement.
+    # @param [String] position the patient position (orientation)
+    # @param [Integer] number the setup number
+    # @param [Plan] plan the Plan instance which the Setup is associated with
+    # @param [Hash] options the options to use for creating the Setup
+    # @option options [Float] :offset_lateral table top lateral setup displacement
+    # @option options [Float] :offset_longitudinal table top longitudinal setup displacement
+    # @option options [Float] :offset_vertical table top vertical setup displacement
+    # @option options [String] :technique setup technique
     #
     def initialize(position, number, plan, options={})
       raise ArgumentError, "Invalid argument 'plan'. Expected Plan, got #{plan.class}." unless plan.is_a?(Plan)
@@ -79,7 +73,13 @@ module RTKIT
       @plan.add_setup(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_setup)
@@ -89,7 +89,11 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
@@ -97,9 +101,7 @@ module RTKIT
 
     # Sets a new patient setup number.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The patient setup number.
+    # @param [Integer] value the patient setup number (300A,0182)
     #
     def number=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected Integer, got #{value.class}." unless value.is_a?(Integer)
@@ -108,9 +110,7 @@ module RTKIT
 
     # Sets a new table top lateral setup displacement.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The table top lateral setup displacement.
+    # @param [Float] value the table top lateral setup displacement (300A,01D6)
     #
     def offset_lateral=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected Float, got #{value.class}." unless value.is_a?(Float)
@@ -119,9 +119,7 @@ module RTKIT
 
     # Sets a new table top longitudinal setup displacement.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The table top longitudinal setup displacement.
+    # @param [Float] value the table top longitudinal setup displacement (300A,01D4)
     #
     def offset_longitudinal=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected Float, got #{value.class}." unless value.is_a?(Float)
@@ -130,9 +128,7 @@ module RTKIT
 
     # Sets a new table top vertical setup displacement.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- Float. The table top vertical setup displacement.
+    # @param [Float] value the table top vertical setup displacement (300A,01D2)
     #
     def offset_vertical=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected Float, got #{value.class}." unless value.is_a?(Float)
@@ -141,9 +137,7 @@ module RTKIT
 
     # Sets a new patient position.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The patient position.
+    # @param [String] value the patient position (0018,5100)
     #
     def position=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
@@ -152,16 +146,17 @@ module RTKIT
 
     # Sets a new setup technique.
     #
-    # === Parameters
-    #
-    # * <tt>value</tt> -- String. The setup technique.
+    # @param [String] value the setup technique (300A,01B0)
     #
     def technique=(value)
       raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
       @technique = value
     end
 
-    # Creates and returns a Patient Setup Sequence Item from the attributes of the Setup.
+    # Creates an RTPLAN Patient Setup Sequence Item from the attributes of the
+    # Setup instance.
+    #
+    # @return [DICOM::Item] an RTPLAN patient setup sequence sequence item
     #
     def to_item
       item = DICOM::Item.new
@@ -180,6 +175,8 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Setup] self
+    #
     def to_setup
       self
     end
@@ -188,7 +185,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@number, @offset_lateral, @offset_longitudinal, @offset_vertical, @position, @technique]

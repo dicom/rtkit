@@ -26,13 +26,13 @@ module RTKIT
     # The Study Time.
     attr_reader :time
 
-    # Creates a new Study instance by loading study information from the specified DICOM object.
-    # The Study's UID string value is used to uniquely identify a study.
+    # Creates a new Study instance by loading study information from the
+    # specified DICOM object. The Study's UID string value is used to uniquely
+    # identify a study.
     #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- An instance of a DICOM object (DICOM::DObject).
-    # * <tt>patient</tt> -- The Patient instance that this Study belongs to.
+    # @param [DICOM::DObject] dcm a DICOM object from which to create the Study
+    # @param [Patient] patient the Patient instance which the Study shall be associated with
+    # @return [Study] the created Study instance
     #
     def self.load(dcm, patient)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -47,20 +47,16 @@ module RTKIT
       return study
     end
 
-    # Creates a new Study instance. The Study Instance UID string is used to uniquely identify a Study.
+    # Creates a new Study instance. The Study Instance UID string is used to
+    # uniquely identify a study.
     #
-    # === Parameters
-    #
-    # * <tt>study_uid</tt> -- The Study Instance UID string.
-    # * <tt>patient</tt> -- The Patient instance that this Study belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:date</tt> -- String. The Study Date (DICOM tag '0008,0020').
-    # * <tt>:time</tt> -- String. The Study Time (DICOM tag '0008,0030').
-    # * <tt>:description</tt> -- String. The Study Description (DICOM tag '0008,1030').
-    # * <tt>:id</tt> -- String. The Study ID (DICOM tag '0020,0010').
+    # @param [String] study_uid the Study Instance UID string
+    # @param [Patient] patient the Patient instance which this Study is associated with
+    # @param [Hash] options the options to use for creating the study
+    # @option options [String] :date the study date (DICOM tag '0008,0020')
+    # @option options [String] :description the study description (DICOM tag '0008,1030')
+    # @option options [String] :id the study ID (DICOM tag '0020,0010')
+    # @option options [String] :time the study time (DICOM tag '0008,0030')
     #
     def initialize(study_uid, patient, options={})
       raise ArgumentError, "Invalid argument 'study_uid'. Expected String, got #{study_uid.class}." unless study_uid.is_a?(String)
@@ -87,8 +83,11 @@ module RTKIT
       @patient.add_study(self)
     end
 
-    # Adds a DICOM object to the study, by adding it
-    # to an existing Series, or creating a new Series.
+    # Registers a DICOM object to the study, and processes it to either create
+    # (and reference) a new series instance linked to this study, or
+    # registering it with an existing series.
+    #
+    # @param [DICOM::DObject] dcm a DICOM object
     #
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -117,7 +116,13 @@ module RTKIT
       end
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_study)
@@ -129,9 +134,7 @@ module RTKIT
 
     # Adds a Series to this Study.
     #
-    #--
-    # Note: At some time we may decide to allow only ImageSeries
-    # (i.e. excluding other kinds of series) to be attached to a study.
+    # @param [Series] series a series instance to be associated with this study
     #
     def add_series(series)
       raise ArgumentError, "Invalid argument 'series'. Expected Series, got #{series.class}." unless series.is_a?(Series)
@@ -142,19 +145,23 @@ module RTKIT
       @associated_iseries[series.uid] = series if series.is_a?(ImageSeries)
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the ImageSeries instance mathcing the specified Series Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first ImageSeries instance associated with the Study is returned.
+    # Gives the ImageSeries instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the Series Instance UID element.
+    # @overload iseries(uid)
+    #   @param [String] uid series instance UID
+    #   @return [ImageSeries, NilClass] the matched image series (or nil if no image series is matched)
+    # @overload iseries
+    #   @return [ImageSeries, NilClass] the first image series of this instance (or nil if no child image series exists)
     #
     def iseries(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -167,14 +174,13 @@ module RTKIT
       end
     end
 
-    # Returns the Series instance mathcing the specified unique identifier (if an argument is used).
-    # The unique identifier is either a Series Instance UID (for ImageSeries) or a SOP Instance UID (for other kinds).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Series instance associated with the Study is returned.
+    # Gives the Series instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- The Series' unique identifier string.
+    # @overload fseries(uid)
+    #   @param [String] uid unique identifier (either a series instance UID or a SOP instance UID, depending on the type of series)
+    #   @return [Series, NilClass] the matched series (or nil if no series is matched)
+    # @overload fseries
+    #   @return [Series, NilClass] the first series of this instance (or nil if no child series exists)
     #
     def fseries(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -189,11 +195,16 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Study] self
+    #
     def to_study
       self
     end
 
-    # Returns the unique identifier string, which for this class is the Study Instance UID.
+    # Gives the unique identifier string, which for this class is the Study
+    # Instance UID.
+    #
+    # @return [String] the study instance UID
     #
     def uid
       return @study_uid
@@ -203,7 +214,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@date, @description, @id, @image_series, @time, @study_uid]

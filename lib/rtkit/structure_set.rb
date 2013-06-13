@@ -1,6 +1,7 @@
 module RTKIT
 
-  # The StructureSet class contains methods that are specific for this modality (RTSTRUCT).
+  # The StructureSet class contains methods that are specific for this modality
+  # (RTSTRUCT).
   #
   # === Inheritance
   #
@@ -19,13 +20,13 @@ module RTKIT
     # The SOP Instance UID.
     attr_reader :sop_uid
 
-    # Creates a new StructureSet instance by loading the relevant information from the specified DICOM object.
-    # The SOP Instance UID string value is used to uniquely identify a StructureSet instance.
+    # Creates a new StructureSet instance by loading the relevant information
+    # from the specified DICOM object. The SOP Instance UID string value is
+    # used to uniquely identify a StructureSet instance.
     #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- An instance of a DICOM object (DICOM::DObject) with modality 'RTSTRUCT'.
-    # * <tt>study</tt> -- The Study instance that this StructureSet belongs to.
+    # @param [DICOM::DObject] dcm an RTSTRUCT DICOM object from which to create the StructureSet
+    # @param [Study] study the Study instance which the StructureSet shall be associated with
+    # @return [StructureSet] the created StructureSet instance
     #
     def self.load(dcm, study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -48,7 +49,12 @@ module RTKIT
     end
 
     # Identifies the ImageSeries that the StructureSet object belongs to.
-    # If the referenced instances (ImageSeries & Frame) does not exist, they are created by this method.
+    # If the referenced instances (ImageSeries & Frame) does not exist, they
+    # are created by this method.
+    #
+    # @param [DICOM::DObject] dcm an RTSTRUCT DICOM object
+    # @param [Study] study the Study instance which the StructureSet instance shall be associated with
+    # @return [ImageSeries] the ImageSeries that the StructureSet instance is to be associated with
     #
     def self.image_series(dcm, study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -85,18 +91,13 @@ module RTKIT
 
     # Creates a new StructureSet instance.
     #
-    # === Parameters
-    #
-    # * <tt>sop_uid</tt> -- The SOP Instance UID string.
-    # * <tt>image_series</tt> -- An Image Series that this StructureSet belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:date</tt> -- String. The Series Date (DICOM tag '0008,0021').
-    # * <tt>:time</tt> -- String. The Series Time (DICOM tag '0008,0031').
-    # * <tt>:description</tt> -- String. The Series Description (DICOM tag '0008,103E').
-    # * <tt>:series_uid</tt> -- String. The Series Instance UID (DICOM tag '0020,000E').
+    # @param [String] sop_uid the SOP instance UID string
+    # @param [ImageSeries] image_series the ImageSeries which this StructureSet is associated with
+    # @param [Hash] options the options to use for creating the StructureSet
+    # @option options [String] :date the series date (DICOM tag '0008,0021')
+    # @option options [String] :description the series description (DICOM tag '0008,103E')
+    # @option options [String] :series_uid the series instance UID (DICOM tag '0020,000E')
+    # @option options [String] :time the series time (DICOM tag '0008,0031')
     #
     def initialize(sop_uid, image_series, options={})
       raise ArgumentError, "Invalid argument 'sop_uid'. Expected String, got #{sop_uid.class}." unless sop_uid.is_a?(String)
@@ -117,7 +118,13 @@ module RTKIT
       @image_series << image_series
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_structure_set)
@@ -127,8 +134,10 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Registers a DICOM Object to the StructureSet, and processes it
-    # to create (and reference) the ROIs contained in the object.
+    # Registers a DICOM object to the StructureSet, and processes it to create
+    # (and reference) the ROIs contained in the object.
+    #
+    # @param [DICOM::DObject] dcm an RTSTRUCT DICOM object
     #
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -137,7 +146,8 @@ module RTKIT
     end
 
     # Adds a Plan Series to this StructureSet.
-    # Note: Intended for internal use in the library only.
+    #
+    # @param [Plan] plan a plan instance to be associated with this structure set
     #
     def add_plan(plan)
       raise ArgumentError, "Invalid argument 'plan'. Expected Plan, got #{plan.class}." unless plan.is_a?(Plan)
@@ -147,30 +157,25 @@ module RTKIT
 
     # Adds a ROI instance to this StructureSet.
     #
+    # @param [ROI] roi a roi instance to be associated with this structure set
+    #
     def add_roi(roi)
       raise ArgumentError, "Invalid argument 'roi'. Expected ROI, got #{roi.class}." unless roi.is_a?(ROI)
       @rois << roi unless @rois.include?(roi)
     end
 
     # Creates a ROI belonging to this StructureSet.
-    # Returns the created ROI.
     #
-    # === Notes
+    # @note The ROI is created without any Slice instances (these must be added
+    # after the ROI creation).
     #
-    # * The ROI is created without Slices, and these must be added after the ROI creation.
-    #
-    # === Parameters
-    #
-    # * <tt>frame</tt> -- The Frame instance which the ROI will belong to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:algorithm</tt> -- String. The ROI Generation Algorithm. Defaults to 'Automatic'.
-    # * <tt>:name</tt> -- String. The ROI Name. Defaults to 'RTKIT-VOLUME'.
-    # * <tt>:number</tt> -- Integer. The ROI Number. Defaults to the first available ROI Number in the StructureSet.
-    # * <tt>:interpreter</tt> -- String. The ROI Interpreter. Defaults to 'RTKIT'.
-    # * <tt>:type</tt> -- String. The ROI Interpreted Type. Defaults to 'CONTROL'.
+    # @param [Frame] frame the Frame which the ROI is to be associated with
+    # @param [Hash] options the options to use for creating the ROI
+    # @option options [String] :algorithm the ROI generation algorithm (defaults to 'Automatic')
+    # @option options [String] :interpreter the ROI interpreter (defaults to 'RTKIT')
+    # @option options [String] :name the ROI name (defaults to 'RTKIT-VOLUME')
+    # @option options [String] :number the ROI number (defaults to the first available ROI number in the structure set)
+    # @option options [String] :type the ROI interpreted type (defaults to 'CONTROL')
     #
     def create_roi(frame, options={})
       raise ArgumentError, "Expected Frame, got #{frame.class}." unless frame.is_a?(Frame)
@@ -191,7 +196,11 @@ module RTKIT
       return roi
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
@@ -199,20 +208,21 @@ module RTKIT
 
     # Assigns a new image series parent to this structure set.
     #
-    # @note This method is a temporary fix! A final specification on the relationship
-    #   between image series, structure sets and rois is pending.
+    # @note This method is a temporary fix! A final specification on the
+    #   relationship between image series, structure sets and rois is pending.
+    # @param [ImageSeries] img_series the image series which this structure set is to be associated with
     #
     def image_series=(img_series)
       @image_series = [img_series]
     end
 
-    # Returns the Plan instance mathcing the specified SOP Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Plan instance associated with the StructureSet is returned.
+    # Gives the Plan instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the SOP Instance UID element.
+    # @overload plan(uid)
+    #   @param [String] uid SOP instance UID
+    #   @return [Plan, NilClass] the matched plan (or nil if no plan is matched)
+    # @overload plan
+    #   @return [Plan, NilClass] the first plan of this instance (or nil if no child plans exists)
     #
     def plan(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -225,11 +235,9 @@ module RTKIT
       end
     end
 
-    # Removes the ROI (specified by a ROI Number) from the Structure Set.
+    # Removes a ROI from the structure set.
     #
-    # === Parameters
-    #
-    # * <tt>instance_or_number</tt> -- The ROI Instance (or ROI Number of the instance) to be removed.
+    # @param [ROI, Integer] instance_or_number the ROI instance (or ROI number of the instance) to be removed
     #
     def remove_roi(instance_or_number)
       raise ArgumentError, "Invalid argument 'instance_or_number'. Expected a ROI Instance or an Integer (ROI Number). Got #{instance_or_number.class}." unless [ROI, Integer].include?(instance_or_number.class)
@@ -244,7 +252,7 @@ module RTKIT
       end
     end
 
-    # Removes all ROIs from the Structure Set.
+    # Removes all ROI instances from the structure set.
     #
     def remove_rois
       @rois.each do |roi|
@@ -253,8 +261,10 @@ module RTKIT
       @rois = Array.new
     end
 
-    # Returns a ROI that matches the specified number or name.
-    # Returns nil if no match is found.
+    # Gives a ROI that matches the specified number or name.
+    #
+    # @param [String, Integer] name_or_number a ROI's name or number attribute
+    # @return [ROI, NilClass] the matching ROI (or nil if no ROI is matched)
     #
     def roi(name_or_number)
       raise ArgumentError, "Invalid argument 'name_or_number'. Expected String or Integer, got #{name_or_number.class}." unless [String, Integer, Fixnum].include?(name_or_number.class)
@@ -270,8 +280,9 @@ module RTKIT
       return nil
     end
 
-    # Returns the ROI Names assigned to the various structures present in the structure set.
-    # The names are returned in an array.
+    # Gives the names of the structure set's associated ROIs.
+    #
+    # @return [Array<String>] the names of the associated ROIs
     #
     def roi_names
       names = Array.new
@@ -281,8 +292,9 @@ module RTKIT
       return names
     end
 
-    # Returns the ROI Numbers assigned to the various structures present in the structure set.
-    # The numbers are returned in an array.
+    # Gives the numbers of the structure set's associated ROIs.
+    #
+    # @return [Array<Integer>] the numbers of the associated ROIs
     #
     def roi_numbers
       numbers = Array.new
@@ -292,8 +304,11 @@ module RTKIT
       return numbers
     end
 
-    # Returns all ROIs defined in this structure set that belongs to the specified Frame of Reference UID.
+    # Gives all ROIs associated with this structure set which belongs to the
+    # specified Frame of Reference UID.
     # Returns an empty array if no matching ROIs are found.
+    #
+    # @return [Array<ROI>] the matching ROIs (an empty Array if no ROIs are matched)
     #
     def rois_in_frame(uid)
       raise ArgumentError, "Expected String, got #{uid.class}." unless uid.is_a?(String)
@@ -304,11 +319,14 @@ module RTKIT
       return frame_rois
     end
 
-    # Sets new color values for all ROIs belonging to the StructureSet.
-    # Color values will be selected in a way which attempts to make the ROI colors maximally different.
-    # The method uses a predefined list containing 54 colors, which means for the rare case of more
-    # than 24 ROIs, some will not be assigned a color.
-    # Obviously, the more ROIs to assign colors to, the more similar the color values will be.
+    # Sets new color values for all ROIs belonging to this structure set.
+    # Color values are selected in a way which attempts to make the ROI colors
+    # maximally different. Obviously, the more ROIs to assign colors to, the
+    # more similar the color values will be.
+    #
+    # The method uses a predefined collection of 24 colors, which means that if
+    # the structure set contains more than 24 ROIs, some will not be assigned a
+    # new color.
     #
     def set_colors
       if @rois.length > 0
@@ -321,8 +339,8 @@ module RTKIT
       end
     end
 
-    # Sets new ROI Numbers to all ROIs belonging to the StructureSet.
-    # Numbers increase sequentially, starting at 1 for the first ROI.
+    # Sets new ROI numbers to all ROIs belonging to the structure set. The
+    # numbers increment sequentially, starting at 1 for the first ROI.
     #
     def set_numbers
       @rois.each_with_index do |roi, i|
@@ -330,9 +348,11 @@ module RTKIT
       end
     end
 
-    # Dumps the StructureSet instance to a DObject.
-    # This overwrites the dcm instance attribute.
-    # Returns the DObject instance.
+    # Converts the structure set instance to a DICOM object.
+    #
+    # @note This method uses the original DICOM object of the structure set,
+    #   and updates it with attributes from the structure set instance.
+    # @return [DICOM::DObject] the processed DICOM object
     #
     def to_dcm
       # Use the original DICOM object as a starting point (keeping all non-sequence elements):
@@ -351,15 +371,10 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [StructureSet] self
+    #
     def to_structure_set
       self
-    end
-
-    # Writes the StructureSet to a DICOM file given by the specified file string.
-    #
-    def write(path)
-      to_dcm
-      @dcm.write(path)
     end
 
 
@@ -395,9 +410,10 @@ module RTKIT
 =end
 
     # Loads the (first occuring set of) UID references for frame of reference
-    # as well as the image series from the Referenced Frame of Reference Sequence.
+    # as well as the image series from the Referenced Frame of Reference
+    # Sequence.
     #
-    # @param [DObject] dcm a structure set DICOM object
+    # @param [DICOM::DObject] dcm a structure set DICOM object
     # @return [Array<String, NilClass>] the frame uid and image series uid string pair (if found, otherwise nil)
     #
     def load_image_series_reference(dcm)
@@ -420,7 +436,8 @@ module RTKIT
       return frame_uid, img_series_uid
     end
 
-    # Loads the ROI Items contained in the structure set and creates ROI instances.
+    # Loads the ROI Items contained in the structure set and creates ROI
+    # instances which are referenced to this structure set.
     #
     def load_rois
       if @dcm[STRUCTURE_SET_ROI_SQ] && @dcm[ROI_CONTOUR_SQ] && @dcm[RT_ROI_OBS_SQ]
@@ -444,7 +461,7 @@ module RTKIT
       end
     end
 
-    # Initializes the color instance array.
+    # Initializes an instance color array which is used for setting ROI colors.
     #
     def initialize_colors
       @colors = [
@@ -478,7 +495,9 @@ module RTKIT
       ]
     end
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@plans, @rois, @sop_uid]

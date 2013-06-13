@@ -1,6 +1,7 @@
 module RTKIT
 
   # A Plane describes a flat, two-dimensional surface.
+  #
   # A Plane can be defined in several ways, e.g. by:
   # * A point and a normal vector.
   # * A point and two vectors lying on it.
@@ -9,27 +10,24 @@ module RTKIT
   # We will describe the plane in the form of a plane equation:
   #  ax + by +cz +d = 0
   #
-  # === Notes
+  # The Plane class can be useful for relating instances of image slices.
   #
-  # * For more information on Planes, refer to:  http://en.wikipedia.org/wiki/Plane_(geometry)
-  #
-  # === Relations
-  #
-  # Since an image slice is located in a specific plane, the Plane class may be used to relate instances of such classes.
+  # @see For more information on Planes, refer to:  http://en.wikipedia.org/wiki/Plane_(geometry)
   #
   class Plane
 
-    # The a parameter of the plane equation.
+    # The 'a' parameter of the plane equation.
     attr_reader :a
-    # The b parameter of the plane equation.
+    # The 'b' parameter of the plane equation.
     attr_reader :b
-    # The c parameter of the plane equation.
+    # The 'c' parameter of the plane equation.
     attr_reader :c
-    # The d parameter of the plane equation.
+    # The 'd' parameter of the plane equation.
     attr_reader :d
 
     # Calculates a plane equation from the 3 specified coordinates.
-    # Returns a Plane instance.
+    #
+    # @return [Plane] the created Plane instance
     #
     def self.calculate(c1, c2, c3)
       raise ArgumentError, "Invalid argument 'c1'. Expected Coordinate, got #{c1.class}" unless c1.is_a?(Coordinate)
@@ -58,9 +56,10 @@ module RTKIT
       end
     end
 
-    # The custom plane parameter d:
-    # This constant can be equal to any non-zero number.
-    # Returns the float value chosen in this implementation: 500.0
+    # The custom plane parameter d (this constant can be equal to any non-zero
+    # number).
+    #
+    # @return [Float] the 'd' value chosen in this implementation (500.0)
     #
     def self.d
       500.0
@@ -68,11 +67,9 @@ module RTKIT
 
     # Creates a new Plane instance.
     #
-    # === Parameters
-    #
-    # * <tt>a</tt> -- Float. The a parameter of the plane equation.
-    # * <tt>b</tt> -- Float. The b parameter of the plane equation.
-    # * <tt>c</tt> -- Float. The c parameter of the plane equation.
+    # @param [Float] a the 'a' parameter of the plane equation
+    # @param [Float] b the 'b' parameter of the plane equation
+    # @param [Float] c the 'c' parameter of the plane equation
     #
     def initialize(a, b, c)
       raise ArgumentError, "Invalid argument 'a'. Expected Float, got #{a.class}." unless a.is_a?(Float)
@@ -84,7 +81,13 @@ module RTKIT
       @d = Plane.d
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_plane)
@@ -94,15 +97,22 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Compares the Plane instance with an array of planes, and returns the index of the Plane
-    # who's Plane equation is closest to the plane equation of self.
-    # Returns nil if no suitable match is found.
+    # Compares this Plane instance with an array of planes in order to find the
+    # index of the plane who's plane equation is closest to the plane equation
+    # of self.
+    #
+    # @param [Array<Plane>] planes an array of planes to match against
+    # @return [Fixnumm, NilClass] the index of the matching plane in the specified array (or nil if no planes matched)
     #
     def match(planes)
       raise ArgumentError, "Invalid argument 'planes'. Expected Array, got #{planes.class}." unless planes.is_a?(Array)
@@ -141,11 +151,16 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [Plane] self
+    #
     def to_plane
       self
     end
 
-    # Converts the Plane instance to a readable string (containing the parameters a, b & c).
+    # Converts the Plane instance to a an easily readable string (containing
+    # the parameters a, b & c).
+    #
+    # @return [String] the plane parameters formatted to a string
     #
     def to_s
       return "a: #{@a.round(2)}  b: #{@b.round(2)} c: #{@c.round(2)}"
@@ -155,7 +170,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@a, @b, @c, @d]

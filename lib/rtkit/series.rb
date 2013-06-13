@@ -5,7 +5,8 @@ module RTKIT
   # === Relations
   #
   # * A Series belongs to a Study.
-  # * Some types of Series (e.g. CT, MR) have many Image instances.
+  # * Some subclasses of Series (e.g. ImageSeries (CT, MR) or DoseVolume
+  # (RTDose)) have many Image instances.
   #
   class Series
 
@@ -24,21 +25,17 @@ module RTKIT
     # The Series Time.
     attr_reader :time
 
-    # Creates a new Series instance. The Series Instance UID string is used to uniquely identify a Series.
+    # Creates a new Series instance. The Series Instance UID string is used to
+    # uniquely identify a Series.
     #
-    # === Parameters
-    #
-    # * <tt>series_uid</tt> -- The Series Instance UID string.
-    # * <tt>modality</tt> -- The Modality string of the Series, e.g. 'CT' or 'RTSTRUCT'.
-    # * <tt>study</tt> -- The Study instance that this Series belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:class_uid</tt> -- String. The SOP Class UID (DICOM tag '0008,0016').
-    # * <tt>:date</tt> -- String. The Series Date (DICOM tag '0008,0021').
-    # * <tt>:time</tt> -- String. The Series Time (DICOM tag '0008,0031').
-    # * <tt>:description</tt> -- String. The Series Description (DICOM tag '0008,103E').
+    # @param [String] series_uid the Series Instance UID string
+    # @param [String] modality the modality string of the series (e.g. 'CT', 'RTSTRUCT')
+    # @param [Study] study the Study instance which this Series belongs to
+    # @param [Hash] options the options to use for creating the Series
+    # @option options [String] :class_uid the SOP class UID (DICOM tag '0008,0016')
+    # @option options [String] :date the series date (DICOM tag '0008,0021')
+    # @option options [String] :description the series description (DICOM tag '0008,103E')
+    # @option options [String] :time the series time (DICOM tag '0008,0031')
     #
     def initialize(series_uid, modality, study, options={})
       raise ArgumentError, "Invalid argument 'uid'. Expected String, got #{series_uid.class}." unless series_uid.is_a?(String)
@@ -55,12 +52,12 @@ module RTKIT
       @description = options[:description]
     end
 
-    # Inserts general series, study and patient level attributes from
-    # this instance, as well as from related study, patient and frame
-    # instances to a DICOM object.
+    # Inserts general series, study and patient level attributes from this
+    # instance, as well as from the related study, patient and frame instances
+    # to a DICOM object.
     #
-    # @param [DObject] dcm a DICOM object typically belonging to an image instance of this series
-    # @return [DObject] a DICOM object with attributes added
+    # @param [DICOM::DObject] dcm a DICOM object typically belonging to an image instance of this series
+    # @return [DICOM::DObject] a DICOM object with the relevant attributes added
     #
     def add_attributes_to_dcm(dcm)
       # Series level:
@@ -83,8 +80,10 @@ module RTKIT
       dcm.add_element(SEX, @study.patient.sex)
     end
 
-    # Returns true if the series is of a modality which means it contains multiple images (CT, MR, RTImage, RTDose).
-    # Returns false if not.
+    # Checks whether this series is of a modality which means it contains image
+    # instances (e.g. CT, MR, RTImage, RTDose)
+    #
+    # @return [Boolean] true if the series is of an image type modality
     #
     def image_modality?
       if IMAGE_MODALITIES.include?(@modality)
@@ -94,12 +93,16 @@ module RTKIT
       end
     end
 
-    # Returns the unique identifier string, which for an ImageSeries is the Series Instance UID,
-    # and for the other types of Series (e.g. StructureSet, Plan, etc) it is the SOP Instance UID.
+    # Gives the unique identifier string, which for an image type series is the
+    # series instance UID, and for the other types of series (e.g. structure
+    # set) is the SOP instance UID.
+    #
+    # @return [String] the unique identifier string of this series
     #
     def uid
       return @sop_uid || @series_uid
     end
 
   end
+
 end

@@ -1,6 +1,7 @@
 module RTKIT
 
-  # The RTDose class contains methods that are specific for this modality (RTDOSE).
+  # The RTDose class contains methods that are specific for this modality
+  # (RTDOSE).
   #
   # === Inheritance
   #
@@ -13,13 +14,13 @@ module RTKIT
     # An array of dose Volume instances associated with this RTDose series.
     attr_accessor :volumes
 
-    # Creates a new RTDose instance by loading the relevant information from the specified DICOM object.
-    # The Series Instance UID string value is used to uniquely identify a RTDose instance.
+    # Creates a new RTDose instance by loading the relevant information from
+    # the specified DICOM object. The Series Instance UID string value is used
+    # to uniquely identify a RTDose instance.
     #
-    # === Parameters
-    #
-    # * <tt>dcm</tt> -- An instance of a DICOM object (DICOM::DObject) with modality 'RTDOSE'.
-    # * <tt>study</tt> -- The Study instance that this RTDose belongs to.
+    # @param [DICOM::DObject] dcm an RTDOSE DICOM object from which to create the RTDose object
+    # @param [Study] study the Study instance which the RTDose object shall be associated with
+    # @return [RTDose] the created RTDose instance
     #
     def self.load(dcm, study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -41,8 +42,13 @@ module RTKIT
       return dose
     end
 
-    # Identifies the Plan that the RTDose object belongs to.
-    # If the referenced instances (Plan, StructureSet, ImageSeries & Frame) does not exist, they are created by this method.
+    # Identifies the Plan that the RTDose object belongs to. If the referenced
+    # instances (Plan, StructureSet, ImageSeries & Frame) does not exist, they
+    # are created by this method.
+    #
+    # @param [DICOM::DObject] dcm an RTDOSE DICOM object
+    # @param [Study] study the Study instance which the RTDose instance shall be associated with
+    # @return [Plan] the (RT) Plan that the RTDose instance is to be associated with
     #
     def self.plan(dcm, study)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -81,17 +87,12 @@ module RTKIT
 
     # Creates a new RTDose instance.
     #
-    # === Parameters
-    #
-    # * <tt>series_uid</tt> -- The Series Instance UID string.
-    # * <tt>plan</tt> -- The Plan instance that this RTDose series belongs to.
-    # * <tt>options</tt> -- A hash of parameters.
-    #
-    # === Options
-    #
-    # * <tt>:date</tt> -- String. The Series Date (DICOM tag '0008,0021').
-    # * <tt>:time</tt> -- String. The Series Time (DICOM tag '0008,0031').
-    # * <tt>:description</tt> -- String. The Series Description (DICOM tag '0008,103E').
+    # @param [String] series_uid the series instance UID string
+    # @param [Plan] plan the (RT) Plan instance which this RTDose instance is associated with
+    # @param [Hash] options the options to use for creating the RTDose
+    # @option options [String] :date the series date (DICOM tag '0008,0021')
+    # @option options [String] :description the series description (DICOM tag '0008,103E')
+    # @option options [String] :time the series time (DICOM tag '0008,0031')
     #
     def initialize(series_uid, plan, options={})
       raise ArgumentError, "Invalid argument 'series_uid'. Expected String, got #{series_uid.class}." unless series_uid.is_a?(String)
@@ -107,7 +108,13 @@ module RTKIT
       @plan.add_rt_dose(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_rt_dose)
@@ -117,8 +124,10 @@ module RTKIT
 
     alias_method :eql?, :==
 
-    # Registers a DICOM Object to the RTDose series, and processes it
-    # to create (and reference) a DoseVolume instance linked to this RTDose series.
+    # Registers a DICOM Object to the RTDose series, and processes it to create
+    # (and reference) a DoseVolume instance linked to this RTDose series.
+    #
+    # @param [DICOM::DObject] dcm an RTDOSE DICOM object
     #
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -127,22 +136,33 @@ module RTKIT
 
     # Adds a DoseVolume instance to this RTDose series.
     #
+    # @param [DoseVolume] volume a dose volume instance to be associated with this RTDose
+    #
     def add_volume(volume)
       raise ArgumentError, "Invalid argument 'volume'. Expected DoseVolume, got #{volume.class}." unless volume.is_a?(DoseVolume)
       @volumes << volume unless @associated_volumes[volume.uid]
       @associated_volumes[volume.uid] = volume
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns a DoseVolume which is the sum of the volumes of this instance.
-    # With the individual DoseVolumes corresponding to the dose for a particular
-    # beam, the sum DoseVolume corresponds to the summed dose of the entire
-    # treatment plan.
+    # Creates a DoseVolume which is the sum of the individual beam dose volumes
+    # of this instance. If a summed dose volume is already present it returns
+    # this one.
+    #
+    # In some cases, we have individual DoseVolume instances corresponding to
+    # the dose for a single beam, whereas the sum DoseVolume shall correspond
+    # to the summed dose of the entire treatment plan.
+    #
+    # @return [DoseVolume] the dose volume corresponding to the summed plan dose
     #
     def sum
       if @sum
@@ -198,17 +218,19 @@ module RTKIT
 
     # Returns self.
     #
+    # @return [RTDose] self
+    #
     def to_rt_dose
       self
     end
 
-    # Returns the Volume instance mathcing the specified SOP Instance UID (if an argument is used).
-    # If a specified UID doesn't match, nil is returned.
-    # If no argument is passed, the first Volume instance associated with the RTDose is returned.
+    # Gives the DoseVolume instance mathcing the specified UID.
     #
-    # === Parameters
-    #
-    # * <tt>uid</tt> -- String. The value of the SOP Instance UID element.
+    # @overload volume(uid)
+    #   @param [String] uid SOP instance UID
+    #   @return [DoseVolume, NilClass] the matched dose volume (or nil if no dose volume is matched)
+    # @overload volume
+    #   @return [DoseVolume, NilClass] the first dose volume of this instance (or nil if no child volumes exists)
     #
     def volume(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
@@ -225,13 +247,13 @@ module RTKIT
     private
 
 
-    # Checks whether the given DICOM RTDose file is a proper dose volume.
-    # From experience, some treatment planning systems (e.g. Oncentra), will
-    # output one dose volume per plan beam + one 'empty' dose volume
-    # that does not contain any dose information. This particular non-dose file
+    # Checks whether the given DICOM RTDose file is a proper dose volume. From
+    # experience, some treatment planning systems (e.g. Oncentra), will output
+    # one dose volume per plan beam + one 'empty' dose volume that does not
+    # actually contain any dose information. This particular non-dose file
     # should be ignored when loading dose volumes.
     #
-    # @param [DObject] dcm a DICOM object of modality RTDose
+    # @param [DICOM::DObject] dcm a DICOM object of modality RTDose
     # @return [Boolean] true if the dose volume appears to be 'proper'
     #
     def proper_dose_volume?(dcm)
@@ -243,7 +265,9 @@ module RTKIT
       dcm.value('3004,000E').to_f.round(4) == 1.0000 ? false : true
     end
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@series_uid, @volumes]

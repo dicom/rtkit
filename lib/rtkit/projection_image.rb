@@ -1,24 +1,26 @@
 module RTKIT
 
-  # Contains the DICOM data and methods related to a projection image (e.g. a DRR RTImage, EPID or CR image).
+  # Contains the DICOM data and methods related to a projection image (e.g. a
+  # DRR RTImage, EPID or CR image).
   #
   # === Inheritance
   #
-  # * As the ProjectionImage class inherits from the Image class, all Image methods are available to instances of ProjectionImage.
+  # * As the ProjectionImage class inherits from the Image class, all Image
+  # methods are available to instances of ProjectionImage.
   #
   class ProjectionImage < Image
 
     # The Beam instance which this projection image is related to.
     attr_reader :beam
 
-    # Creates a new ProjectionImage instance by loading image information from the
-    # specified DICOM object. The image object's SOP Instance UID string
+    # Creates a new ProjectionImage instance by loading image information from
+    # the specified DICOM object. The image object's SOP Instance UID string
     # value is used to uniquely identify an image.
     #
-    # @param [DObject] dcm  an instance of a DICOM object
+    # @param [DICOM::DObject] dcm  an instance of a DICOM object
     # @param [Series] series the series instance that this projection image belongs to
     # @return [ProjectionImage] the created ProjectionImage instance
-    # @raise [ArgumentError] if the given dicom object doesn't have a projection image type modality
+    # @raise [ArgumentError] if the given DICOM object doesn't have a projection image type modality
     #
     def self.load(dcm, series)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
@@ -54,14 +56,16 @@ module RTKIT
 
     # Sets the beam attribute.
     #
-    def beam=(b)
-      @beam = b && b.to_beam
+    # @param [NilClass, #to_beam] value the associated Beam instance of the projection image
+    #
+    def beam=(value)
+      @beam = value && value.to_beam
     end
 
     # Transfers the pixel data, as well as the related image properties and the
     # DObject instance itself, to the image instance.
     #
-    # @param [DObject] dcm  an instance of a DICOM object
+    # @param [DICOM::DObject] dcm  an instance of a DICOM object
     # @raise [ArgumentError] if the given dicom object doesn't have a projection image type modality
     #
     def load_pixel_data(dcm)
@@ -99,9 +103,9 @@ module RTKIT
 
     # Converts the Image instance to a DICOM object.
     #
-    # @note This method uses the original DObject instance, updating it with
-    # attributes from the image instance.
-    # @return [DObject] a DICOM object
+    # @note This method uses the original DObject instance if present, updating
+    # it with attributes from the image instance.
+    # @return [DICOM::DObject] a DICOM object
     #
     def to_dcm
       # Use the original DICOM object as a starting point,
@@ -132,7 +136,8 @@ module RTKIT
       self
     end
 
-    # Sets the pos_x and pos_y attributes based on the image instance attributes.
+    # Sets the pos_x and pos_y attributes based on the image instance
+    # attributes.
     #
     def set_positions
       raise "Missing one or more image attributes (Both image dimensions and spacing must be defined)." unless @columns && @rows && @row_spacing && @col_spacing
@@ -154,6 +159,8 @@ module RTKIT
 
     # Creates a new DICOM object with a set of basic attributes needed
     # for a valid DICOM file of modality RTIMAGE.
+    #
+    # @return [DICOM::DObject] a DICOM object
     #
     def dicom_scaffold
       dcm = DICOM::DObject.new

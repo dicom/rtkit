@@ -48,7 +48,7 @@ module RTKIT
     # uniquely identify a volume.
     #
     # @param [String] sop_uid the SOP Instance UID string
-    # @param [String] frame the Frame instance which this DoseVolume is associated with
+    # @param [Frame] frame the Frame instance which this DoseVolume is associated with
     # @param [Series] series the Series instance which this DoseVolume is associated with
     # @param [Hash] options the options to use for creating the dose volume
     # @option options [Boolean] :sum if true, the DoseVolume will not be added as a (beam) volume to the parent RTDose

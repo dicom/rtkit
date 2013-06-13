@@ -1,6 +1,7 @@
 module RTKIT
 
-  # Contains DICOM data and methods related to an Image Slice, in which a set of contours are defined.
+  # Contains DICOM data and methods related to an image Slice, in which a
+  # number of contours are defined.
   #
   # === Relations
   #
@@ -19,15 +20,14 @@ module RTKIT
     # The Referenced SOP Instance UID.
     attr_reader :uid
 
-    # Creates a new Slice instance from an array of contour items belonging to a single slice of a particular ROI.
-    # This method also creates and connects any child structures as indicated in the items (e.g. Contours).
-    # Returns the Slice.
+    # Creates a new Slice instance from an array of contour items belonging to
+    # a single slice of a particular ROI. This method also creates and connects
+    # any child structures as indicated in the items (e.g. contours).
     #
-    # === Parameters
-    #
-    # * <tt>sop_uid</tt> -- The SOP Instance UID reference for this slice.
-    # * <tt>contour_item</tt> -- An array of contour items from the Contour Sequence in ROI Contour Sequence, belonging to the same slice.
-    # * <tt>roi</tt> -- The ROI instance that this Slice belongs to.
+    # @param [String] sop_uid the referenced SOP Instance UID string of this slice
+    # @param [Array<DICOM::Item>] contour_items items belonging to the same slice from the Contour Sequence in ROI Contour Sequence
+    # @param [ROI] roi the ROI instance which the Slice shall be associated with
+    # @return [Slice] the created Slice instance
     #
     def self.create_from_items(sop_uid, contour_items, roi)
       raise ArgumentError, "Invalid argument 'sop_uid'. Expected String, got #{sop_uid.class}." unless sop_uid.is_a?(String)
@@ -44,10 +44,8 @@ module RTKIT
 
     # Creates a new Slice instance.
     #
-    # === Parameters
-    #
-    # * <tt>sop_uid</tt> -- The SOP Instance UID reference for this slice.
-    # * <tt>roi</tt> -- The ROI instance that this Slice belongs to.
+    # @param [String] sop_uid the referenced SOP Instance UID string of this slice
+    # @param [ROI] roi the ROI instance which the Slice shall be associated with
     #
     def initialize(sop_uid, roi)
       raise ArgumentError, "Invalid argument 'sop_uid'. Expected String, got #{sop_uid.class}." unless sop_uid.is_a?(String)
@@ -62,7 +60,13 @@ module RTKIT
       @roi.add_slice(self)
     end
 
-    # Returns true if the argument is an instance with attributes equal to self.
+    # Checks for equality.
+    #
+    # Other and self are considered equivalent if they are
+    # of compatible types and their attributes are equivalent.
+    #
+    # @param other an object to be compared with self.
+    # @return [Boolean] true if self and other are considered equivalent
     #
     def ==(other)
       if other.respond_to?(:to_slice)
@@ -74,24 +78,24 @@ module RTKIT
 
     # Adds a Contour instance to this Slice.
     #
+    # @param [Contour] contour a contour instance to be associated with this slice
+    #
     def add_contour(contour)
       raise ArgumentError, "Invalid argument 'contour'. Expected Contour, got #{contour.class}." unless contour.is_a?(Contour)
       @contours << contour unless @contours.include?(contour)
     end
 
     # Calculates the area defined by the contours of this slice.
-    # Returns a float value, in units of millimeters squared.
+    #
+    # @return [Float] the delineated area (in units of square millimeters)
     #
     def area
       bin_image.area
     end
 
-    # Attaches a Slice to an Image instance belonging to the specified ImageSeries,
-    # by setting the Image reference of the Slice to an Image instance which matches
-    # the coordinates of the Slice's Contour(s).
-    # Raises an exception if a suitable match is not found for the Slice.
-    #
-    # === Notes
+    # Attaches a Slice to an Image instance belonging to the specified
+    # ImageSeries, by setting the Image reference of the Slice to an Image
+    # instance which matches the coordinates of the Slice's Contour(s).
     #
     # This method can be useful when you have multiple segmentations based on the same image series
     # from multiple raters (perhaps as part of a comparison study), and the rater's software has modified
@@ -99,6 +103,9 @@ module RTKIT
     # not match your original image series. This method uses coordinate information to calculate plane
     # equations, which allows it to identify the corresponding image slice even in the case of
     # slice geometry being non-perpendicular with respect to the patient geometry (direction cosine values != [0,1]).
+    #
+    # @param [Series] series the new ImageSeries instance which the Slice shall be associated with through its images
+    # @raise [ArgumentError] if a suitable match is not found for the Slice
     #
     def attach_to(series)
       raise ArgumentError, "Invalid argument 'series'. Expected ImageSeries, got #{series.class}." unless series.is_a?(Series)
@@ -115,12 +122,11 @@ module RTKIT
       end
     end
 
-    # Creates a binary segmented image, from the contours defined for this slice, applied to the referenced Image instance.
-    # Returns an BinImage instance, containing a 2d NArray with dimensions: columns*rows
+    # Creates a binary segmented image, from the contours defined for this
+    # slice, applied to the referenced Image instance.
     #
-    # === Parameters
-    #
-    # * <tt>source_image</tt> -- The image on which the binary volume will be applied (defaults to the referenced image, but may be e.g. a dose 'image').
+    # @param [Image] source_image the image on which the binary image will be applied (defaults to the referenced (anatomical) image, but may be e.g. a dose image)
+    # @return [BinImage] the derived binary image instance (with dimensions equal to that of the source image)
     #
     def bin_image(source_image=@image)
       raise "Referenced ROI Slice Image is missing from the dataset. Unable to construct image." unless @image
@@ -133,15 +139,21 @@ module RTKIT
       return bin_img
     end
 
-    # Generates a Fixnum hash value for this instance.
+    # Computes a hash code for this object.
+    #
+    # @note Two objects with the same attributes will have the same hash code.
+    #
+    # @return [Fixnum] the object's hash code
     #
     def hash
       state.hash
     end
 
-    # Returns the Plane corresponding to this Slice.
-    # The plane is calculated from coordinates belonging to this instance,
-    # and an error is raised if not enough Coordinates are present (at least 3 required).
+    # Gives a Plane corresponding to this Slice geometry. The plane is
+    # calculated from coordinates belonging to this instance.
+    #
+    # @return [Plane] the derived plane
+    # @raise [RuntimeError] unless the required number of coordinates are present (at least 3)
     #
     def plane
       # Such a change is only possible if the Slice instance has a Contour with at least three Coordinates:
@@ -156,14 +168,17 @@ module RTKIT
       return Plane.calculate(c1, c2, c3)
     end
 
-    # Returns the position of this slice, which in effect
-    # is the pos_slice attribute of the referenced image.
+    # Gives the position of this slice.
+    #
+    # @return [Float, NilClass] the slice position of the referenced image (or nil if no image is referenced)
     #
     def pos
       return @image ? @image.pos_slice : nil
     end
 
     # Returns self.
+    #
+    # @return [Slice] self
     #
     def to_slice
       self
@@ -173,7 +188,9 @@ module RTKIT
     private
 
 
-    # Returns the attributes of this instance in an array (for comparison purposes).
+    # Collects the attributes of this instance.
+    #
+    # @return [Array] an array of attributes
     #
     def state
        [@contours, @image, @uid]
