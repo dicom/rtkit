@@ -147,6 +147,34 @@ module RTKIT
 
     end
 
+
+    context "#translate" do
+
+      it "should retain its original x, y & z values when given offsets of zero" do
+        x_original = @coord.x
+        y_original = @coord.y
+        z_original = @coord.z
+        @coord.translate(0, 0.0, -0)
+        @coord.x.should eql x_original
+        @coord.y.should eql y_original
+        @coord.z.should eql z_original
+      end
+
+      it "should modify its original x, y & z values according to the negative and positive offsets given" do
+        x_original = @coord.x
+        y_original = @coord.y
+        z_original = @coord.z
+        x_offset = -5
+        y_offset = 10.4
+        z_offset = -99.0
+        @coord.translate(x_offset, y_offset, z_offset)
+        @coord.x.should eql x_original + x_offset
+        @coord.y.should eql y_original + y_offset
+        @coord.z.should eql z_original + z_offset
+      end
+
+    end
+
   end
 
 end

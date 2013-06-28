@@ -199,6 +199,19 @@ module RTKIT
       return item
     end
 
+    # Moves the coordinates of this contour according to the given offset
+    # vector.
+    #
+    # @param [Float] x the offset along the x axis (in units of mm)
+    # @param [Float] y the offset along the y axis (in units of mm)
+    # @param [Float] z the offset along the z axis (in units of mm)
+    #
+    def translate(x, y, z)
+      @coordinates.each do |c|
+        c.translate(x, y, z)
+      end
+    end
+
 
     private
 

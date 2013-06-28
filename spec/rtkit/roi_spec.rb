@@ -623,6 +623,22 @@ module RTKIT
 
     end
 
+
+    context "#translate" do
+
+      it "should call the translate method on all slices belonging to the roi, with the given offsets" do
+        s1 = Slice.new('1.765.55', @roi)
+        s2 = Slice.new('1.765.66', @roi)
+        x_offset = -5
+        y_offset = 10.4
+        z_offset = -99.0
+        s1.expects(:translate).with(x_offset, y_offset, z_offset)
+        s2.expects(:translate).with(x_offset, y_offset, z_offset)
+        @roi.translate(x_offset, y_offset, z_offset)
+      end
+
+    end
+
   end
 
 end

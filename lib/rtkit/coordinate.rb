@@ -68,13 +68,24 @@ module RTKIT
       self
     end
 
-
     # Gives a string with the x, y & z instance values separated by a '\'.
     #
     # @return [String] the x, y & z instance values joined by a '\'
     #
     def to_s
       [@x, @y, @z].join("\\")
+    end
+
+    # Moves the coordinate according to the given offset vector.
+    #
+    # @param [Float] x the offset along the x axis (in units of mm)
+    # @param [Float] y the offset along the y axis (in units of mm)
+    # @param [Float] z the offset along the z axis (in units of mm)
+    #
+    def translate(x, y, z)
+      @x += x.to_f
+      @y += y.to_f
+      @z += z.to_f
     end
 
 

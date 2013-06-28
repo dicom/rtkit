@@ -349,6 +349,22 @@ module RTKIT
 
     end
 
+
+    context "#translate" do
+
+      it "should call the translate method on all coordinates belonging to the contour, with the given offsets" do
+        coord1 = Coordinate.new(1, 2, 3, @c)
+        coord2 = Coordinate.new(-6, -5, 4, @c)
+        x_offset = -5
+        y_offset = 10.4
+        z_offset = -99.0
+        coord1.expects(:translate).with(x_offset, y_offset, z_offset)
+        coord2.expects(:translate).with(x_offset, y_offset, z_offset)
+        @c.translate(x_offset, y_offset, z_offset)
+      end
+
+    end
+
   end
 
 end
