@@ -232,8 +232,8 @@ module RTKIT
     context "#translate" do
 
       it "should call the translate method on all contours belonging to the slice, with the given offsets" do
-        c1 = Contour.new(@s)
-        c2 = Contour.new(@s)
+        c1 = Contour.new(@s, :number => 1)
+        c2 = Contour.new(@s, :number => 2)
         x_offset = -5
         y_offset = 10.4
         z_offset = -99.0
