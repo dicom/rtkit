@@ -150,6 +150,17 @@ module RTKIT
       @pos_slice = value && value.to_f
     end
 
+    # Sets a new pixel value to the given collection of pixels.
+    #
+    # @note As of yet the image class does not handle presentation values, so
+    #   the input value has to be 'raw' values.
+    # @param [Array] indices the indices of the pixels to be replaced
+    # @param [#to_i] value the pixel replacement value
+    #
+    def set_pixels(indices, value)
+      @narray[indices] = value.to_i
+    end
+
     # Converts the Image instance to a DICOM object.
     #
     # @note This method uses the image's original DICOM object,

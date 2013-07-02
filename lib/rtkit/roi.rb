@@ -258,6 +258,27 @@ module RTKIT
       return dose_distribution
     end
 
+    # Fills the pixels of a volume (as defined by the delineation of this ROI)
+    # in an image series with the given value. By default, the image series
+    # related to the ROI's structure set is used, however, an alternative image
+    # series (or dose volume) can be specified.
+    #
+    # @note As of yet the image class does not handle presentation values, so
+    #   the input value has to be 'raw' values.
+    # @param [Integer] value the pixel value to fill the ROI volume with
+    # @param [ImageSeries, DoseVolume] image_volume the image series in which to fill the volume delineated by the ROI with a specific pixel value
+    # @return [ImageSeries, DoseVolume] the modified image series
+    #
+    def fill(value, image_volume=@struct.image_series.first)
+      bv = BinVolume.from_roi(self, image_volume)
+      bv.bin_images.each do |bin_image|
+        # Match a slice from the image volume to the current binary image:
+        ref_image = image_volume.image(bin_image.pos_slice)
+        ref_image.set_pixels(bin_image.selection.indices, value)
+      end
+      image_volume
+    end
+
     # Sets the frame attribute.
     #
     # @param [NilClass, #to_frame] value the ROI's referenced Frame instance

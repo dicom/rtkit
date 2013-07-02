@@ -519,6 +519,21 @@ module RTKIT
     end
 
 
+    describe "#set_pixels" do
+
+      it "should set the given pixel indices with the new value" do
+        value = 99
+        @im.rows = 4
+        @im.columns = 4
+        @im.narray = NArray.sint(4, 4)
+        indices = [0,3,7,12,15]
+        @im.set_pixels(indices, value)
+        (@im.narray.eq value).where.to_a.should eq indices
+      end
+
+    end
+
+
     describe "#set_resolution" do
 
       before :each do

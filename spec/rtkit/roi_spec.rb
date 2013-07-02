@@ -447,6 +447,33 @@ module RTKIT
     end
 
 
+    context "#fill" do
+
+      it "should call the set_pixels method of the image instances with the expected indices" do
+        i1 = SliceImage.new('1.231', 3.0, @is)
+        i2 = SliceImage.new('1.232', 8.0, @is)
+        i1.rows, i2.rows = 6, 6
+        i1.columns, i2.columns = 6, 6
+        i1.pos_x, i2.pos_x = 0, 0
+        i1.pos_y, i2.pos_y = 0, 0
+        i1.row_spacing, i2.row_spacing = 5, 5
+        i1.col_spacing, i2.col_spacing = 5, 5
+        i1.cosines, i2.cosines = [1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 1, 0]
+        i1.narray, i2.narray = NArray.sint(6, 6), NArray.sint(6, 6)
+        s1 = Slice.new('1.231', @roi)
+        s2 = Slice.new('1.232', @roi)
+        c11 = Contour.create_from_coordinates([5, 10, 5], [5, 5, 10], [3, 3, 3], s1)
+        c12 = Contour.create_from_coordinates([15, 20, 15], [15, 15, 20], [3, 3, 3], s1)
+        c21 = Contour.create_from_coordinates([5, 15, 15, 5], [5, 5, 15, 15], [8, 8, 8, 8], s2)
+        value =1
+        i1.expects(:set_pixels).with([7, 8, 13, 21, 22, 27], value)
+        i2.expects(:set_pixels).with([7, 8, 9, 13, 14, 15, 19, 20, 21], value)
+        is = @roi.fill(value)
+      end
+
+    end
+
+
     context "#frame=()" do
 
       it "should raise an when a non-Frame is passed" do
