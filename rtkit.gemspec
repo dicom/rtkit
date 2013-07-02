@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.description = "DICOM is a standard widely used throughout the world to store and transfer medical image data. This library enables powerful ways of handling the radiotherapy DICOM modalities in Ruby, to the benefit of any student or professional who would like to go further with their radiotherapy data."
   s.files = Dir["{lib}/**/*", "[A-Z]*"]
 
-  s.required_ruby_version = '>= 1.9.2'
+  s.required_ruby_version = '>= 1.9.3'
 
   s.add_dependency('dicom', '0.9.5')
   s.add_dependency('narray', '0.6.0.8')
