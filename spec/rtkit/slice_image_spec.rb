@@ -708,6 +708,24 @@ module RTKIT
     end
 
 
+    context "#to_dcm" do
+
+      it "should return a DICOM object when called on an image instance created from scratch (i.e. non-dicom source)" do
+        @im.columns = 10
+        @im.rows = 15
+        @im.narray = NArray.int(10, 15)
+        @im.pos_x = 0.0
+        @im.pos_y = 5.0
+        @im.pos_slice = 3.0
+        @im.row_spacing = 1.0
+        @im.col_spacing = 2.0
+        dcm = @im.to_dcm
+        dcm.should be_a DICOM::DObject
+      end
+
+    end
+
+
     context "#to_slice_image" do
 
       it "should return itself" do

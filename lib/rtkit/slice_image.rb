@@ -170,14 +170,15 @@ module RTKIT
     def to_dcm
       # Use the original DICOM object as a starting point,
       # and update all image related parameters:
-      @dcm.add(DICOM::Element.new(IMAGE_DATE, @date))
-      @dcm.add(DICOM::Element.new(IMAGE_TIME, @time))
-      @dcm.add(DICOM::Element.new(SOP_UID, @uid))
-      @dcm.add(DICOM::Element.new(COLUMNS, @columns))
-      @dcm.add(DICOM::Element.new(ROWS, @rows))
-      @dcm.add(DICOM::Element.new(IMAGE_POSITION, [@pos_x, @pos_y, @pos_slice].join("\\")))
-      @dcm.add(DICOM::Element.new(SPACING, [@row_spacing, @col_spacing].join("\\")))
-      @dcm.add(DICOM::Element.new(IMAGE_ORIENTATION, [@cosines].join("\\")))
+      @dcm ||= dicom_scaffold
+      @dcm.add_element(IMAGE_DATE, @date)
+      @dcm.add_element(IMAGE_TIME, @time)
+      @dcm.add_element(SOP_UID, @uid)
+      @dcm.add_element(COLUMNS, @columns)
+      @dcm.add_element(ROWS, @rows)
+      @dcm.add_element(IMAGE_POSITION, [@pos_x, @pos_y, @pos_slice].join("\\"))
+      @dcm.add_element(SPACING, [@row_spacing, @col_spacing].join("\\"))
+      @dcm.add_element(IMAGE_ORIENTATION, [@cosines].join("\\"))
       # Write pixel data:
       @dcm.pixels = @narray
       return @dcm
@@ -194,6 +195,42 @@ module RTKIT
 
     private
 
+
+    # Creates a new DICOM object with a set of basic attributes needed
+    # for a valid DICOM file of slice type image modality.
+    #
+    # @return [DICOM::DObject] a DICOM object
+    #
+    def dicom_scaffold
+      dcm = DICOM::DObject.new
+      # Group 0008:
+      dcm.add_element(SPECIFIC_CHARACTER_SET, 'ISO_IR 100')
+      dcm.add_element(IMAGE_TYPE, 'DERIVED\SECONDARY\DRR')
+      dcm.add_element(ACCESSION_NUMBER, '')
+      dcm.add_element(MODALITY, @series.modality)
+      dcm.add_element(CONVERSION_TYPE, 'SYN') # or WSD?
+      dcm.add_element(MANUFACTURER, 'RTKIT')
+      dcm.add_element(TIMEZONE_OFFSET_FROM_UTC, Time.now.strftime('%z'))
+      dcm.add_element(MANUFACTURERS_MODEL_NAME, "RTKIT_#{VERSION}")
+      # Group 0018:
+      dcm.add_element(SOFTWARE_VERSION, "RTKIT_#{VERSION}")
+      #dcm.add_element(PATIENT_POSITION, 'HFS')
+      # Group 0020:
+      # FIXME: We're missing Instance Number (0020,0013) at the moment.
+      # Group 0028:
+      dcm.add_element(SAMPLES_PER_PIXEL, '1')
+      dcm.add_element(PHOTOMETRIC_INTERPRETATION, 'MONOCHROME2')
+      dcm.add_element(BITS_ALLOCATED, 16)
+      dcm.add_element(BITS_STORED, 16)
+      dcm.add_element(HIGH_BIT, 15)
+      dcm.add_element(PIXEL_REPRESENTATION, 0)
+      dcm.add_element(WINDOW_CENTER, '2048')
+      dcm.add_element(WINDOW_WIDTH, '4096')
+      # Higher level tags (patient, study, frame, series):
+      # (Groups 0008, 0010 & 0020)
+      @series.add_attributes_to_dcm(dcm)
+      dcm
+    end
 
     # Collects the attributes of this instance.
     #
