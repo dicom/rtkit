@@ -275,8 +275,6 @@ module RTKIT
   IMAGE_SERIES = ['CT', 'MR']
   # The modalities that contain pixel data.
   IMAGE_MODALITIES = ['CT', 'MR', 'RTDOSE', 'RTIMAGE']
-  # The accepted projection image modalities.
-  PROJECTION_MODALITIES = ['RTIMAGE', 'CR']
   # The accepted slice image modalities.
   SLICE_MODALITIES = ['CT', 'MR', 'RTDOSE']
   # The modalities supported by RTKIT.

@@ -25,7 +25,7 @@ module RTKIT
     def self.load(dcm, series)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
       raise ArgumentError, "Invalid argument 'series'. Expected Series, got #{series.class}." unless series.is_a?(Series)
-      raise ArgumentError, "Invalid argument 'dcm'. Expected an projection image type modality, got #{dcm.value(MODALITY)}." unless PROJECTION_MODALITIES.include?(dcm.value(MODALITY))
+      raise ArgumentError, "Invalid argument 'dcm'. Expected modality 'RTIMAGE', got #{dcm.value(MODALITY)}." unless dcm.value(MODALITY) == 'RTIMAGE'
       sop_uid = dcm.value(SOP_UID)
       image = self.new(sop_uid, series)
       image.load_pixel_data(dcm)
@@ -44,7 +44,7 @@ module RTKIT
     def initialize(sop_uid, series, options={})
       raise ArgumentError, "Invalid argument 'sop_uid'. Expected String, got #{sop_uid.class}." unless sop_uid.is_a?(String)
       raise ArgumentError, "Invalid argument 'series'. Expected Series, got #{series.class}." unless series.is_a?(Series)
-      raise ArgumentError, "Invalid argument 'series'. Expected Series to have a projection image type modality, got #{series.modality}." unless PROJECTION_MODALITIES.include?(series.modality)
+      raise ArgumentError, "Invalid argument 'series'. Expected Series to have modality 'RTIMAGE', got #{series.modality}." unless series.modality == 'RTIMAGE'
       # Key attributes:
       @uid = sop_uid
       @series = series
@@ -70,7 +70,7 @@ module RTKIT
     #
     def load_pixel_data(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
-      raise ArgumentError, "Invalid argument 'dcm'. Expected a projection image type modality, got #{dcm.value(MODALITY)}." unless PROJECTION_MODALITIES.include?(dcm.value(MODALITY))
+      raise ArgumentError, "Invalid argument 'dcm'. Expected modality 'RTIMAGE', got #{dcm.value(MODALITY)}." unless dcm.value(MODALITY) == 'RTIMAGE'
       # Set attributes common for all image modalities, i.e. CT, MR, RTDOSE & RTIMAGE:
       @dcm = dcm
       @narray = dcm.narray
@@ -116,13 +116,8 @@ module RTKIT
       @dcm.add_element(SOP_UID, @uid)
       @dcm.add_element(COLUMNS, @columns)
       @dcm.add_element(ROWS, @rows)
-      if @series.modality == 'RTIMAGE'
-        @dcm.add_element(RT_IMAGE_POSITION, [@pos_x, @pos_y].join("\\"))
-        @dcm.add_element(IMAGE_PLANE_SPACING, [@row_spacing, @col_spacing].join("\\"))
-      else
-        @dcm.add_element(IMAGE_POSITION, [@pos_x, @pos_y].join("\\"))
-        @dcm.add_element(SPACING, [@row_spacing, @col_spacing].join("\\"))
-      end
+      @dcm.add_element(RT_IMAGE_POSITION, [@pos_x, @pos_y].join("\\"))
+      @dcm.add_element(IMAGE_PLANE_SPACING, [@row_spacing, @col_spacing].join("\\"))
       # Write pixel data:
       @dcm.pixels = @narray
       return @dcm
