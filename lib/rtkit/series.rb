@@ -69,10 +69,12 @@ module RTKIT
       dcm.add_element(STUDY_TIME, @study.time)
       dcm.add_element(STUDY_UID, @study.study_uid)
       dcm.add_element(STUDY_ID, @study.id)
-      # Frame level:
-      dcm.add_element(PATIENT_ORIENTATION, '')
-      dcm.add_element(FRAME_OF_REF, @study.iseries.frame.uid)
-      dcm.add_element(POS_REF_INDICATOR, '')
+      # Add frame level tags if a relevant frame exists:
+      if @study.iseries && @study.iseries.frame
+        dcm.add_element(PATIENT_ORIENTATION, '')
+        dcm.add_element(FRAME_OF_REF, @study.iseries.frame.uid)
+        dcm.add_element(POS_REF_INDICATOR, '')
+      end
       # Patient level:
       dcm.add_element(PATIENTS_NAME, @study.patient.name)
       dcm.add_element(PATIENTS_ID, @study.patient.id)

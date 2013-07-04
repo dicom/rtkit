@@ -108,6 +108,8 @@ module RTKIT
           s = RTDose.load(dcm, self)
         when 'RTIMAGE'
           s = RTImage.load(dcm, self)
+        when 'CR'
+          s = CRSeries.load(dcm, self)
         else
           raise ArgumentError, "Unexpected (unsupported) modality (#{dcm.value(MODALITY)})in Study#add()"
         end

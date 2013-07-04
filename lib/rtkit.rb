@@ -39,6 +39,7 @@ require_relative 'rtkit/structure_set'
 require_relative 'rtkit/plan'
 require_relative 'rtkit/rt_dose'
 require_relative 'rtkit/rt_image'
+require_relative 'rtkit/cr_series'
 # Image related:
 require_relative 'rtkit/dose_volume'
 require_relative 'rtkit/slice_image'
