@@ -56,8 +56,10 @@ module RTKIT
             doses << dcm
           when 'RTIMAGE'
             rtimages << dcm
+          when 'CR'
+            images << dcm
           else
-            #puts "Notice: Unsupported modality (ignored): #{modality}"
+            RTKIT.logger.warn("Unsupported modality '#{modality}' encountered (file ignored).")
         end
       end
       # Create the DataSet:
