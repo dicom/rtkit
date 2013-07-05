@@ -104,23 +104,17 @@ module RTKIT
     # Converts the Image instance to a DICOM object.
     #
     # @note This method uses the original DObject instance if present, updating
-    # it with attributes from the image instance.
+    #   it with attributes from the image instance.
     # @return [DICOM::DObject] a DICOM object
     #
     def to_dcm
-      # Use the original DICOM object as a starting point,
-      # and update all image related parameters:
-      @dcm ||= dicom_scaffold
-      @dcm.add_element(IMAGE_DATE, @date || RTKIT.date_str)
-      @dcm.add_element(IMAGE_TIME, @time|| RTKIT.time_str)
-      @dcm.add_element(SOP_UID, @uid)
-      @dcm.add_element(COLUMNS, @columns)
-      @dcm.add_element(ROWS, @rows)
+      # Setup general dicom image attributes:
+      create_projection_image_dicom_scaffold
+      update_dicom_image
+      # Add/update tags that are specific for the projection image type:
       @dcm.add_element(RT_IMAGE_POSITION, [@pos_x, @pos_y].join("\\"))
       @dcm.add_element(IMAGE_PLANE_SPACING, [@row_spacing, @col_spacing].join("\\"))
-      # Write pixel data:
-      @dcm.pixels = @narray
-      return @dcm
+      @dcm
     end
 
     # Returns self.
@@ -155,65 +149,40 @@ module RTKIT
     # Creates a new DICOM object with a set of basic attributes needed
     # for a valid DICOM file of modality RTIMAGE.
     #
-    # @return [DICOM::DObject] a DICOM object
-    #
-    def dicom_scaffold
-      dcm = DICOM::DObject.new
-      # Group 0008:
-      dcm.add_element(SPECIFIC_CHARACTER_SET, 'ISO_IR 100')
-      dcm.add_element(IMAGE_TYPE, 'DERIVED\SECONDARY\DRR')
-      dcm.add_element(ACCESSION_NUMBER, '')
-      dcm.add_element(MODALITY, 'RTIMAGE')
-      dcm.add_element(CONVERSION_TYPE, 'SYN') # or WSD?
-      dcm.add_element(MANUFACTURER, 'RTKIT')
-      dcm.add_element(TIMEZONE_OFFSET_FROM_UTC, Time.now.strftime('%z'))
-      dcm.add_element(MANUFACTURERS_MODEL_NAME, "RTKIT_#{VERSION}")
-      # Group 0018:
-      dcm.add_element(SOFTWARE_VERSION, "RTKIT_#{VERSION}")
-      dcm.add_element(PATIENT_POSITION, @beam.plan.setup ? @beam.plan.setup.position : 'HFS')
-      # Group 0020:
-      # FIXME: We're missing Instance Number (0020,0013) at the moment.
-      # Group 0028:
-      dcm.add_element(SAMPLES_PER_PIXEL, '1')
-      dcm.add_element(PHOTOMETRIC_INTERPRETATION, 'MONOCHROME2')
-      dcm.add_element(BITS_ALLOCATED, 16)
-      dcm.add_element(BITS_STORED, 16)
-      dcm.add_element(HIGH_BIT, 15)
-      dcm.add_element(PIXEL_REPRESENTATION, 0)
-      dcm.add_element(WINDOW_CENTER, '2048')
-      dcm.add_element(WINDOW_WIDTH, '4096')
-      # Group 3002:
-      dcm.add_element(RT_IMAGE_LABEL, @beam.description)
-      dcm.add_element(RT_IMAGE_NAME, @beam.name)
-      dcm.add_element(RT_IMAGE_DESCRIPTION, @beam.plan.name)
-      # Note: If support for image plane type 'NON_NORMAL' is added at some
-      # point, the RT Image Orientation tag (3002,0010) has to be added as well.
-      dcm.add_element(RT_IMAGE_PLANE, 'NORMAL')
-      dcm.add_element(X_RAY_IMAGE_RECEPTOR_TRANSLATION, '')
-      dcm.add_element(X_RAY_IMAGE_RECEPTOR_ANGLE, '')
-      dcm.add_element(RADIATION_MACHINE_NAME, @beam.machine)
-      dcm.add_element(RADIATION_MACHINE_SAD, @beam.sad)
-      dcm.add_element(RADIATION_MACHINE_SSD, @beam.sad)
-      dcm.add_element(RT_IMAGE_SID, @beam.sad)
-      # FIXME: Add Exposure sequence as well (with Jaw and MLC position information)
-      # Group 300A:
-      dcm.add_element(DOSIMETER_UNIT, @beam.unit)
-      dcm.add_element(GANTRY_ANGLE, @beam.control_points[0].gantry_angle)
-      dcm.add_element(COLL_ANGLE, @beam.control_points[0].collimator_angle)
-      dcm.add_element(PEDESTAL_ANGLE, @beam.control_points[0].pedestal_angle)
-      dcm.add_element(TABLE_TOP_ANGLE, @beam.control_points[0].table_top_angle)
-      dcm.add_element(ISO_POS, @beam.control_points[0].iso.to_s)
-      dcm.add_element(GANTRY_PITCH_ANGLE, '0.0')
-      # Group 300C:
-      s = dcm.add_sequence(REF_PLAN_SQ)
-      i = s.add_item
-      i.add_element(REF_SOP_CLASS_UID, @beam.plan.class_uid)
-      i.add_element(REF_SOP_UID, @beam.plan.sop_uid)
-      dcm.add_element(REF_BEAM_NUMBER, @beam.number)
-      # Higher level tags (patient, study, frame, series):
-      # (Groups 0008, 0010 & 0020)
-      @series.add_attributes_to_dcm(dcm)
-      dcm
+    def create_projection_image_dicom_scaffold
+      # Some tags are created/updated only if no DICOM object already exists:
+      unless @dcm
+        # Setup general image attributes:
+        create_general_dicom_image_scaffold
+        # Group 3002:
+        @dcm.add_element(RT_IMAGE_LABEL, @beam.description)
+        @dcm.add_element(RT_IMAGE_NAME, @beam.name)
+        @dcm.add_element(RT_IMAGE_DESCRIPTION, @beam.plan.name)
+        # Note: If support for image plane type 'NON_NORMAL' is added at some
+        # point, the RT Image Orientation tag (3002,0010) has to be added as well.
+        @dcm.add_element(RT_IMAGE_PLANE, 'NORMAL')
+        @dcm.add_element(X_RAY_IMAGE_RECEPTOR_TRANSLATION, '')
+        @dcm.add_element(X_RAY_IMAGE_RECEPTOR_ANGLE, '')
+        @dcm.add_element(RADIATION_MACHINE_NAME, @beam.machine)
+        @dcm.add_element(RADIATION_MACHINE_SAD, @beam.sad)
+        @dcm.add_element(RADIATION_MACHINE_SSD, @beam.sad)
+        @dcm.add_element(RT_IMAGE_SID, @beam.sad)
+        # FIXME: Add Exposure sequence as well (with Jaw and MLC position information)
+        # Group 300A:
+        @dcm.add_element(DOSIMETER_UNIT, @beam.unit)
+        @dcm.add_element(GANTRY_ANGLE, @beam.control_points[0].gantry_angle)
+        @dcm.add_element(COLL_ANGLE, @beam.control_points[0].collimator_angle)
+        @dcm.add_element(PEDESTAL_ANGLE, @beam.control_points[0].pedestal_angle)
+        @dcm.add_element(TABLE_TOP_ANGLE, @beam.control_points[0].table_top_angle)
+        @dcm.add_element(ISO_POS, @beam.control_points[0].iso.to_s)
+        @dcm.add_element(GANTRY_PITCH_ANGLE, '0.0')
+        # Group 300C:
+        s = @dcm.add_sequence(REF_PLAN_SQ)
+        i = s.add_item
+        i.add_element(REF_SOP_CLASS_UID, @beam.plan.class_uid)
+        i.add_element(REF_SOP_UID, @beam.plan.sop_uid)
+        @dcm.add_element(REF_BEAM_NUMBER, @beam.number)
+      end
     end
 
 

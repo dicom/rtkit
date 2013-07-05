@@ -163,25 +163,19 @@ module RTKIT
 
     # Converts the Image instance to a DICOM object.
     #
-    # @note This method uses the image's original DICOM object,
+    # @note This method uses the image's original DICOM object (if present),
     #   and updates it with attributes from the image instance.
     # @return [DICOM::DObject] the processed DICOM object
     #
     def to_dcm
-      # Use the original DICOM object as a starting point,
-      # and update all image related parameters:
-      @dcm ||= dicom_scaffold
-      @dcm.add_element(IMAGE_DATE, @date)
-      @dcm.add_element(IMAGE_TIME, @time)
-      @dcm.add_element(SOP_UID, @uid)
-      @dcm.add_element(COLUMNS, @columns)
-      @dcm.add_element(ROWS, @rows)
+      # Setup general dicom image attributes:
+      create_slice_image_dicom_scaffold
+      update_dicom_image
+      # Add/update tags that are specific for the slice image type:
       @dcm.add_element(IMAGE_POSITION, [@pos_x, @pos_y, @pos_slice].join("\\"))
       @dcm.add_element(SPACING, [@row_spacing, @col_spacing].join("\\"))
       @dcm.add_element(IMAGE_ORIENTATION, [@cosines].join("\\"))
-      # Write pixel data:
-      @dcm.pixels = @narray
-      return @dcm
+      @dcm
     end
 
     # Returns self.
@@ -199,37 +193,14 @@ module RTKIT
     # Creates a new DICOM object with a set of basic attributes needed
     # for a valid DICOM file of slice type image modality.
     #
-    # @return [DICOM::DObject] a DICOM object
-    #
-    def dicom_scaffold
-      dcm = DICOM::DObject.new
-      # Group 0008:
-      dcm.add_element(SPECIFIC_CHARACTER_SET, 'ISO_IR 100')
-      dcm.add_element(IMAGE_TYPE, 'DERIVED\SECONDARY\DRR')
-      dcm.add_element(ACCESSION_NUMBER, '')
-      dcm.add_element(MODALITY, @series.modality)
-      dcm.add_element(CONVERSION_TYPE, 'SYN') # or WSD?
-      dcm.add_element(MANUFACTURER, 'RTKIT')
-      dcm.add_element(TIMEZONE_OFFSET_FROM_UTC, Time.now.strftime('%z'))
-      dcm.add_element(MANUFACTURERS_MODEL_NAME, "RTKIT_#{VERSION}")
-      # Group 0018:
-      dcm.add_element(SOFTWARE_VERSION, "RTKIT_#{VERSION}")
-      #dcm.add_element(PATIENT_POSITION, 'HFS')
-      # Group 0020:
-      # FIXME: We're missing Instance Number (0020,0013) at the moment.
-      # Group 0028:
-      dcm.add_element(SAMPLES_PER_PIXEL, '1')
-      dcm.add_element(PHOTOMETRIC_INTERPRETATION, 'MONOCHROME2')
-      dcm.add_element(BITS_ALLOCATED, 16)
-      dcm.add_element(BITS_STORED, 16)
-      dcm.add_element(HIGH_BIT, 15)
-      dcm.add_element(PIXEL_REPRESENTATION, 0)
-      dcm.add_element(WINDOW_CENTER, '2048')
-      dcm.add_element(WINDOW_WIDTH, '4096')
-      # Higher level tags (patient, study, frame, series):
-      # (Groups 0008, 0010 & 0020)
-      @series.add_attributes_to_dcm(dcm)
-      dcm
+    def create_slice_image_dicom_scaffold
+      # Some tags are created/updated only if no DICOM object already exists:
+      unless @dcm
+        # Setup general image attributes:
+        create_general_dicom_image_scaffold
+        # Group 0018:
+        #@dcm.add_element(PATIENT_POSITION, 'HFS')
+      end
     end
 
     # Collects the attributes of this instance.

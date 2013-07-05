@@ -651,16 +651,33 @@ module RTKIT
 
     context "#to_dcm" do
 
-      it "should return a DICOM object when called on an image instance created from scratch (i.e. non-dicom source)" do
-        @im.columns = 10
-        @im.rows = 15
-        @im.narray = NArray.int(10, 15)
-        @im.pos_x = 0.0
-        @im.pos_y = 5.0
-        @im.row_spacing = 1.0
-        @im.col_spacing = 2.0
+      it "should return a DICOM object (when called on an image instance created from scratch, i.e. non-dicom source)" do
         dcm = @im.to_dcm
         dcm.should be_a DICOM::DObject
+      end
+
+      it "should add series level attributes" do
+        @im.series.expects(:add_attributes_to_dcm)
+        dcm = @im.to_dcm
+      end
+
+      it "should create a DICOM object containing the attributes of the image instance" do
+        @im.columns = 10
+        @im.rows = 15
+        @im.narray = NArray.int(10, 15).indgen!
+        @im.row_spacing = 1.0
+        @im.col_spacing = 2.0
+        @im.pos_x = -1.0
+        @im.pos_y = 5.0
+        dcm = @im.to_dcm
+        dcm.value('0008,0012').should eql @im.date
+        dcm.value('0008,0013').should eql @im.time
+        dcm.value('0008,0018').should eql @im.uid
+        dcm.value('0028,0011').should eql @im.columns
+        dcm.value('0028,0010').should eql @im.rows
+        dcm.value('3002,0011').should eql [@im.row_spacing, @im.col_spacing].join("\\")
+        dcm.value('3002,0012').should eql [@im.pos_x, @im.pos_y].join("\\")
+        dcm.narray.should eql @im.narray
       end
 
     end
