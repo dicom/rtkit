@@ -149,6 +149,14 @@ module RTKIT
       state.hash
     end
 
+    # Sets the image attribute.
+    #
+    # @param [NilClass, #to_slice_image] value a SliceImage instance
+    #
+    def image=(value)
+      @image = value && value.to_slice_image
+    end
+
     # Gives a Plane corresponding to this Slice geometry. The plane is
     # calculated from coordinates belonging to this instance.
     #

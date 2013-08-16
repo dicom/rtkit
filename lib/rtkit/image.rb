@@ -185,6 +185,29 @@ module RTKIT
       return image
     end
 
+    # Extracts pixels based on cartesian coordinate arrays.
+    #
+    # @note No interpolation is performed in the case of a given coordinate
+    #   being located between pixel indices. In these cases a basic nearest
+    #   neighbour algorithm is used.
+    #
+    # @param [NArray] x_coords a numerical array (vector) of pixel x coordinates
+    # @param [NArray] y_coords a numerical array (vector) of pixel y coordinates
+    # @param [NArray] z_coords a numerical array (vector) of pixel z coordinates
+    # @return [Array] the matched pixel values
+    #
+    def extract_pixels(x_coords, y_coords, z_coords)
+      # FIXME: This method (along with some other methods in this class, doesn't
+      # actually work for a pure Image instance. This should probably be
+      # refactored (mix-in module instead more appropriate?)
+      # Get image indices (nearest neighbour):
+      column_indices, row_indices = coordinates_to_indices(x_coords, y_coords, z_coords)
+      # Convert from vector indices to array indices:
+      indices = indices_specific_to_general(column_indices, row_indices)
+      # Use the determined image indices to extract corresponding pixel values:
+      return @narray[indices].to_a.flatten
+    end
+
     # Replaces all pixels of a specific value that are contained by pixels of
     # a different value.
     #
@@ -243,17 +266,17 @@ module RTKIT
     # on the geometry of the image (the number of columns).
     #
     # @param [NArray, Array] indices general pixel array indices
-    # @param [Integer] n_cols the number of columns in the reference image
+    # @param [Integer] columns the number of columns in the image array
     # @return [Array<NArray, Array>] column & row indices
     #
-    def indices_general_to_specific(indices, n_cols)
+    def indices_general_to_specific(indices, columns=@columns)
       if indices.is_a?(Array)
-        row_indices = indices.collect{|i| i/n_cols}
-        column_indices = [indices, row_indices].transpose.collect{|i| i[0] - i[1] * n_cols}
+        row_indices = indices.collect {|i| i / columns}
+        column_indices = [indices, row_indices].transpose.collect{|i| i[0] - i[1] * columns}
       else
         # Assume Fixnum or NArray:
-        row_indices = indices/n_cols # Values are automatically rounded down.
-        column_indices = indices-row_indices*n_cols
+        row_indices = indices / columns # Values are automatically rounded down.
+        column_indices = indices - row_indices * columns
       end
       return column_indices, row_indices
     end
@@ -266,15 +289,24 @@ module RTKIT
     # @param [Integer] n_cols the number of columns in the reference image
     # @return [NArray, Array] general pixel array indices
     #
-    def indices_specific_to_general(column_indices, row_indices, n_cols)
+    def indices_specific_to_general(column_indices, row_indices, columns=@columns)
       if column_indices.is_a?(Array)
         indices = Array.new
-        column_indices.each_index {|i| indices << column_indices[i] + row_indices[i] * n_cols}
+        column_indices.each_index {|i| indices << column_indices[i] + row_indices[i] * columns}
         return indices
       else
         # Assume Fixnum or NArray:
-        return column_indices + row_indices * n_cols
+        return column_indices + row_indices * columns
       end
+    end
+
+    # Inserts foreign pixel values to the pixel data of this image instance.
+    #
+    # @param [NArray, Array] indices general pixel array indices
+    # @param [NArray, Array] values pixel values to be inserted
+    #
+    def insert_pixels(indices, values)
+      @narray[indices] = values
     end
 
     # Transfers the pixel data, as well as the related image properties and the

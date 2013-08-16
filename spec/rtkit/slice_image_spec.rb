@@ -414,6 +414,28 @@ module RTKIT
     end
 
 
+    context "#extract_pixels" do
+
+      it "should extract the selected pixels from the image array" do
+        i = @im
+        i.columns = 3
+        i.rows = 4
+        i.narray = NArray.int(3, 4).indgen!
+        i.col_spacing = 1.0
+        i.row_spacing = 2.0
+        i.pos_x = 5.0
+        i.pos_y = 10.0
+        i.cosines = [1, 0, 0, 0, 1, 0]
+        x = NArray[5, 6.9]
+        y = NArray[10, 15.7]
+        z = NArray[100, 99.8]
+        pixels = i.extract_pixels(x, y, z)
+        pixels.should eql [0, 11]
+      end
+
+    end
+
+
     context "#hash" do
 
       it "should return the same Fixnum for two instances having the same attribute values" do
@@ -425,6 +447,22 @@ module RTKIT
       it "should return a different Fixnum for two instances having different attribute values" do
         im_other = SliceImage.new('1.4.99', @pos_slice, @is)
         @im.hash.should_not eql im_other.hash
+      end
+
+    end
+
+
+    context "#insert_pixels" do
+
+      it "should insert the pixels into the image array at the selected indices" do
+        i = @im
+        i.columns = 3
+        i.rows = 4
+        i.narray = NArray.int(3, 4)
+        indices = [0, 4, 7 ,11]
+        values = [1, -1, 0, 9]
+        i.insert_pixels(indices, values)
+        i.narray[indices].should eql NArray.to_na(values)
       end
 
     end

@@ -187,6 +187,19 @@ module RTKIT
       state.hash
     end
 
+    # Gives the indices of either the true or the false pixels of the binary image.
+    #
+    # @param [Boolean] state the state of the pixels for which to extract indices (defaults to true)
+    # @return [Array] the indices of the true or false pixels in the binary image
+    #
+    def indices(state=true)
+      if state
+        (@narray.eq 1).where.to_a
+      else
+        (@narray.eq 0).where.to_a
+      end
+    end
+
     # Sets a new binary array for this BinImage instance.
     #
     # @param [NArray] image a binary two-dimensional array

@@ -258,6 +258,47 @@ module RTKIT
       return dose_distribution
     end
 
+    # Transfers the ROI (i.e. the pixels delineated by the ROI in its referenced
+    # image series) to another (target) image series, where they are inserted
+    # (overwriting existing pixel values) using the given offset vector.
+    #
+    # @param [ImageSeries] target_series the image series to export the ROI pixels to
+    # @param [Coordinate] offset the cartesian offset applied to the ROI coordinates in the image series transfer
+    #
+    def export_pixels(target_series, offset)
+      # Iterate the slices and determine the target image which corresponds to each slice:
+      # Note we need to dupe the slices array, because this method will
+      # add 'target slices' to this ROI instance.
+      @slices.dup.each do |slice|
+        target = target_series.image(slice.pos + offset.z)
+        if target
+          # Temporarily align the target image position with the source image:
+          target.pos_x = target.pos_x - offset.x
+          target.pos_y = target.pos_y - offset.y
+          # Create a target slice (need to set the image reference manually, since the
+          # target image is not related to this ROI (actually its Frame):
+          t_slice = Slice.new(target.uid, self)
+          t_slice.image = target
+          # Iterate the contours of this slice to transfer pixels:
+          slice.contours.each do |contour|
+            t_slice.add_contour(contour)
+          end
+          # Determine the indices of the target image which is to get a new pixel value
+          indices = t_slice.bin_image.indices
+          # Determine the coordinate positions of each pixel:
+          column_indices, row_indices = target.indices_general_to_specific(indices)
+          x_positions, y_positions, z_positions = target.coordinates_from_indices(NArray[column_indices], NArray[row_indices])
+          # Extract pixel values from original image by its coordinates.
+          pixels = slice.image.extract_pixels(x_positions, y_positions, z_positions)
+          # Insert pixel values in the target image.
+          target.insert_pixels(indices, pixels)
+          # Restore target image position:
+          target.pos_x = target.pos_x + offset.x
+          target.pos_y = target.pos_y + offset.y
+        end
+      end
+    end
+
     # Fills the pixels of a volume (as defined by the delineation of this ROI)
     # in an image series with the given value. By default, the image series
     # related to the ROI's structure set is used, however, an alternative image
@@ -425,7 +466,7 @@ module RTKIT
       self
     end
 
-    # Moves the roi's coordinates according to the given offset vector.
+    # Moves the ROI by applying the given offset vector to its coordinates.
     #
     # @param [Float] x the offset along the x axis (in units of mm)
     # @param [Float] y the offset along the y axis (in units of mm)

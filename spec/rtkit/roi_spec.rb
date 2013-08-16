@@ -447,6 +447,55 @@ module RTKIT
     end
 
 
+    context "#export_pixels" do
+
+      it "should move the ROI pixels from the source to target images with the given offset" do
+        # Target
+        tf = Frame.new('1.4321', @p)
+        t_series = ImageSeries.new('1.767.454', 'CT', tf, @st)
+        t1 = SliceImage.new('1.941', 13.0, t_series)
+        t2 = SliceImage.new('1.942', 18.0, t_series)
+        t3 = SliceImage.new('1.943', 23.0, t_series)
+        tf.add_image(t1)
+        tf.add_image(t2)
+        tf.add_image(t3)
+        t1.rows, t2.rows,  = 6, 6
+        t1.columns, t2.columns = 6, 6
+        t1.pos_x, t2.pos_x = 0, 0
+        t1.pos_y, t2.pos_y = 0, 0
+        t1.row_spacing, t2.row_spacing = 5, 5
+        t1.col_spacing, t2.col_spacing = 5, 5
+        t1.cosines, t2.cosines = [1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 1, 0]
+        t1.narray, t2.narray = NArray.sint(6, 6), NArray.sint(6, 6)
+        # Source
+        i1 = SliceImage.new('1.231', 3.0, @is)
+        i2 = SliceImage.new('1.232', 8.0, @is)
+        i3 = SliceImage.new('1.234', 13.0, @is)
+        i1.rows, i2.rows,  = 6, 6
+        i1.columns, i2.columns = 6, 6
+        i1.pos_x, i2.pos_x = 0, 0
+        i1.pos_y, i2.pos_y = 0, 0
+        i1.row_spacing, i2.row_spacing = 5, 5
+        i1.col_spacing, i2.col_spacing = 5, 5
+        i1.cosines, i2.cosines = [1, 0, 0, 0, 1, 0], [1, 0, 0, 0, 1, 0]
+        i1.narray, i2.narray = NArray.sint(6, 6).indgen!, NArray.sint(6, 6).indgen! + 100
+        s1 = Slice.new('1.231', @roi)
+        s2 = Slice.new('1.232', @roi)
+        c11 = Contour.create_from_coordinates([5, 10, 5], [5, 5, 10], [3, 3, 3], s1)
+        c12 = Contour.create_from_coordinates([15, 20, 15], [15, 15, 20], [3, 3, 3], s1)
+        c21 = Contour.create_from_coordinates([5, 15, 15, 5], [5, 5, 15, 15], [8, 8, 8, 8], s2)
+        offset = Coordinate.new(5, -5, 10)
+        @roi.export_pixels(t_series, offset)
+        t1.narray[[2, 3, 8, 16, 17, 22]].to_a.should eql [7, 8, 13, 21, 22, 27]
+        (t1.narray.eq 0).where.length.should eql 30
+        t2.narray[[2, 3, 4, 8, 9, 10, 14, 15, 16]].to_a.should eql [107, 108, 109, 113, 114, 115, 119, 120, 121]
+        (t2.narray.eq 0).where.length.should eql 27
+        t3.narray.should be_nil
+      end
+
+    end
+
+
     context "#fill" do
 
       it "should call the set_pixels method of the image instances with the expected indices" do

@@ -355,6 +355,24 @@ module RTKIT
     end
 
 
+    context "#indices" do
+
+      it "should return the indices of the pixels of value 1 (true pixels)" do
+        true_indices = [2, 5, 9]
+        @bin.narray[true_indices] = 1
+        @bin.indices.should eql true_indices
+      end
+
+      it "should return the indices of the pixels of value 0 (false pixels) when called with false" do
+        false_indices = [3, 4, 8]
+        @bin.narray.fill(1)
+        @bin.narray[false_indices] = 0
+        @bin.indices(false).should eql false_indices
+      end
+
+    end
+
+
     context "#narray=()" do
 
       it "should raise an ArgumentError when a non-NArray is passed as an image" do
