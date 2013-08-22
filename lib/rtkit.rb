@@ -55,6 +55,8 @@ require_relative 'rtkit/drr/ray'
 require_relative 'rtkit/dose_distribution'
 require_relative 'rtkit/dose'
 # Segmentation related:
+require_relative 'rtkit/structure'
+require_relative 'rtkit/poi'
 require_relative 'rtkit/roi'
 require_relative 'rtkit/slice'
 require_relative 'rtkit/contour'

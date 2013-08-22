@@ -49,8 +49,8 @@ module RTKIT
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         img_series = d.patient.study.image_series.first
         volumes = Array.new
-        master = img_series.struct.roi('External').bin_volume
-        volumes << img_series.struct.roi('Small').bin_volume
+        master = img_series.struct.structure('External').bin_volume
+        volumes << img_series.struct.structure('Small').bin_volume
         bm = BinMatcher.new(volumes, master)
         bm.class.should eql BinMatcher
         bm.volumes.should eql volumes
@@ -89,7 +89,7 @@ module RTKIT
 
       it "should add the BinVolume instance to the BinMatcher volumes attribute" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        volume = d.patient.study.image_series.first.struct.roi('External').bin_volume
+        volume = d.patient.study.image_series.first.struct.structure('External').bin_volume
         @bm.add(volume)
         @bm.volumes.should eql [volume]
       end
@@ -152,8 +152,8 @@ module RTKIT
 
       it "should leave the volume and master attributes untouched if they are already containing the same set of image references" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        master = d.patient.study.image_series.first.struct.roi('External').bin_volume
-        volume = d.patient.study.image_series.first.struct.roi('External').bin_volume
+        master = d.patient.study.image_series.first.struct.structure('External').bin_volume
+        volume = d.patient.study.image_series.first.struct.structure('External').bin_volume
         original_master_image_length = master.bin_images.length
         original_volume_image_length = volume.bin_images.length
         bm = BinMatcher.new([volume], master)
@@ -164,8 +164,8 @@ module RTKIT
 
       it "should add a BinImage instance to the volume when it contains less BinImage instances than the master volume" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        master = d.patient.study.image_series.first.struct.roi('External').bin_volume
-        volume = d.patient.study.image_series.first.struct.roi('External').bin_volume
+        master = d.patient.study.image_series.first.struct.structure('External').bin_volume
+        volume = d.patient.study.image_series.first.struct.structure('External').bin_volume
         original_master_image_length = master.bin_images.length
         original_volume_image_length = volume.bin_images.length
         volume.bin_images.pop
@@ -177,8 +177,8 @@ module RTKIT
 
       it "should not change length of the 'volumes' attribute when including a master volume for processing" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        master = d.patient.study.image_series.first.struct.roi('External').bin_volume
-        volume = d.patient.study.image_series.first.struct.roi('External').bin_volume
+        master = d.patient.study.image_series.first.struct.structure('External').bin_volume
+        volume = d.patient.study.image_series.first.struct.structure('External').bin_volume
         volume.bin_images.pop
         bm = BinMatcher.new([volume], master)
         original_number_of_volumes = bm.volumes.length
@@ -215,7 +215,7 @@ module RTKIT
 
       it "should add the BinVolume instance to the BinMatcher volumes attribute" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        master = d.patient.study.image_series.first.struct.roi('External').bin_volume
+        master = d.patient.study.image_series.first.struct.structure('External').bin_volume
         @bm.master = master
         @bm.master.should eql master
       end
@@ -233,8 +233,8 @@ module RTKIT
 
       it "should return an array of (2) NArray objects from the BinMatcher instance containing 2 volumes" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        volume1 = d.patient.study.image_series.first.struct.roi('External').bin_volume
-        volume2 = d.patient.study.image_series.first.struct.roi('Small').bin_volume
+        volume1 = d.patient.study.image_series.first.struct.structure('External').bin_volume
+        volume2 = d.patient.study.image_series.first.struct.structure('Small').bin_volume
         bm = BinMatcher.new([volume1, volume2])
         narrays = bm.narrays
         narrays.class.should eql Array
@@ -397,8 +397,8 @@ puts bm.master.narr.shape
 
       it "should raise an error when the volumes do not have the same number of BinImages" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        v1 = d.patient.study.image_series.first.struct.roi('External').bin_volume
-        v2 = d.patient.study.image_series.first.struct.roi('Star').bin_volume
+        v1 = d.patient.study.image_series.first.struct.structure('External').bin_volume
+        v2 = d.patient.study.image_series.first.struct.structure('Star').bin_volume
         v1.bin_images.pop
         bm = BinMatcher.new([v1, v2])
         expect {bm.sort_volumes}.to raise_error(/number/)
@@ -407,7 +407,7 @@ puts bm.master.narr.shape
       it "should sort the volumes so that the BinImages of all volumes appear in the same order, with respect to their Image reference" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         volumes = Array.new
-        d.patient.study.image_series.first.struct.rois.each do |roi|
+        d.patient.study.image_series.first.struct.structures.each do |roi|
           volumes << roi.bin_volume
         end
         bm = BinMatcher.new(volumes)

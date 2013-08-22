@@ -334,7 +334,7 @@ module RTKIT
       it "should return a properly constructed Contour Sequence Item" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         img_series = d.patient.study.image_series.first
-        roi = img_series.struct.roi('External')
+        roi = img_series.struct.structure('External')
         c = roi.slices.last.contours.last # Checking the last Contour Sequence Item of the External ROI in this Structure Set.
         item = c.to_item
         item.count.should eql 5

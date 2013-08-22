@@ -241,7 +241,7 @@ module RTKIT
         roi = @bv.to_roi(struct)
         roi.algorithm.should eql 'Automatic'
         roi.name.should eql 'BinVolume'
-        roi.number.should eql struct.rois.length
+        roi.number.should eql struct.structures.length
         roi.interpreter.should eql 'RTKIT'
         roi.type.should eql 'CONTROL'
         roi.slices.length.should eql 2

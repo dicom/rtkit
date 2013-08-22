@@ -8,63 +8,10 @@ module RTKIT
   # * An image slice has only the ROIs which are contoured in that particular slice in the StructureSet.
   # * A ROI has many Slices.
   #
-  class ROI
+  class ROI < Structure
 
-    # ROI Generation Algorithm.
-    attr_reader :algorithm
-    # ROI Display Color.
-    attr_reader :color
-    # The Frame which this ROI belongs to.
-    attr_reader :frame
-    # ROI Interpreter.
-    attr_reader :interpreter
-    # ROI Name.
-    attr_reader :name
-    # ROI Number (Integer).
-    attr_reader :number
     # An array containing the Slices that the ROI is defined in.
     attr_reader :slices
-    # The StructureSet that the ROI is defined in.
-    attr_reader :struct
-    # RT ROI Interpreted Type.
-    attr_reader :type
-
-    # Creates a new ROI instance from the three items of the structure set
-    # which contains the information related to a particular ROI. This method
-    # also creates and connects any child structures as indicated in the items
-    # (e.g. Slice instances).
-    #
-    # @param [DICOM::Item] roi_item the ROI's Item from the Structure Set ROI Sequence
-    # @param [DICOM::Item] contour_item the ROI's Item from the ROI Contour Sequence
-    # @param [DICOM::Item] rt_item the ROI's Item from the RT ROI Observations Sequence
-    # @param [StructureSet] struct the StructureSet instance which the ROI shall be associated with
-    # @return [ROI] the created ROI instance
-    #
-    def self.create_from_items(roi_item, contour_item, rt_item, struct)
-      raise ArgumentError, "Invalid argument 'roi_item'. Expected DICOM::Item, got #{roi_item.class}." unless roi_item.is_a?(DICOM::Item)
-      raise ArgumentError, "Invalid argument 'contour_item'. Expected DICOM::Item, got #{contour_item.class}." unless contour_item.is_a?(DICOM::Item)
-      raise ArgumentError, "Invalid argument 'rt_item'. Expected DICOM::Item, got #{rt_item.class}." unless rt_item.is_a?(DICOM::Item)
-      raise ArgumentError, "Invalid argument 'struct'. Expected StructureSet, got #{struct.class}." unless struct.is_a?(StructureSet)
-      # Values from the Structure Set ROI Sequence Item:
-      number = roi_item.value(ROI_NUMBER).to_i
-      frame_of_ref = roi_item.value(REF_FRAME_OF_REF)
-      name = roi_item.value(ROI_NAME) || ''
-      algorithm = roi_item.value(ROI_ALGORITHM) || ''
-      # Values from the RT ROI Observations Sequence Item:
-      type = rt_item.value(ROI_TYPE) || ''
-      interpreter = rt_item.value(ROI_INTERPRETER) || ''
-      # Values from the ROI Contour Sequence Item:
-      color = contour_item.value(ROI_COLOR)
-      # Get the frame:
-      frame = struct.study.patient.dataset.frame(frame_of_ref)
-      # If the frame didnt exist, create it (assuming the frame belongs to our patient):
-      frame = struct.study.patient.create_frame(frame_of_ref) unless frame
-      # Create the ROI instance:
-      roi = self.new(name, number, frame, struct, :algorithm => algorithm, :color => color, :interpreter => interpreter, :type => type)
-      # Create the Slices in which the ROI has contours defined:
-      roi.create_slices(contour_item[CONTOUR_SQ]) if contour_item[CONTOUR_SQ]
-      return roi
-    end
 
     # Creates a new ROI instance.
     #
@@ -89,19 +36,10 @@ module RTKIT
       raise ArgumentError, "Invalid option :type. Expected String, got #{options[:type].class}." if options[:type] && !options[:type].is_a?(String)
       @slices = Array.new
       @associated_instance_uids = Hash.new
-      # Set values:
-      @number = number
-      @name = name
-      @algorithm = options[:algorithm] || 'Automatic'
-      @type = options[:type] || 'CONTROL'
-      @interpreter = options[:interpreter] || 'RTKIT'
-      @color = options[:color] || random_color
-      # Set references:
-      @frame = frame
-      @struct = struct
+      super(name, number, frame, struct, options)
       # Register ourselves with the Frame and StructureSet:
-      @frame.add_roi(self)
-      @struct.add_roi(self)
+      @frame.add_structure(self)
+      @struct.add_structure(self)
     end
 
     # Checks for equality.
@@ -130,14 +68,6 @@ module RTKIT
       @associated_instance_uids[slice.uid] = slice
     end
 
-    # Sets the algorithm attribute.
-    #
-    # @param [NilClass, #to_s] value the ROI generation algorithm (3006,0036)
-    #
-    def algorithm=(value)
-      @algorithm = value && value.to_s
-    end
-
     # Attaches a ROI to a specified ImageSeries, by setting the ROIs frame
     # reference to the Frame which the ImageSeries belongs to, and setting the
     # Image reference of each of the Slices belonging to the ROI to an Image
@@ -160,7 +90,7 @@ module RTKIT
       raise ArgumentError, "Invalid argument 'series'. Expected ImageSeries, got #{series.class}." unless series.is_a?(Series)
       # Change struct association if indicated:
       if series.struct != @struct
-        @struct.remove_roi(self)
+        @struct.remove_structure(self)
         StructureSet.new(RTKIT.series_uid, series) unless series.struct
         series.struct.add_roi(self)
         @struct = series.struct
@@ -186,23 +116,6 @@ module RTKIT
       return BinVolume.from_roi(self, image_volume)
     end
 
-    # Sets a new color for this ROI.
-    #
-    # @param [String] value a properly formatted color string (3 integers 0-255 - each separated by a '\') (3006,002A)
-    #
-    def color=(value)
-      # Make sure that the color string is of valid format before saving it:
-      raise ArgumentError, "Invalid argument 'value'. Expected String, got #{value.class}." unless value.is_a?(String)
-      colors = value.split("\\")
-      raise ArgumentError, "Invalid argument 'value'. Expected 3 color values, got #{colors.length}." unless colors.length == 3
-      colors.each do |str|
-        c = str.to_i
-        raise ArgumentError, "Invalid argument 'value'. Expected valid integer (0-255), got #{str}." if c < 0 or c > 255
-        raise ArgumentError, "Invalid argument 'value'. Expected an integer, got #{str}." if c == 0 and str != "0"
-      end
-      @color = value
-    end
-
     # Creates a ROI Contour Sequence Item from the attributes of the ROI instance.
     #
     # @return [DICOM::Item] a ROI contour sequence item
@@ -210,9 +123,9 @@ module RTKIT
     def contour_item
       item = DICOM::Item.new
       item.add(DICOM::Element.new(ROI_COLOR, @color))
+      item.add(DICOM::Element.new(REF_ROI_NUMBER, @number.to_s))
       s = DICOM::Sequence.new(CONTOUR_SQ)
       item.add(s)
-      item.add(DICOM::Element.new(REF_ROI_NUMBER, @number.to_s))
       # Add Contour items to the Contour Sequence (one or several items per Slice):
       @slices.each do |slice|
         slice.contours.each do |contour|
@@ -320,14 +233,6 @@ module RTKIT
       image_volume
     end
 
-    # Sets the frame attribute.
-    #
-    # @param [NilClass, #to_frame] value the ROI's referenced Frame instance
-    #
-    def frame=(value)
-      @frame = value.to_frame
-    end
-
     # Computes a hash code for this object.
     #
     # @note Two objects with the same attributes will have the same hash code.
@@ -336,30 +241,6 @@ module RTKIT
     #
     def hash
       state.hash
-    end
-
-    # Gives the ImageSeries instance which this ROI is defined for.
-    #
-    # @return [ImageSeries] the image series which this ROI belongs to
-    #
-    def image_series
-      return @struct.image_series.first
-    end
-
-    # Sets the interpreter attribute.
-    #
-    # @param [NilClass, #to_s] value the ROI interpreter (3006,00A6)
-    #
-    def interpreter=(value)
-      @interpreter = value && value.to_s
-    end
-
-    # Sets the name attribute.
-    #
-    # @param [NilClass, #to_s] value the ROI name (3006,0026)
-    #
-    def name=(value)
-      @name = value && value.to_s
     end
 
     # Gives the number of Contour instances belonging to this ROI (through its
@@ -373,35 +254,6 @@ module RTKIT
         num += slice.contours.length
       end
       return num
-    end
-
-    # Sets the number attribute.
-    #
-    # @param [NilClass, #to_s] value the ROI number (3006,0022 - 3006,0082 - 3006,0084)
-    #
-    def number=(value)
-      @number = value.to_i
-    end
-
-    # Creates a RT ROI Obervations Sequence Item from the attributes of the ROI instance.
-    #
-    # @return [DICOM::Item] a RT ROI obervations sequence item
-    #
-    def obs_item
-      item = DICOM::Item.new
-      item.add(DICOM::Element.new(OBS_NUMBER, @number.to_s))
-      item.add(DICOM::Element.new(REF_ROI_NUMBER, @number.to_s))
-      item.add(DICOM::Element.new(ROI_TYPE, @type))
-      item.add(DICOM::Element.new(ROI_INTERPRETER, @interpreter))
-      return item
-    end
-
-    # Removes the parent references of the ROI: the StructureSet association
-    # (struct) and Frame association (frame).
-    #
-    def remove_references
-      @frame = nil
-      @struct = nil
     end
 
     # Calculates the size (volume) of the ROI by evaluating the ROI's
@@ -445,19 +297,6 @@ module RTKIT
       end
     end
 
-    # Creates a Structure Set ROI Sequence Item from the attributes of the ROI instance.
-    #
-    # @return [DICOM::Item] a structure set ROI sequence item
-    #
-    def ss_item
-      item = DICOM::Item.new
-      item.add(DICOM::Element.new(ROI_NUMBER, @number.to_s))
-      item.add(DICOM::Element.new(REF_FRAME_OF_REF, @frame.uid))
-      item.add(DICOM::Element.new(ROI_NAME, @name))
-      item.add(DICOM::Element.new(ROI_ALGORITHM, @algorithm))
-      return item
-    end
-
     # Returns self.
     #
     # @return [ROI] self
@@ -478,32 +317,16 @@ module RTKIT
       end
     end
 
-    # Sets the type attribute.
-    #
-    # @param [NilClass, #to_s] value the RT ROI interpreted type (3006,00A4)
-    #
-    def type=(value)
-      @type = value && value.to_s
-    end
-
 
     private
 
-
-    # Creates a random color string (used for the ROI Display Color element).
-    #
-    # @return [String] a properly formatted DICOM color string (with random colors)
-    #
-    def random_color
-      return "#{rand(256).to_i}\\#{rand(256).to_i}\\#{rand(256).to_i}"
-    end
 
     # Collects the attributes of this instance.
     #
     # @return [Array] an array of attributes
     #
     def state
-       [@algorithm, @color, @interpreter, @name, @number, @slices, @type]
+      super << @slices
     end
 
   end

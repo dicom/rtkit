@@ -161,7 +161,7 @@ module RTKIT
       it "should return a BinImage instance, containing a 2d NArray binary byte segmented image, defined by the contours of the Slice" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         img_series = d.patient.study.iseries
-        roi = img_series.struct.roi('External')
+        roi = img_series.struct.structure('External')
         segmented_image = roi.slices.first.bin_image
         segmented_image.class.should eql BinImage
         segmented_image.narray.shape.should eql [512, 171]
@@ -171,7 +171,7 @@ module RTKIT
       it "should create a BinImage containing two separate filled squares, as defined by the two Contour's of the Slice" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         img_series = d.patient.study.iseries
-        roi = img_series.struct.roi('External')
+        roi = img_series.struct.structure('External')
         s = roi.slices.first
         c = Contour.create_from_coordinates([-20.2, -10.3, -10.3, -20.2], [-19.9, -19.9, -10.5, -10.5], [150.0, 150.0, 150.0, 150.0], s)
         s.contours.length.should eql 2

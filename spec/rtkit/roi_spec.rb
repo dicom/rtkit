@@ -168,13 +168,13 @@ module RTKIT
       end
 
       it "should add the ROI instance (once) to the referenced StructureSet" do
-        @ss.rois.length.should eql 1
-        @ss.roi(@roi.name).should eql @roi
+        @ss.structures.length.should eql 1
+        @ss.structure(@roi.name).should eql @roi
       end
 
       it "should add the ROI instance (once) to the referenced Frame" do
-        @f.rois.length.should eql 1
-        @f.roi(@roi.name).should eql @roi
+        @f.structures.length.should eql 1
+        @f.structure(@roi.name).should eql @roi
       end
 
     end
@@ -257,50 +257,50 @@ module RTKIT
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         series = d.patient.study.iseries
         roi = @ss1.create_roi(@f1)
-        @ss1.expects(:remove_roi).once.with(roi)
+        @ss1.expects(:remove_structure).once.with(roi)
         roi.attach_to(series)
         roi.frame.should eql series.frame
-        series.rois.include?(roi).should be_true
+        series.structures.include?(roi).should be_true
       end
 
       it "should add the ROI (containing slices) to the ImageSeries instance" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         series = d.patient.study.image_series.first
         roi = ROI.new(@name, @number, @f, @ss)
-        @ss.expects(:remove_roi).once.with(roi)
+        @ss.expects(:remove_structure).once.with(roi)
         roi.attach_to(series)
         roi.frame.should eql series.frame
-        series.rois.include?(roi).should be_true
+        series.structures.include?(roi).should be_true
       end
 
       it "should not do anything with the rois when they already belong to the given ImageSeries and have the correct frame" do
         roi1 = @ss1.create_roi(@f1)
         roi2 = @ss1.create_roi(@f1)
         # Before any processing (verify):
-        @ss1.rois.length.should eql 2
-        @ss1.rois.collect{|roi| roi.__id__}.should eql [roi1.__id__, roi2.__id__]
-        @ss1.rois.each do |roi|
+        @ss1.structures.length.should eql 2
+        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi1.__id__, roi2.__id__]
+        @ss1.structures.each do |roi|
           roi.attach_to(@is1)
         end
         # After processing (test):
-        @ss1.rois.collect{|roi| roi.frame}.should eql [@f1, @f1]
-        @ss1.rois.length.should eql 2
-        @ss1.rois.collect{|roi| roi.__id__}.should eql [roi1.__id__, roi2.__id__]
+        @ss1.structures.collect{|roi| roi.frame}.should eql [@f1, @f1]
+        @ss1.structures.length.should eql 2
+        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi1.__id__, roi2.__id__]
       end
 
       it "should not remove (and subsequently re-add) a ROI which belongs to the correct struct, but belongs to another frame than that of the ImageSeries" do
         roi_wrong_frame = @ss1.create_roi(@f2)
         roi_corr_frame = @ss1.create_roi(@f1)
         # Before any processing (verify):
-        @ss1.rois.length.should eql 2
-        @ss1.rois.collect{|roi| roi.__id__}.should eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
-        @ss1.rois.each do |roi|
+        @ss1.structures.length.should eql 2
+        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
+        @ss1.structures.each do |roi|
           roi.attach_to(@is1)
         end
         # After processing (test):
         [roi_wrong_frame, roi_corr_frame].collect{|roi| roi.frame}.should eql [@f1, @f1]
-        @ss1.rois.length.should eql 2
-        @ss1.rois.collect{|roi| roi.__id__}.should eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
+        @ss1.structures.length.should eql 2
+        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
       end
 
       it "should successfully add the ROI to a struct-less ImageSeries instance (creating a new StructureSet instance)" do
@@ -308,7 +308,7 @@ module RTKIT
         struct_less_is = ImageSeries.new('1.767.232', 'CT', @f1, @st)
         roi.attach_to(struct_less_is)
         roi.frame.should eql struct_less_is.frame
-        struct_less_is.rois.include?(roi).should be_true
+        struct_less_is.structures.include?(roi).should be_true
         roi.image_series.should eql struct_less_is
       end
 
@@ -320,7 +320,7 @@ module RTKIT
       before :each do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         img_series = d.patient.study.image_series.first
-        @roi = img_series.struct.roi('External')
+        @roi = img_series.struct.structure('External')
         @bin_volume = @roi.bin_volume
       end
 
@@ -355,7 +355,7 @@ module RTKIT
       before :each do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CASE)
         img_series = d.patient.study.image_series.first
-        @roi = img_series.struct.roi('External')
+        @roi = img_series.struct.structure('External')
         @dvol = img_series.struct.plan.rt_dose.volumes.first
         @bin_volume = @roi.bin_volume(@dvol)
       end
@@ -414,7 +414,7 @@ module RTKIT
       before :each do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CASE)
         img_series = d.patient.study.image_series.first
-        @roi = img_series.struct.roi('External')
+        @roi = img_series.struct.structure('External')
         @dvol = img_series.struct.plan.rt_dose.volumes.first
       end
 
@@ -638,7 +638,7 @@ module RTKIT
         # This test is just for consistency at the moment, and should be replaced by a (set of) principal test(s) on volume.
         # According to Oncentra 4.1, this volume is 708.845, and according to dicompyler 0.4.1 it is 933.75 cm^3.
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        roi = d.patient.study.image_series.first.struct.roi('External')
+        roi = d.patient.study.image_series.first.struct.structure('External')
         roi.size.round(1).should eql 770.6
       end
 

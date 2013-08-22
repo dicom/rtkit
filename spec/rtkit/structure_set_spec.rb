@@ -93,10 +93,10 @@ module RTKIT
         ss.image_series.length.should eql 1
       end
 
-      it "should create a StructureSet containing 2 ROIs (as defined in this DICOM object)" do
+      it "should create a StructureSet containing 4 structures (2 ROIs, 2 POIs) (as defined in this DICOM object)" do
         dcm = DICOM::DObject.read(FILE_STRUCT)
         struct = StructureSet.load(dcm, @st)
-        struct.rois.length.should eql 2
+        struct.structures.length.should eql 4
       end
 
     end
@@ -112,8 +112,8 @@ module RTKIT
         expect {StructureSet.new(@uid, 'not-a-series')}.to raise_error(ArgumentError, /'image_series'/)
       end
 
-      it "should by default set the 'rois' attribute as an empty array" do
-        @ss.rois.should eql Array.new
+      it "should by default set the 'structures' attribute as an empty array" do
+        @ss.structures.should eql Array.new
       end
 
       it "should by default set the 'plans' attribute as an empty array" do
@@ -239,25 +239,25 @@ module RTKIT
         ss_other = StructureSet.new("1.23.787", @is)
         roi = ROI.new('Brain', 10, @f, ss_other)
         @ss.add_roi(roi)
-        @ss.rois.size.should eql 1
-        @ss.rois.first.should eql roi
+        @ss.structures.size.should eql 1
+        @ss.structures.first.should eql roi
       end
 
       it "should add the ROI to the StructureSet instance already containing one or more rois" do
         ds = DataSet.read(DIR_STRUCT_ONLY)
         ss = ds.patient.study.iseries.struct
-        previous_size = ss.rois.size
+        previous_size = ss.structures.size
         roi = ROI.new('Brain', 10, @f, @ss)
         ss.add_roi(roi)
-        ss.rois.size.should eql previous_size + 1
-        ss.rois.last.should eql roi
+        ss.structures.size.should eql previous_size + 1
+        ss.structures.last.should eql roi
       end
 
       it "should not add multiple entries of the same ROI" do
         roi = ROI.new('Brain', 10, @f, @ss)
         @ss.add_roi(roi)
-        @ss.rois.size.should eql 1
-        @ss.rois.first.should eql roi
+        @ss.structures.size.should eql 1
+        @ss.structures.first.should eql roi
       end
 
     end
@@ -323,6 +323,19 @@ module RTKIT
     end
 
 
+    context "#pois" do
+
+      it "should give an array of POI structures associated to the structure set" do
+        @roi = ROI.new('CTV', 1, @f, @ss)
+        @poi1 = POI.new('REF', 2, @f, @ss)
+        @poi2 = POI.new('ISO', 3, @f, @ss)
+        @ss.pois.length.should eql 2
+        @ss.pois.should eql [@poi1, @poi2]
+      end
+
+    end
+
+
     context "#roi" do
 
       before :each do
@@ -335,21 +348,46 @@ module RTKIT
       end
 
       it "should raise an ArgumentError when the argument is neither a String nor Integer" do
-        expect {@ss.roi(42.0)}.to raise_error(ArgumentError, /String/)
+        expect {@ss.structure(42.0)}.to raise_error(ArgumentError, /String/)
       end
 
       it "should raise an ArgumentError if no arguments are passed" do
-        expect {@ss.roi}.to raise_error(ArgumentError, /wrong number/)
+        expect {@ss.structure}.to raise_error(ArgumentError, /wrong number/)
       end
 
       it "should return the matching ROI when queried by it's name" do
-        roi = @ss.roi(@name2)
+        roi = @ss.structure(@name2)
         roi.name.should eql @name2
       end
 
-      it "should return the matching ROI when queried by it's number" do
-        roi = @ss.roi(@number2)
+      it "should return the matching ROI when queried by its number" do
+        roi = @ss.structure(@number2)
         roi.number.should eql @number2
+      end
+
+    end
+
+
+    context "#rois" do
+
+      it "should give an array of ROI structures associated to the structure set" do
+        @roi1 = ROI.new('CTV', 1, @f, @ss)
+        @poi = POI.new('REF', 2, @f, @ss)
+        @roi2 = ROI.new('PTV', 3, @f, @ss)
+        @ss.rois.length.should eql 2
+        @ss.rois.should eql [@roi1, @roi2]
+      end
+
+    end
+
+
+    context "#structures" do
+
+      it "should give an array of structures associated to the structure set" do
+        @roi = ROI.new('CTV', 1, @f, @ss)
+        @poi = POI.new('REF', 2, @f, @ss)
+        @ss.structures.length.should eql 2
+        @ss.structures.should eql [@roi, @poi]
       end
 
     end

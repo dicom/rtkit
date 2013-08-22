@@ -32,7 +32,7 @@ suppress_warnings do
   RTKIT::TMPDIR = "tmp/"
   # Single files of various modalities:
   RTKIT::FILE_IMAGE = RTKIT::DIR_IMAGE_ONLY + 'ct_rect_phantom.dcm'
-  RTKIT::FILE_STRUCT = RTKIT::DIR_STRUCT_ONLY + 'two_roi_rtstruct.dcm'
+  RTKIT::FILE_STRUCT = RTKIT::DIR_STRUCT_ONLY + 'rtstruct.dcm'
   RTKIT::FILE_PLAN = RTKIT::DIR_PLAN_ONLY + 'simple_plan.dcm'
   RTKIT::FILE_DOSE = RTKIT::DIR_DOSE_ONLY + 'dose.dcm'
   RTKIT::FILE_RTIMAGE = RTKIT::DIR_RTIMAGE_ONLY + 'rt_image.dcm'

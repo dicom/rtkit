@@ -232,19 +232,6 @@ module RTKIT
       return matching_image
     end
 
-    # Gives all ROIs having the same Frame of Reference as this image series
-    # from the structure set(s) belonging to this series.
-    #
-    # @return [Array<ROI>] the ROIs associated with this image series
-    #
-    def rois
-      frame_rois = Array.new
-      structs.each do |struct|
-        frame_rois << struct.rois_in_frame(@frame.uid)
-      end
-      return frame_rois.flatten
-    end
-
     # Sets the resolution of the associated images. The images will either be
     # expanded or cropped depending on whether the specified resolution is
     # bigger or smaller than the existing one.
@@ -278,6 +265,19 @@ module RTKIT
         # No argument used, therefore we return the first StructureSet instance:
         return @structs.first
       end
+    end
+
+    # Gives all structures having the same Frame of Reference as this image
+    # series from the structure set(s) belonging to this series.
+    #
+    # @return [Array<ROI, POI>] the ROIs & POIs associated with this image series
+    #
+    def structures
+      frame_rois = Array.new
+      structs.each do |struct|
+        frame_rois << struct.structures_in_frame(@frame.uid)
+      end
+      return frame_rois.flatten
     end
 
     # Returns self.

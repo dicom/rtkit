@@ -34,7 +34,7 @@ module RTKIT
       end
 
       it "should by default set the 'rois' attribute as an empty array" do
-        @f.rois.should eql Array.new
+        @f.structures.should eql Array.new
       end
 
       it "should by default set the 'indicator' attribute as nil" do
@@ -142,32 +142,32 @@ module RTKIT
       end
 
       it "should raise an ArgumentError when a non-ROI is passed as the 'roi' argument" do
-        expect {@f.add_roi('not-a-roi')}.to raise_error(ArgumentError, /roi/)
+        expect {@f.add_structure('not-a-roi')}.to raise_error(ArgumentError, /structure/)
       end
 
       it "should add the ROI to the ROI-less Frame instance" do
         f = Frame.new('1.76.888', @p)
         roi = ROI.new('Brain', 10, @f, @ss)
-        f.add_roi(roi)
-        f.rois.size.should eql 1
-        f.rois.first.should eql roi
+        f.add_structure(roi)
+        f.structures.size.should eql 1
+        f.structures.first.should eql roi
       end
 
       it "should add the ROI to the Frame instance already containing one or more ROIs" do
         ds = DataSet.read(DIR_STRUCT_ONLY)
         f = ds.frame
         roi = ROI.new('Brain', 10, @f, @ss)
-        previous_size = f.rois.size
-        f.add_roi(roi)
-        f.rois.size.should eql previous_size + 1
-        f.rois.last.should eql roi
+        previous_size = f.structures.size
+        f.add_structure(roi)
+        f.structures.size.should eql previous_size + 1
+        f.structures.last.should eql roi
       end
 
       it "should not add multiple entries of the same ROI" do
         roi = ROI.new('Brain', 10, @f, @ss)
-        @f.add_roi(roi)
-        @f.rois.size.should eql 1
-        @f.rois.first.should eql roi
+        @f.add_structure(roi)
+        @f.structures.size.should eql 1
+        @f.structures.first.should eql roi
       end
 
     end

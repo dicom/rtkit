@@ -433,7 +433,7 @@ module RTKIT
       before :each do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CASE)
         img_series = d.patient.study.image_series.first
-        @roi = img_series.struct.roi('External')
+        @roi = img_series.struct.structure('External')
         @rt_dose = img_series.struct.plan.rt_dose
       end
 

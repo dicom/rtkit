@@ -15,10 +15,10 @@ module RTKIT
     attr_reader :image_series
     #  An array of RTPlans associated with this Structure Set Series.
     attr_reader :plans
-    # An array of ROIs belonging to this structure set.
-    attr_reader :rois
     # The SOP Instance UID.
     attr_reader :sop_uid
+    # An array of ROIs & POIs belonging to this structure set.
+    attr_reader :structures
 
     # Creates a new StructureSet instance by loading the relevant information
     # from the specified DICOM object. The SOP Instance UID string value is
@@ -110,7 +110,7 @@ module RTKIT
       @sop_uid = sop_uid
       # Default attributes:
       @image_series = Array.new
-      @rois = Array.new
+      @structures = Array.new
       @plans = Array.new
       @associated_plans = Hash.new
       # Register ourselves with the ImageSeries:
@@ -142,7 +142,7 @@ module RTKIT
     def add(dcm)
       raise ArgumentError, "Invalid argument 'dcm'. Expected DObject, got #{dcm.class}." unless dcm.is_a?(DICOM::DObject)
       @dcm = dcm
-      load_rois
+      load_structures
     end
 
     # Adds a Plan Series to this StructureSet.
@@ -155,13 +155,31 @@ module RTKIT
       @associated_plans[plan.uid] = plan
     end
 
+    # Adds a POI instance to this StructureSet.
+    #
+    # @param [POI] poi a poi instance to be associated with this structure set
+    #
+    def add_poi(poi)
+      raise ArgumentError, "Invalid argument 'poi'. Expected POI, got #{poi.class}." unless poi.is_a?(POI)
+      @structures << poi unless @structures.include?(poi)
+    end
+
+    # Adds a Structure instance to this StructureSet.
+    #
+    # @param [ROI, POI] structure a Structure to be associated with this StructureSet
+    #
+    def add_structure(structure)
+      raise ArgumentError, "Invalid argument 'structure'. Expected ROI/POI, got #{structure.class}." unless structure.respond_to?(:to_roi) or structure.respond_to?(:to_poi)
+      @structures << structure unless @structures.include?(structure)
+    end
+
     # Adds a ROI instance to this StructureSet.
     #
     # @param [ROI] roi a roi instance to be associated with this structure set
     #
     def add_roi(roi)
       raise ArgumentError, "Invalid argument 'roi'. Expected ROI, got #{roi.class}." unless roi.is_a?(ROI)
-      @rois << roi unless @rois.include?(roi)
+      @structures << roi unless @structures.include?(roi)
     end
 
     # Creates a ROI belonging to this StructureSet.
@@ -186,10 +204,10 @@ module RTKIT
       type = options[:type] || 'CONTROL'
       if options[:number]
         raise ArgumentError, "Expected Integer, got #{options[:number].class} for the option :number." unless options[:number].is_a?(Integer)
-        raise ArgumentError, "The specified ROI Number (#{options[:roi_number]}) is already used by one of the existing ROIs (#{roi_numbers})." if roi_numbers.include?(options[:number])
+        raise ArgumentError, "The specified ROI Number (#{options[:roi_number]}) is already used by one of the existing ROIs (#{roi_numbers})." if structure_numbers.include?(options[:number])
         number = options[:number]
       else
-        number = (roi_numbers.max ? roi_numbers.max + 1 : 1)
+        number = (structure_numbers.max ? structure_numbers.max + 1 : 1)
       end
       # Create ROI:
       roi = ROI.new(name, number, frame, self, :algorithm => algorithm, :name => name, :number => number, :interpreter => interpreter, :type => type)
@@ -235,88 +253,103 @@ module RTKIT
       end
     end
 
-    # Removes a ROI from the structure set.
+    # Extracts the POIs associated with this structure set.
     #
-    # @param [ROI, Integer] instance_or_number the ROI instance (or ROI number of the instance) to be removed
+    # @return [Array<POI>] the associated POIs
     #
-    def remove_roi(instance_or_number)
+    def pois
+      @structures.select {|s| s.is_a?(POI)}
+    end
+
+    # Removes a ROI or POI from the structure set.
+    #
+    # @param [ROI, POI, Integer] instance_or_number the ROI/POI instance or its identifying number
+    #
+    def remove_structure(instance_or_number)
       raise ArgumentError, "Invalid argument 'instance_or_number'. Expected a ROI Instance or an Integer (ROI Number). Got #{instance_or_number.class}." unless [ROI, Integer].include?(instance_or_number.class)
-      roi_instance = instance_or_number
+      s_instance = instance_or_number
       if instance_or_number.is_a?(Integer)
-        roi_instance = roi(instance_or_number)
+        s_instance = structure(instance_or_number)
       end
-      index = @rois.index(roi_instance)
+      index = @structures.index(s_instance)
       if index
-        @rois.delete_at(index)
-        roi_instance.remove_references
+        @structures.delete_at(index)
+        s_instance.remove_references
       end
     end
 
-    # Removes all ROI instances from the structure set.
+    # Removes all ROI/POI instances from the structure set.
     #
-    def remove_rois
-      @rois.each do |roi|
-        roi.remove_references
+    def remove_structures
+      @structures.each do |s|
+        s.remove_references
       end
-      @rois = Array.new
+      @structures = Array.new
     end
 
-    # Gives a ROI that matches the specified number or name.
+    # Extracts the ROIs associated with this structure set.
     #
-    # @param [String, Integer] name_or_number a ROI's name or number attribute
-    # @return [ROI, NilClass] the matching ROI (or nil if no ROI is matched)
+    # @return [Array<ROI>] the associated ROIs
     #
-    def roi(name_or_number)
+    def rois
+      @structures.select {|s| s.is_a?(ROI)}
+    end
+
+    # Gives a ROI/POI that matches the specified number or name.
+    #
+    # @param [String, Integer] name_or_number a ROI/POI's name or number attribute
+    # @return [ROI, POI, NilClass] the matching structure (or nil if no structure is matched)
+    #
+    def structure(name_or_number)
       raise ArgumentError, "Invalid argument 'name_or_number'. Expected String or Integer, got #{name_or_number.class}." unless [String, Integer, Fixnum].include?(name_or_number.class)
       if name_or_number.is_a?(String)
-        @rois.each do |r|
-          return r if r.name == name_or_number
+        @structures.each do |s|
+          return s if s.name == name_or_number
         end
       else
-        @rois.each do |r|
-          return r if r.number == name_or_number
+        @structures.each do |s|
+          return s if s.number == name_or_number
         end
       end
       return nil
     end
 
-    # Gives the names of the structure set's associated ROIs.
+    # Gives the names of the structure set's associated structures.
     #
-    # @return [Array<String>] the names of the associated ROIs
+    # @return [Array<String>] the names of the associated structures
     #
-    def roi_names
+    def structure_names
       names = Array.new
-      @rois.each do |roi|
-        names << roi.name
+      @structures.each do |s|
+        names << s.name
       end
       return names
     end
 
-    # Gives the numbers of the structure set's associated ROIs.
+    # Gives the numbers of the structure set's associated structures.
     #
-    # @return [Array<Integer>] the numbers of the associated ROIs
+    # @return [Array<Integer>] the numbers of the associated structures
     #
-    def roi_numbers
+    def structure_numbers
       numbers = Array.new
-      @rois.each do |roi|
-        numbers << roi.number
+      @structures.each do |s|
+        numbers << s.number
       end
       return numbers
     end
 
-    # Gives all ROIs associated with this structure set which belongs to the
-    # specified Frame of Reference UID.
-    # Returns an empty array if no matching ROIs are found.
+    # Gives all ROIs/POIs associated with this structure set which belongs to
+    # the specified Frame of Reference UID.
     #
-    # @return [Array<ROI>] the matching ROIs (an empty Array if no ROIs are matched)
+    # @return [Array<ROI, POI>] the matching ROIs/POIs (an empty Array if no structures are matched)
     #
-    def rois_in_frame(uid)
+    def structures_in_frame(uid)
       raise ArgumentError, "Expected String, got #{uid.class}." unless uid.is_a?(String)
-      frame_rois = Array.new
-      @rois.each do |roi|
-        frame_rois << roi if roi.frame.uid == uid
+      frame_structures = Array.new
+      @structures.each do |s|
+        frame_structures << s if s.frame.uid == uid
       end
-      return frame_rois
+      return frame_structures
     end
 
     # Sets new color values for all ROIs belonging to this structure set.
@@ -329,22 +362,22 @@ module RTKIT
     # new color.
     #
     def set_colors
-      if @rois.length > 0
+      if @structures.length > 0
         # Determine colors:
         initialize_colors
         # Set colors:
-        @rois.each_index do |i|
-          @rois[i].color = @colors[i] if i < 24
+        @structures.each_index do |i|
+          @structures[i].color = @colors[i] if i < 24
         end
       end
     end
 
-    # Sets new ROI numbers to all ROIs belonging to the structure set. The
-    # numbers increment sequentially, starting at 1 for the first ROI.
+    # Sets new ROI numbers to all structures belonging to the structure set. The
+    # numbers increment sequentially, starting at 1 for the first ROI/POI.
     #
     def set_numbers
-      @rois.each_with_index do |roi, i|
-        roi.number = i + 1
+      @structures.each_with_index do |s, i|
+        s.number = i + 1
       end
     end
 
@@ -437,9 +470,9 @@ module RTKIT
     end
 
     # Loads the ROI Items contained in the structure set and creates ROI
-    # instances which are referenced to this structure set.
+    # and POI instances, which are referenced to this structure set.
     #
-    def load_rois
+    def load_structures
       if @dcm[STRUCTURE_SET_ROI_SQ] && @dcm[ROI_CONTOUR_SQ] && @dcm[RT_ROI_OBS_SQ]
         # Load the information in a nested hash:
         item_group = Hash.new
@@ -454,7 +487,7 @@ module RTKIT
         end
         # Create a ROI instance for each set of items:
         item_group.each_value do |roi_items|
-          ROI.create_from_items(roi_items[:roi], roi_items[:contour], roi_items[:rt], self)
+          Structure.create_from_items(roi_items[:roi], roi_items[:contour], roi_items[:rt], self)
         end
       else
         RTKIT.logger.warn "The structure set contained one or more empty ROI sequences. No ROIs extracted."
@@ -500,7 +533,7 @@ module RTKIT
     # @return [Array] an array of attributes
     #
     def state
-       [@plans, @rois, @sop_uid]
+       [@plans, @structures, @sop_uid]
     end
 
   end

@@ -30,7 +30,7 @@ module RTKIT
 
       it "should raise an ArgumentError when the supplied BinMatcher contains only one volume (at least two is required)" do
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
-        volume = d.patient.study.image_series.first.struct.roi('External').bin_volume
+        volume = d.patient.study.image_series.first.struct.structure('External').bin_volume
         bm = BinMatcher.new([volume])
         expect {Staple.new(bm)}.to raise_error(ArgumentError)
       end
@@ -280,7 +280,7 @@ module RTKIT
         image_series = d.patient.study.image_series.first
         uid = "1.3.6.1.4.1.2452.6.1182637672.1264755347.3544421004.3934111437" # Picking a single slice for faster execution.
         volumes = Array.new
-        image_series.rois.each do |roi|
+        image_series.structures.each do |roi|
           image = roi.slice(uid).bin_image
           volumes << BinVolume.new(image_series, :images => [image])
         end

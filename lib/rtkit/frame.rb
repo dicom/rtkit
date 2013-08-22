@@ -15,8 +15,8 @@ module RTKIT
     attr_reader :indicator
     # The Patient which this Frame of Reference belongs to.
     attr_reader :patient
-    # An array of ROI instances belonging to this Frame.
-    attr_reader :rois
+    # An array of ROIs & POIs belonging to this Frame.
+    attr_reader :structures
     # The Frame of Reference UID.
     attr_reader :uid
 
@@ -35,7 +35,7 @@ module RTKIT
       @associated_series = Hash.new
       @associated_instance_uids = Hash.new
       @image_series = Array.new
-      @rois = Array.new
+      @structures = Array.new
       @uid = uid
       @patient = patient
       @indicator = options[:indicator]
@@ -71,13 +71,13 @@ module RTKIT
       add_series(image.series) unless series(image.series.uid)
     end
 
-    # Adds a ROI to this Frame.
+    # Adds a ROI or POI to this Frame.
     #
-    # @param [ROI] roi a region of interest instance to be associated with this frame
+    # @param [ROI, POI] structure a structure to be associated with this frame
     #
-    def add_roi(roi)
-      raise ArgumentError, "Invalid argument 'roi'. Expected ROI, got #{roi.class}." unless roi.is_a?(ROI)
-      @rois << roi unless @rois.include?(roi)
+    def add_structure(structure)
+      raise ArgumentError, "Invalid argument 'structure'. Expected ROI/POI, got #{structure.class}." unless structure.respond_to?(:to_roi) or structure.respond_to?(:to_poi)
+      @structures << structure unless @structures.include?(structure)
     end
 
     # Adds an ImageSeries to this Frame.
@@ -119,20 +119,20 @@ module RTKIT
       end
     end
 
-    # Gives the ROI that matches the specified number or name.
+    # Gives the ROI/POI that matches the specified number or name.
     #
-    # @param [String, Fixnum] name_or_number a region of interest name or number
-    # @return [ROI, NilClass] the matched region of interest (or nil if no ROI was matched)
+    # @param [String, Fixnum] name_or_number a structure's name or number
+    # @return [ROI, POI, NilClass] the matched structure (or nil if no structure was matched)
     #
-    def roi(name_or_number)
+    def structure(name_or_number)
       raise ArgumentError, "Invalid argument 'name_or_number'. Expected String or Integer, got #{name_or_number.class}." unless [String, Integer, Fixnum].include?(name_or_number.class)
       if name_or_number.is_a?(String)
-        @rois.each do |r|
-          return r if r.name == name_or_number
+        @structures.each do |s|
+          return s if s.name == name_or_number
         end
       else
-        @rois.each do |r|
-          return r if r.number == name_or_number
+        @structures.each do |s|
+          return s if s.number == name_or_number
         end
       end
       return nil
