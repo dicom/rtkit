@@ -75,6 +75,46 @@ module RTKIT
     end
 
 
+    context "#bed" do
+
+      it "should raise an error when a zero valued alpha/beta factor is used" do
+        expect {@dose.bed(2, 0.0)}.to raise_error(ArgumentError)
+      end
+
+      it "should raise an error when a negative alpha/beta factor is used" do
+        expect {@dose.bed(2, -0.5)}.to raise_error(ArgumentError)
+      end
+
+      it "should give the expected BED for this case" do
+        dose = Dose.new(54, @dist)
+        fraction_dose = 1.8
+        alpha_beta = 10.0
+        dose.bed(fraction_dose, alpha_beta).should eql 63.72
+      end
+
+    end
+
+
+    context "#eqd2" do
+
+      it "should raise an error when a zero valued alpha/beta factor is used" do
+        expect {@dose.eqd2(2, 0.0)}.to raise_error(ArgumentError)
+      end
+
+      it "should raise an error when a negative alpha/beta factor is used" do
+        expect {@dose.eqd2(2, -0.5)}.to raise_error(ArgumentError)
+      end
+
+      it "should give the expected EQD2 for this case" do
+        dose = Dose.new(54, @dist)
+        fraction_dose = 1.8
+        alpha_beta = 10.0
+        dose.eqd2(fraction_dose, alpha_beta).should eql 53.1
+      end
+
+    end
+
+
     context "#eql?" do
 
       it "should be true when comparing two instances having the same attribute values" do

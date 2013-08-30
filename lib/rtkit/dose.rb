@@ -48,6 +48,35 @@ module RTKIT
 
     alias_method :eql?, :==
 
+    # Calculates the biologically equivalent dose, BED. This is the theoretical
+    # limit of the equivalent dose delivered in small fractions, i.e. when
+    # complete repair takes place.
+    #
+    # @param [#to_f] d fraction dose
+    # @param [#to_f] alpha_beta the alpha/beta tissue factor to be used
+    # @return [Float] the biologically equivalent dose
+    #
+    def bed(d, alpha_beta)
+      # FIXME: Perhaps better to use number of fractions instead of fraction dose?!
+      raise ArgumentError, "A positive alpha_beta factor is required (got: #{alpha_beta})." unless alpha_beta.to_f > 0.0
+      @value * (1 + d.to_f/alpha_beta.to_f)
+    end
+
+    # Calculates the equivalent dose, given in 2 Gy fractions, EQD2. This is
+    # the total dose, that according to the linear-quadratic (LQ) model, if
+    # given in 2 Gy fractions, would yield the same biological effect as this
+    # total dose.
+    #
+    # @param [#to_f] d fraction dose
+    # @param [#to_f] alpha_beta the alpha/beta tissue factor to be used
+    # @return [Float] the equivalent dose when given in 2 Gy fractions
+    #
+    def eqd2(d, alpha_beta)
+      # FIXME: Perhaps better to use number of fractions instead of fraction dose?!
+      raise ArgumentError, "A positive alpha_beta factor is required (got: #{alpha_beta})." unless alpha_beta.to_f > 0.0
+      @value * (d.to_f + alpha_beta.to_f) / (2.0 + alpha_beta.to_f)
+    end
+
     # Computes a hash code for this object.
     #
     # @note Two objects with the same attributes will have the same hash code.

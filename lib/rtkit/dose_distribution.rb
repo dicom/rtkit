@@ -83,6 +83,20 @@ module RTKIT
       return @doses[d_index]
     end
 
+    # Calculates the equivalent uniform dose (EUD) of the dose distribution.
+    #
+    # @see Niemerko A, A generalized concept of equivalent uniform dose (EUD),
+    #   Med.Phys. 26(6):1101, 1999.
+    #
+    # @param [#to_f] alpha the volume parameter (<1 for targets, = 1 for parallell tissue, >1 for serial tissue)
+    # @return [Float] the calculated equivalent uniform dose (in units of Gy)
+    #
+    def eud(alpha)
+      alpha = alpha.to_f
+      raise ArgumentError, "A positive or negative argument is required (zero is not allowed)." if alpha == 0.0
+      ((@doses ** alpha).sum / @doses.length.to_f)**(1/alpha)
+    end
+
     # Computes a hash code for this object.
     #
     # @note Two objects with the same attributes will have the same hash code.

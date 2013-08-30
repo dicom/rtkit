@@ -120,6 +120,36 @@ module RTKIT
     end
 
 
+    context "#eud" do
+
+      it "should raise an error when a zero valued alpha factor is used" do
+        expect {@dist.eud(0.0)}.to raise_error(ArgumentError)
+      end
+
+      it "should give an EUD equal to the mean, when using an alpha factor of 1" do
+        dist = DoseDistribution.new([1.0, 2.0, 0.0], @dvol)
+        dist.eud(1).should eql 1.0
+        dist.eud(1).should eql dist.mean
+      end
+
+      it "should give the expected EUD with an alpha factor > 1" do
+        dist = DoseDistribution.new([4.0, 2.0, 1.0, 1.0, 1.0, 1.0], @dvol)
+        dist.eud(2).should eql 2.0
+      end
+
+      it "should give the expected EUD with an alpha factor of -1" do
+        dist = DoseDistribution.new([4.0, 4.0, 2.0, 2.0, 2.0, 1.0], @dvol)
+        dist.eud(-1).should eql 2.0
+      end
+
+      it "should give the expected EUD with an alpha factor < -1" do
+        dist = DoseDistribution.new([4, 4, 1, 4, 4], @dvol)
+        dist.eud(-2).should eql 2.0
+      end
+
+    end
+
+
     context "#hash" do
 
       it "should return the same Fixnum for two instances having the same attribute values" do
