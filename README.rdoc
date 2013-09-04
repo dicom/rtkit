@@ -29,7 +29,7 @@ be happy to assist you in getting started with Ruby and RTKIT.
 
 == REQUIREMENTS
 
-* Ruby 1.9.2 (or higher)
+* Ruby 1.9.3 (or higher)
 * ruby-dicom
 * NArray
 
