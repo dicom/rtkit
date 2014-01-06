@@ -57,7 +57,7 @@ module RTKIT
       super(series_uid, 'CR', study, options)
       # Default attributes:
       @images = Array.new
-      @image_uids = Hash.new
+      @associated_images = Hash.new
       # Register ourselves with the study:
       @study.add_series(self)
     end
@@ -94,7 +94,7 @@ module RTKIT
     def add_image(image)
       raise ArgumentError, "Invalid argument 'image'. Expected Image, got #{image.class}." unless image.is_a?(Image)
       @images << image
-      @image_uids[image.uid] = image
+      @associated_images[image.uid] = image
     end
 
     # Computes a hash code for this object.
@@ -118,7 +118,7 @@ module RTKIT
     def image(*args)
       raise ArgumentError, "Expected one or none arguments, got #{args.length}." unless [0, 1].include?(args.length)
       if args.length == 1
-        return @image_uids[args.first]
+        return @associated_images[args.first]
       else
         # No argument used, therefore we return the first Image instance:
         return @images.first
