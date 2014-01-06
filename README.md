@@ -1,6 +1,6 @@
 # RTKIT
 
-*The Radiotherapy DICOM toolkit*
+##*The Radiotherapy DICOM toolkit*
 
 RTKIT is a toolkit for processing information from the various DICOM modalities
 encountered in radiotherapy. It contains a number of classes and convenience methods
