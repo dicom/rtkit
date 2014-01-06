@@ -1,6 +1,13 @@
-= 0.7
+# 0.8
 
-=== 8th May, 2012
+## (Unreleased)
+
+* TODO: Summarize improvements...
+
+
+# 0.7
+
+## 8th May, 2012
 
 First public release.
 The toolkit, although still a bit rough in the edges, is able to handle the relevant
