@@ -22,23 +22,23 @@ module RTKIT
     context "::new" do
 
       it "should by default set the p1 attribute as nil" do
-        @r.p1.should be_nil
+        expect(@r.p1).to be_nil
       end
 
       it "should by default set the p2 attribute as nil" do
-        @r.p2.should be_nil
+        expect(@r.p2).to be_nil
       end
 
       it "should by default set the vs attribute as nil" do
-        @r.vs.should be_nil
+        expect(@r.vs).to be_nil
       end
 
       it "should by default set the d attribute as 0.0" do
-        @r.d.should eql 0.0
+        expect(@r.d).to eql 0.0
       end
 
       it "should by default set the indices attribute as nil" do
-        @r.indices.should eql Array.new
+        expect(@r.indices).to eql Array.new
       end
 
     end
@@ -60,62 +60,62 @@ module RTKIT
 
       it "should pass the 'p1' argument to the 'p1' attribute" do
         r = Ray.trace(@p1, @p2, @vs)
-        r.p1.should eql @p1
+        expect(r.p1).to eql @p1
       end
 
       it "should pass the 'p2' argument to the 'p2' attribute" do
         r = Ray.trace(@p1, @p2, @vs)
-        r.p2.should eql @p2
+        expect(r.p2).to eql @p2
       end
 
       it "should pass the 'voxel_space' argument to the 'vs' attribute" do
         r = Ray.trace(@p1, @p2, @vs)
-        r.vs.should eql @vs
+        expect(r.vs).to eql @vs
       end
 
       it "should give the expected indices & lengths for this ray trace (perpendicular on a 3**3 voxel space)" do
         # Parallell with y axis (positive direction).
         r = Ray.trace(Coordinate.new(1, -1, 1), Coordinate.new(1, 3, 1), @vs)
-        r.indices.should eql [10, 13, 16]
-        r.lengths.should eql [1.0, 1.0, 1.0]
+        expect(r.indices).to eql [10, 13, 16]
+        expect(r.lengths).to eql [1.0, 1.0, 1.0]
       end
 
       it "should give the expected indices for this ray trace (perpendicular on a 3**3 voxel space)" do
         # Parallell with y axis (negative direction).
         r = Ray.trace(Coordinate.new(1, 3, 1), Coordinate.new(1, -1, 1), @vs)
-        r.indices.should eql [16, 13, 10]
+        expect(r.indices).to eql [16, 13, 10]
       end
 
       it "should give the expected indices for this ray trace (perpendicular on a 3**3 voxel space)" do
         # Parallell with z axis (positive direction).
         r = Ray.trace(Coordinate.new(0, 0, -1), Coordinate.new(0, 0, 3), @vs)
-        r.indices.should eql [0, 9, 18]
+        expect(r.indices).to eql [0, 9, 18]
       end
 
       it "should give the expected indices for this ray trace (perpendicular on a 2**2 voxel space)" do
         # Parallell with z axis (negative direction).
         vs = VoxelSpace.create(2, 2, 2, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(0, 0, 3), Coordinate.new(0, 0, -1), vs)
-        r.indices.should eql [4, 0]
+        expect(r.indices).to eql [4, 0]
       end
 
       it "should give the expected indices for this ray trace (perpendicular on a 3**3 voxel space)" do
         # Parallell with x axis (positive direction).
         r = Ray.trace(Coordinate.new(-1, 2.0, 2.0), Coordinate.new(3, 2.0, 2.0), @vs)
-        r.indices.should eql [24, 25, 26]
+        expect(r.indices).to eql [24, 25, 26]
       end
 
       it "should give the expected indices for this ray trace (perpendicular on a 3**3 voxel space)" do
         # Parallell with x axis (negative direction).
         r = Ray.trace(Coordinate.new(3, 2, 2), Coordinate.new(-1, 2, 2), @vs)
-        r.indices.should eql [26, 25, 24]
+        expect(r.indices).to eql [26, 25, 24]
       end
 
       it "should give the expected indices for this ray trace (perpendicular on a 3**3 voxel space, potentially provoking a float imprecision issue)" do
         # Parallell with y axis (positive direction). This case gave an out of index error because the
         # @ac at the last step is minimally less than @alpha_max, due to float imprecision.
         r = Ray.trace(Coordinate.new(0, -1, 0), Coordinate.new(0, 5, 0), @vs)
-        r.indices.should eql [0, 3, 6]
+        expect(r.indices).to eql [0, 3, 6]
       end
 
 =begin
@@ -130,34 +130,34 @@ module RTKIT
         # Parallell with y axis (positive direction).
         vs = VoxelSpace.create(1, 1, 1, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(0, -1, 0), Coordinate.new(0, 2, 0), vs)
-        r.indices.should eql [0]
+        expect(r.indices).to eql [0]
       end
 
       it "should give the expected index for this ray trace (oblique on a 1**3 voxel space)" do
         vs = VoxelSpace.create(1, 1, 1, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(1, 1, 1), Coordinate.new(-1, -1, -1), vs)
-        r.indices.should eql [0]
+        expect(r.indices).to eql [0]
       end
 
       it "should give the expected indices for this ray trace (oblique on a 3**3 voxel space)" do
         r = Ray.trace(Coordinate.new(1, -1, 1), Coordinate.new(0, 3, 0), @vs)
         # Note that an equally valid result here would be: [10, 13, 4, 3, 6]
-        r.indices.should eql [10, 13, 12, 3, 6]
+        expect(r.indices).to eql [10, 13, 12, 3, 6]
       end
 
       it "should give the expected indices & lengths for this ray trace (symmetrically oblique on a 3**3 voxel space)" do
         r = Ray.trace(Coordinate.new(4, 4, 4), Coordinate.new(-2, -2, -2), @vs)
         # Note that there are multiple valid index sequences for this ray trace.
-        r.indices.should eql [26, 25, 22, 13, 12, 9, 0]
-        r.lengths.collect {|f| f.round(10)}.should eql [3**0.5, 0, 0, 3**0.5, 0, 0, 3**0.5].collect {|f| f.round(10)}
+        expect(r.indices).to eql [26, 25, 22, 13, 12, 9, 0]
+        expect(r.lengths.collect {|f| f.round(10)}).to eql [3**0.5, 0, 0, 3**0.5, 0, 0, 3**0.5].collect {|f| f.round(10)}
       end
 
       it "should give the expected index & lengths for this ray trace (where it barely strafes through one voxel, entering through the z-x plane and leaving through the y-x plane)" do
         # This setup originally gave an index out of range error, as the initial directional alpha values was incorrectly determined.
         vs = VoxelSpace.create(3, 2, 1, 1, 2, 1, Coordinate.new(0.5, 3, 2.5))
         r = Ray.trace(Coordinate.new(0, 0, 0), Coordinate.new(1, 8, 10), vs)
-        r.indices.should eql [0]
-        r.lengths.collect {|f| f.round(4)}.should eql [0.6423]
+        expect(r.indices).to eql [0]
+        expect(r.lengths.collect {|f| f.round(4)}).to eql [0.6423]
       end
 
       it "should avoid an index out of range error with this case by using proper rounding" do
@@ -172,55 +172,55 @@ module RTKIT
       it "should give an empty indices array for this ray (which obliquely misses a 1**3 voxel space, potentially giving a negative alpha_max)" do
         vs = VoxelSpace.create(1, 1, 1, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(1, -1, -1), Coordinate.new(2, 2, 2), vs)
-        r.indices.should eql Array.new
+        expect(r.indices).to eql Array.new
       end
 
       it "should give an empty indices array for this ray (which obliquely misses a 1**3 voxel space, potentially giving an empty set of first intersection points)" do
         vs = VoxelSpace.create(1, 1, 1, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(-1, 2, 2), Coordinate.new(-4, 3, 3), vs)
-        r.indices.should eql Array.new
+        expect(r.indices).to eql Array.new
       end
 
       it "should give an empty indices array for this ray (which perpendicularly misses a 2**3 voxel space, potentially provoking a float error when trying to calculate a phi_x for min and max indices)" do
         vs = VoxelSpace.create(2, 2, 2, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(-1, 3, 3), Coordinate.new(3, 3, 3), vs)
-        r.indices.should eql Array.new
+        expect(r.indices).to eql Array.new
       end
 
       it "should give an empty indices array for this ray (which perpendicularly never reaches the voxel space)" do
         vs = VoxelSpace.create(2, 2, 2, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(1, -100, 1), Coordinate.new(1, -50, 1), vs)
-        r.indices.should eql Array.new
+        expect(r.indices).to eql Array.new
       end
 
       it "should give an empty indices array for this ray (which perpendicularly starts 'after' the voxel space)" do
         vs = VoxelSpace.create(2, 2, 2, 1, 1, 1, @pos)
         r = Ray.trace(Coordinate.new(1, 50, 1), Coordinate.new(1, 100, 1), vs)
-        r.indices.should eql Array.new
+        expect(r.indices).to eql Array.new
       end
 
       it "should give empty indices for this ray (potentially provoking a negative index)" do
         vs = VoxelSpace.create(3, 3, 3, 1, 4, 1, Coordinate.new(0.0, 0.0, 0.0))
         r = Ray.trace(Coordinate.new(0.0, -20.0, 0.0), Coordinate.new(-10.0, 20.0, -10.0), vs)
-        r.indices.should eql []
+        expect(r.indices).to eql []
       end
 
       it "should give empty indices for this ray (potentially provoking a negative index)" do
         vs = VoxelSpace.create(3, 3, 3, 1, 4, 1, Coordinate.new(0.0, 0.0, 0.0))
         r = Ray.trace(Coordinate.new(-10.0, 20.0, -10.0), Coordinate.new(0.0, -20.0, 0.0), vs)
-        r.indices.should eql []
+        expect(r.indices).to eql []
       end
 
       it "should give empty indices for this ray trace (perpendicularly barely missing a 3**3 voxel space)" do
         # Parallell with x axis (negative direction).
         r = Ray.trace(Coordinate.new(3, 2.5, 2.5), Coordinate.new(-1, 2.5, 2.5), @vs)
-        r.indices.should eql []
+        expect(r.indices).to eql []
       end
 
       it "should give the empty indices & lengths for this ray trace (barely missing the voxel space)" do
         vs = VoxelSpace.create(3, 2, 1, 1, 2, 1, Coordinate.new(0.5, 3, 1.5))
         r = Ray.trace(Coordinate.new(0, 0, 0), Coordinate.new(1, 8, 10), vs)
-        r.indices.should eql []
+        expect(r.indices).to eql []
       end
 
     end
@@ -230,17 +230,17 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         r_other = Ray.new
-        (@r == r_other).should be_true
+        expect(@r == r_other).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         r_other = Ray.new
         r_other.p1 = @p1
-        (@r == r_other).should be_false
+        expect(@r == r_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@r == 42).should be_false
+        expect(@r == 42).to be_false
       end
 
     end
@@ -253,8 +253,8 @@ module RTKIT
         r.p1 = Coordinate.new(-1, 2.5, 2.5)
         r.p2 = Coordinate.new(3, 2.5, 2.5)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ax(0).should eql 0.125
-        r.ax(3).should eql 0.875
+        expect(r.ax(0)).to eql 0.125
+        expect(r.ax(3)).to eql 0.875
       end
 
       it "should give -Infinity when the ray's travel is perpendicular to the x axis, and the x coordinate of the given plane is less than p1.x" do
@@ -262,7 +262,7 @@ module RTKIT
         r.p1 = Coordinate.new(1.5, -1, 1.5)
         r.p2 = Coordinate.new(1.5, 3, 1.5)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ax(0).should eql -Float::INFINITY
+        expect(r.ax(0)).to eql -Float::INFINITY
       end
 
       it "should give Infinity when the ray's travel is perpendicular to the x axis, and the x coordinate of the given plane is equal to p1.x" do
@@ -270,7 +270,7 @@ module RTKIT
         r.p1 = Coordinate.new(1.5, -1, 1.5)
         r.p2 = Coordinate.new(1.5, 3, 1.5)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ax(2).should eql Float::INFINITY
+        expect(r.ax(2)).to eql Float::INFINITY
       end
 
       it "should give Infinity when the ray's travel is perpendicular to the x axis, and the x coordinate of the given plane is greater than p1.x" do
@@ -278,7 +278,7 @@ module RTKIT
         r.p1 = Coordinate.new(1.5, -1, 1.5)
         r.p2 = Coordinate.new(1.5, 3, 1.5)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ax(3).should eql Float::INFINITY
+        expect(r.ax(3)).to eql Float::INFINITY
       end
 
     end
@@ -291,8 +291,8 @@ module RTKIT
         r.p1 = Coordinate.new(2.5, -1, 2.5)
         r.p2 = Coordinate.new(2.5, 3, 2.5)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ay(0).should eql 0.125
-        r.ay(3).should eql 0.875
+        expect(r.ay(0)).to eql 0.125
+        expect(r.ay(3)).to eql 0.875
       end
 
       it "should give -Infinity when the ray's travel is perpendicular to the y axis, and the y coordinate of the given plane is less than p1.y" do
@@ -300,7 +300,7 @@ module RTKIT
         r.p1 = Coordinate.new(1.5, 1.5, -1)
         r.p2 = Coordinate.new(1.5, 1.5, 3)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ay(0).should eql -Float::INFINITY
+        expect(r.ay(0)).to eql -Float::INFINITY
       end
 
       it "should give Infinity when the ray's travel is perpendicular to the y axis, and the y coordinate of the given plane is equal to p1.y" do
@@ -308,7 +308,7 @@ module RTKIT
         r.p1 = Coordinate.new(1.5, 1.5, -1)
         r.p2 = Coordinate.new(1.5, 1.5, 3)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ay(2).should eql Float::INFINITY
+        expect(r.ay(2)).to eql Float::INFINITY
       end
 
       it "should give Infinity when the ray's travel is perpendicular to the y axis, and the y coordinate of the given plane is greater than p1.y" do
@@ -316,7 +316,7 @@ module RTKIT
         r.p1 = Coordinate.new(1.5, 1.5, -1)
         r.p2 = Coordinate.new(1.5, 1.5, 3)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.ay(3).should eql Float::INFINITY
+        expect(r.ay(3)).to eql Float::INFINITY
       end
 
     end
@@ -329,8 +329,8 @@ module RTKIT
         r.p1 = Coordinate.new(2, 2, -1)
         r.p2 = Coordinate.new(2, 2, 3)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.az(0).should eql 0.125
-        r.az(3).should eql 0.875
+        expect(r.az(0)).to eql 0.125
+        expect(r.az(3)).to eql 0.875
       end
 
       it "should give -Infinity when the ray's travel is perpendicular to the z axis, and the z coordinate of the given plane is less than p1.z" do
@@ -338,7 +338,7 @@ module RTKIT
         r.p1 = Coordinate.new(-1, 1, 1)
         r.p2 = Coordinate.new(3, 1, 1)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.az(0).should eql -Float::INFINITY
+        expect(r.az(0)).to eql -Float::INFINITY
       end
 
       it "should give Infinity when the ray's travel is perpendicular to the z axis, and the z coordinate of the given plane is equal to p1.z" do
@@ -346,7 +346,7 @@ module RTKIT
         r.p1 = Coordinate.new(-1, 1, 1)
         r.p2 = Coordinate.new(3, 1, 1)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.az(2).should eql Float::INFINITY
+        expect(r.az(2)).to eql Float::INFINITY
       end
 
       it "should give Infinity when the ray's travel is perpendicular to the z axis, and the z coordinate of the given plane is greater than p1.z" do
@@ -354,7 +354,7 @@ module RTKIT
         r.p1 = Coordinate.new(-1, 1, 1)
         r.p2 = Coordinate.new(3, 1, 1)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.az(3).should eql Float::INFINITY
+        expect(r.az(3)).to eql Float::INFINITY
       end
 
     end
@@ -366,7 +366,7 @@ module RTKIT
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.bx.should eql -0.5
+        expect(r.bx).to eql -0.5
       end
 
     end
@@ -378,7 +378,7 @@ module RTKIT
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.by.should eql 1.0
+        expect(r.by).to eql 1.0
       end
 
     end
@@ -390,7 +390,7 @@ module RTKIT
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.bz.should eql 2.5
+        expect(r.bz).to eql 2.5
       end
 
     end
@@ -402,14 +402,14 @@ module RTKIT
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.coord_x(0).should eql -0.5
+        expect(r.coord_x(0)).to eql -0.5
       end
 
       it "should give the x coordinate of the given plane index" do
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.coord_x(3).should eql 2.5
+        expect(r.coord_x(3)).to eql 2.5
       end
 
     end
@@ -421,14 +421,14 @@ module RTKIT
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.coord_y(0).should eql 1.0
+        expect(r.coord_y(0)).to eql 1.0
       end
 
       it "should give the y coordinate of the given plane index" do
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.coord_y(3).should eql 7.0
+        expect(r.coord_y(3)).to eql 7.0
       end
 
     end
@@ -440,14 +440,14 @@ module RTKIT
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.coord_z(0).should eql 2.5
+        expect(r.coord_z(0)).to eql 2.5
       end
 
       it "should give the z coordinate of the given plane index" do
         r = Ray.new
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.coord_z(3).should eql 11.5
+        expect(r.coord_z(3)).to eql 11.5
       end
 
     end
@@ -457,13 +457,13 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         r_other = Ray.new
-        @r.eql?(r_other).should be_true
+        expect(@r.eql?(r_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         r_other = Ray.new
         r_other.p1 = @p1
-        @r.eql?(r_other).should be_false
+        expect(@r.eql?(r_other)).to be_false
       end
 
     end
@@ -473,14 +473,14 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         r_other = Ray.new
-        @r.hash.should be_a Fixnum
-        @r.hash.should eql r_other.hash
+        expect(@r.hash).to be_a Fixnum
+        expect(@r.hash).to eql r_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         r_other = Ray.new
         r_other.p1 = @p1
-        @r.hash.should_not eql r_other.hash
+        expect(@r.hash).not_to eql r_other.hash
       end
 
     end
@@ -491,7 +491,7 @@ module RTKIT
       it "should pass the point1 argument to the 'p1' attribute" do
         r = Ray.new
         r.p1 = @p1
-        r.p1.should eql @p1
+        expect(r.p1).to eql @p1
       end
 
     end
@@ -502,7 +502,7 @@ module RTKIT
       it "should pass the point2 argument to the 'p1' attribute" do
         r = Ray.new
         r.p2 = @p2
-        r.p2.should eql @p2
+        expect(r.p2).to eql @p2
       end
 
     end
@@ -516,7 +516,7 @@ module RTKIT
         r.p2 = Coordinate.new(3, 1, 1)
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.phi_x(0.375).should eql 1
+        expect(r.phi_x(0.375)).to eql 1
       end
 
       it "should give the plane index corresponding to the source position (instead of e.g. NaN) when the ray is perpendicular on the x axis (source x equals target x)" do
@@ -525,9 +525,9 @@ module RTKIT
         r.p1 = Coordinate.new(x, -1, 1)
         r.p2 = Coordinate.new(x, 3, 1)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.phi_x(0).should eql x
-        r.phi_x(0.375).should eql x
-        r.phi_x(1).should eql x
+        expect(r.phi_x(0)).to eql x
+        expect(r.phi_x(0.375)).to eql x
+        expect(r.phi_x(1)).to eql x
       end
 
       it "should give the plane index (1) corresponding to the source position (instead of e.g. NaN) when the ray is perpendicular on the x axis (source x equals target x)" do
@@ -536,9 +536,9 @@ module RTKIT
         r.p1 = Coordinate.new(0, 0, 0)
         r.p2 = Coordinate.new(0, 5, 10)
         r.vs = VoxelSpace.create(3, 3, 1, 1, 1, 1, Coordinate.new(-1, 1, 5))
-        r.phi_x(0).should eql 1
-        r.phi_x(0.375).should eql 1
-        r.phi_x(1).should eql 1
+        expect(r.phi_x(0)).to eql 1
+        expect(r.phi_x(0.375)).to eql 1
+        expect(r.phi_x(1)).to eql 1
       end
 
     end
@@ -552,7 +552,7 @@ module RTKIT
         r.p2 = Coordinate.new(1, 8, 1)
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.phi_y(0.625).should eql 2
+        expect(r.phi_y(0.625)).to eql 2
       end
 
       it "should give the plane index corresponding to the source position (instead of e.g. NaN) when the ray is perpendicular on the y axis (source y equals target y)" do
@@ -561,9 +561,9 @@ module RTKIT
         r.p1 = Coordinate.new(-1, y, -1)
         r.p2 = Coordinate.new(3, y, 3)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.phi_y(0).should eql y
-        r.phi_y(0.5).should eql y
-        r.phi_y(1).should eql y
+        expect(r.phi_y(0)).to eql y
+        expect(r.phi_y(0.5)).to eql y
+        expect(r.phi_y(1)).to eql y
       end
 
     end
@@ -577,7 +577,7 @@ module RTKIT
         r.p2 = Coordinate.new(1, 1, 13)
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.phi_z(0.875).should eql 3
+        expect(r.phi_z(0.875)).to eql 3
       end
 
       it "should give the plane index corresponding to the source position (instead of e.g. NaN) when the ray is perpendicular on the z axis (source z equals target z)" do
@@ -586,9 +586,9 @@ module RTKIT
         r.p1 = Coordinate.new(3, -1, z)
         r.p2 = Coordinate.new(-1, 3, z)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 1, 1, @pos)
-        r.phi_z(0).should eql z
-        r.phi_z(0.625).should eql z
-        r.phi_z(1).should eql z
+        expect(r.phi_z(0)).to eql z
+        expect(r.phi_z(0.625)).to eql z
+        expect(r.phi_z(1)).to eql z
       end
 
     end
@@ -599,7 +599,7 @@ module RTKIT
       it "should pass the voxel_space argument to the 'vs' attribute" do
         r = Ray.new
         r.vs = @vs
-        r.vs.should eql @vs
+        expect(r.vs).to eql @vs
       end
 
     end
@@ -613,7 +613,7 @@ module RTKIT
         r.p2 = Coordinate.new(3, 1, 1)
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.px(0.375).should eql 0.5
+        expect(r.px(0.375)).to eql 0.5
       end
 
     end
@@ -627,7 +627,7 @@ module RTKIT
         r.p2 = Coordinate.new(1, 8, 1)
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.py(0.625).should eql 5.0
+        expect(r.py(0.625)).to eql 5.0
       end
 
     end
@@ -641,7 +641,7 @@ module RTKIT
         r.p2 = Coordinate.new(1, 1, 13)
         pos = Coordinate.new(0, 2, 4)
         r.vs = VoxelSpace.create(3, 3, 3, 1, 2, 3, pos)
-        r.pz(0.875).should eql 11.5
+        expect(r.pz(0.875)).to eql 11.5
       end
 
     end
@@ -652,8 +652,8 @@ module RTKIT
       it "should reset the ray's computed parameters" do
         r = Ray.trace(@p1, @p2, @vs)
         r.reset
-        r.d.should eql 0.0
-        r.indices.should eql Array.new
+        expect(r.d).to eql 0.0
+        expect(r.indices).to eql Array.new
       end
 
     end
@@ -662,7 +662,7 @@ module RTKIT
     context "#to_ray" do
 
       it "should return itself" do
-        @r.to_ray.equal?(@r).should be_true
+        expect(@r.to_ray.equal?(@r)).to be_true
       end
 
     end

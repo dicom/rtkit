@@ -44,23 +44,23 @@ module RTKIT
 
       it "should create a StructureSet instance with attributes taken from the DICOM Object" do
         ss = StructureSet.load(@dcm, @st)
-        ss.sop_uid.should eql @dcm.value('0008,0018')
-        ss.series_uid.should eql @dcm.value('0020,000E')
-        ss.modality.should eql @dcm.value('0008,0060')
-        ss.class_uid.should eql @dcm.value('0008,0016')
-        ss.date.should eql @dcm.value('0008,0021')
-        ss.time.should eql @dcm.value('0008,0031')
-        ss.description.should eql @dcm.value('0008,103E')
+        expect(ss.sop_uid).to eql @dcm.value('0008,0018')
+        expect(ss.series_uid).to eql @dcm.value('0020,000E')
+        expect(ss.modality).to eql @dcm.value('0008,0060')
+        expect(ss.class_uid).to eql @dcm.value('0008,0016')
+        expect(ss.date).to eql @dcm.value('0008,0021')
+        expect(ss.time).to eql @dcm.value('0008,0031')
+        expect(ss.description).to eql @dcm.value('0008,103E')
       end
 
       it "should create a StructureSet instance which is properly referenced to its study" do
         ss = StructureSet.load(@dcm, @st)
-        ss.study.should eql @st
+        expect(ss.study).to eql @st
       end
 
       it "should set up an ImageSeries reference when no corresponding image slices have been loaded" do
         ss = StructureSet.load(@dcm, @st)
-        ss.image_series.length.should eql 1
+        expect(ss.image_series.length).to eql 1
       end
 
       it "should identify and set up an ImageSeries reference when the first referenced frame doesn't contain a proper study/series/instance hierarchy (with no corresponding image slices having been loaded)" do
@@ -90,13 +90,13 @@ module RTKIT
         i.add_element(REF_SOP_UID, sop_uids.last)
         # Execute test:
         ss = StructureSet.load(dcm, @st)
-        ss.image_series.length.should eql 1
+        expect(ss.image_series.length).to eql 1
       end
 
       it "should create a StructureSet containing 4 structures (2 ROIs, 2 POIs) (as defined in this DICOM object)" do
         dcm = DICOM::DObject.read(FILE_STRUCT)
         struct = StructureSet.load(dcm, @st)
-        struct.structures.length.should eql 4
+        expect(struct.structures.length).to eql 4
       end
 
     end
@@ -113,64 +113,64 @@ module RTKIT
       end
 
       it "should by default set the 'structures' attribute as an empty array" do
-        @ss.structures.should eql Array.new
+        expect(@ss.structures).to eql Array.new
       end
 
       it "should by default set the 'plans' attribute as an empty array" do
-        @ss.plans.should eql Array.new
+        expect(@ss.plans).to eql Array.new
       end
 
       it "should by default set the 'modality' attribute equal as 'RTSTRUCT'" do
-        @ss.modality.should eql 'RTSTRUCT'
+        expect(@ss.modality).to eql 'RTSTRUCT'
       end
 
       it "should by default set the 'class_uid' attribute equal to the RT Structure Set Storage Class UID" do
-        @ss.class_uid.should eql '1.2.840.10008.5.1.4.1.1.481.3'
+        expect(@ss.class_uid).to eql '1.2.840.10008.5.1.4.1.1.481.3'
       end
 
       it "should by default set the 'date' attribute as nil" do
-        @ss.date.should be_nil
+        expect(@ss.date).to be_nil
       end
 
       it "should by default set the 'time' attribute as nil" do
-        @ss.time.should be_nil
+        expect(@ss.time).to be_nil
       end
 
       it "should by default set the 'description' attribute as nil" do
-        @ss.description.should be_nil
+        expect(@ss.description).to be_nil
       end
 
       it "should pass the 'uid' argument to the 'uid' attribute" do
-        @ss.uid.should eql @uid
+        expect(@ss.uid).to eql @uid
       end
 
       it "should pass the 'image_series' argument to the 'image_series' attribute" do
-        @ss.image_series.length.should eql 1
-        @ss.image_series.include?(@is).should be_true
+        expect(@ss.image_series.length).to eql 1
+        expect(@ss.image_series.include?(@is)).to be_true
       end
 
       it "should pass the optional 'date' argument to the 'date' attribute" do
         ss = StructureSet.new(@uid, @is, :date => @date)
-        ss.date.should eql @date
+        expect(ss.date).to eql @date
       end
 
       it "should pass the optional 'time' argument to the 'time' attribute" do
         ss = StructureSet.new(@uid, @is, :time => @time)
-        ss.time.should eql @time
+        expect(ss.time).to eql @time
       end
 
       it "should pass the optional 'description' argument to the 'description' attribute" do
         ss = StructureSet.new(@uid, @is, :description => @description)
-        ss.description.should eql @description
+        expect(ss.description).to eql @description
       end
 
       it "should pass the ImageSeries' study  to the 'study' attribute" do
-        @ss.study.should eql @is.study
+        expect(@ss.study).to eql @is.study
       end
 
       it "should add the StructureSet instance (once) to the referenced ImageSeries" do
-        @ss.image_series.first.structs.length.should eql 1
-        @ss.image_series.first.struct(@ss.uid).should eql @ss
+        expect(@ss.image_series.first.structs.length).to eql 1
+        expect(@ss.image_series.first.struct(@ss.uid)).to eql @ss
       end
 
     end
@@ -180,16 +180,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ss_other = StructureSet.new(@uid, @is)
-        (@ss == ss_other).should be_true
+        expect(@ss == ss_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         ss_other = StructureSet.new('1.8.99', @is)
-        (@ss == ss_other).should be_false
+        expect(@ss == ss_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@ss == 42).should be_false
+        expect(@ss == 42).to be_false
       end
 
     end
@@ -205,8 +205,8 @@ module RTKIT
         ss_other = StructureSet.new('1.23.787', @is)
         plan = Plan.new('1.45.876', ss_other)
         @ss.add_plan(plan)
-        @ss.plans.size.should eql 1
-        @ss.plans.first.should eql plan
+        expect(@ss.plans.size).to eql 1
+        expect(@ss.plans.first).to eql plan
       end
 
       it "should add the Plan to the StructureSet instance already containing one or more plans" do
@@ -215,15 +215,15 @@ module RTKIT
         previous_size = ss.plans.size
         plan = Plan.new('1.45.876', @ss)
         ss.add_plan(plan)
-        ss.plans.size.should eql previous_size + 1
-        ss.plans.last.should eql plan
+        expect(ss.plans.size).to eql previous_size + 1
+        expect(ss.plans.last).to eql plan
       end
 
       it "should not add multiple entries of the same Plan" do
         plan = Plan.new('1.45.876', @ss)
         @ss.add_plan(plan)
-        @ss.plans.size.should eql 1
-        @ss.plans.first.should eql plan
+        expect(@ss.plans.size).to eql 1
+        expect(@ss.plans.first).to eql plan
       end
 
     end
@@ -239,8 +239,8 @@ module RTKIT
         ss_other = StructureSet.new("1.23.787", @is)
         roi = ROI.new('Brain', 10, @f, ss_other)
         @ss.add_roi(roi)
-        @ss.structures.size.should eql 1
-        @ss.structures.first.should eql roi
+        expect(@ss.structures.size).to eql 1
+        expect(@ss.structures.first).to eql roi
       end
 
       it "should add the ROI to the StructureSet instance already containing one or more rois" do
@@ -249,15 +249,15 @@ module RTKIT
         previous_size = ss.structures.size
         roi = ROI.new('Brain', 10, @f, @ss)
         ss.add_roi(roi)
-        ss.structures.size.should eql previous_size + 1
-        ss.structures.last.should eql roi
+        expect(ss.structures.size).to eql previous_size + 1
+        expect(ss.structures.last).to eql roi
       end
 
       it "should not add multiple entries of the same ROI" do
         roi = ROI.new('Brain', 10, @f, @ss)
         @ss.add_roi(roi)
-        @ss.structures.size.should eql 1
-        @ss.structures.first.should eql roi
+        expect(@ss.structures.size).to eql 1
+        expect(@ss.structures.first).to eql roi
       end
 
     end
@@ -267,12 +267,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ss_other = StructureSet.new(@uid, @is)
-        @ss.eql?(ss_other).should be_true
+        expect(@ss.eql?(ss_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         ss_other = StructureSet.new('1.8.99', @is)
-        @ss.eql?(ss_other).should be_false
+        expect(@ss.eql?(ss_other)).to be_false
       end
 
     end
@@ -282,13 +282,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         ss_other = StructureSet.new(@uid, @is)
-        @ss.hash.should be_a Fixnum
-        @ss.hash.should eql ss_other.hash
+        expect(@ss.hash).to be_a Fixnum
+        expect(@ss.hash).to eql ss_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         ss_other = StructureSet.new('1.8.99', @is)
-        @ss.hash.should_not eql ss_other.hash
+        expect(@ss.hash).not_to eql ss_other.hash
       end
 
     end
@@ -312,12 +312,12 @@ module RTKIT
       end
 
       it "should return the first Plan when no arguments are used" do
-        @ss.plan.should eql @ss.plans.first
+        expect(@ss.plan).to eql @ss.plans.first
       end
 
       it "should return the matching Plan when a UID string is supplied" do
         plan = @ss.plan(@uid2)
-        plan.uid.should eql @uid2
+        expect(plan.uid).to eql @uid2
       end
 
     end
@@ -329,8 +329,8 @@ module RTKIT
         @roi = ROI.new('CTV', 1, @f, @ss)
         @poi1 = POI.new('REF', 2, @f, @ss)
         @poi2 = POI.new('ISO', 3, @f, @ss)
-        @ss.pois.length.should eql 2
-        @ss.pois.should eql [@poi1, @poi2]
+        expect(@ss.pois.length).to eql 2
+        expect(@ss.pois).to eql [@poi1, @poi2]
       end
 
     end
@@ -357,12 +357,12 @@ module RTKIT
 
       it "should return the matching ROI when queried by it's name" do
         roi = @ss.structure(@name2)
-        roi.name.should eql @name2
+        expect(roi.name).to eql @name2
       end
 
       it "should return the matching ROI when queried by its number" do
         roi = @ss.structure(@number2)
-        roi.number.should eql @number2
+        expect(roi.number).to eql @number2
       end
 
     end
@@ -374,8 +374,8 @@ module RTKIT
         @roi1 = ROI.new('CTV', 1, @f, @ss)
         @poi = POI.new('REF', 2, @f, @ss)
         @roi2 = ROI.new('PTV', 3, @f, @ss)
-        @ss.rois.length.should eql 2
-        @ss.rois.should eql [@roi1, @roi2]
+        expect(@ss.rois.length).to eql 2
+        expect(@ss.rois).to eql [@roi1, @roi2]
       end
 
     end
@@ -386,8 +386,8 @@ module RTKIT
       it "should give an array of structures associated to the structure set" do
         @roi = ROI.new('CTV', 1, @f, @ss)
         @poi = POI.new('REF', 2, @f, @ss)
-        @ss.structures.length.should eql 2
-        @ss.structures.should eql [@roi, @poi]
+        expect(@ss.structures.length).to eql 2
+        expect(@ss.structures).to eql [@roi, @poi]
       end
 
     end
@@ -396,7 +396,7 @@ module RTKIT
     context "#to_structure_set" do
 
       it "should return itself" do
-        @ss.to_structure_set.equal?(@ss).should be_true
+        expect(@ss.to_structure_set.equal?(@ss)).to be_true
       end
 
     end

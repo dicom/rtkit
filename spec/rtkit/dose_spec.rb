@@ -41,11 +41,11 @@ module RTKIT
       end
 
       it "should register the float value" do
-        @dose.to_f.should eql @value
+        expect(@dose.to_f).to eql @value
       end
 
       it "should pass the 'distribution' argument to the 'distribution' attribute" do
-        @dose.distribution.should eql @dist
+        expect(@dose.distribution).to eql @dist
       end
 
     end
@@ -55,21 +55,21 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dose_other = Dose.new(@value, @dist)
-        (@dose == dose_other).should be_true
+        expect(@dose == dose_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes (different dose, same distribution)" do
         dose_other = Dose.new(99.99, @dist)
-        (@dose == dose_other).should be_false
+        expect(@dose == dose_other).to be_false
       end
 
       it "should be false when comparing two instances having different attributes (same dose, different distribution)" do
         dose_other = Dose.new(@value, DoseDistribution.new([1.3, 8.8, 5.5], @dvol))
-        (@dose == dose_other).should be_false
+        expect(@dose == dose_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@dose == 42.0).should be_false
+        expect(@dose == 42.0).to be_false
       end
 
     end
@@ -89,7 +89,7 @@ module RTKIT
         dose = Dose.new(54, @dist)
         fraction_dose = 1.8
         alpha_beta = 10.0
-        dose.bed(fraction_dose, alpha_beta).should eql 63.72
+        expect(dose.bed(fraction_dose, alpha_beta)).to eql 63.72
       end
 
     end
@@ -109,7 +109,7 @@ module RTKIT
         dose = Dose.new(54, @dist)
         fraction_dose = 1.8
         alpha_beta = 10.0
-        dose.eqd2(fraction_dose, alpha_beta).should eql 53.1
+        expect(dose.eqd2(fraction_dose, alpha_beta)).to eql 53.1
       end
 
     end
@@ -119,12 +119,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dose_other = Dose.new(@value, @dist)
-        @dose.eql?(dose_other).should be_true
+        expect(@dose.eql?(dose_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         dose_other = Dose.new(99.99, @dist)
-        @dose.eql?(dose_other).should be_false
+        expect(@dose.eql?(dose_other)).to be_false
       end
 
     end
@@ -134,13 +134,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         dose_other = Dose.new(@value, @dist)
-        @dose.hash.should be_a Fixnum
-        @dose.hash.should eql dose_other.hash
+        expect(@dose.hash).to be_a Fixnum
+        expect(@dose.hash).to eql dose_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         dose_other = Dose.new(99.99, @dist)
-        @dose.hash.should_not eql dose_other.hash
+        expect(@dose.hash).not_to eql dose_other.hash
       end
 
     end
@@ -149,7 +149,7 @@ module RTKIT
     context "#to_dose" do
 
       it "should return itself" do
-        @dose.to_dose.equal?(@dose).should be_true
+        expect(@dose.to_dose.equal?(@dose)).to be_true
       end
 
     end

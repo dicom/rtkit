@@ -53,11 +53,11 @@ module RTKIT
       end
 
       it "should pass the 'narray' argument to the 'narray' attribute" do
-        @bin.narray.should eql @narray
+        expect(@bin.narray).to eql @narray
       end
 
       it "should pass the 'image' argument to the 'image' attribute" do
-        @bin.image.should eql @image
+        expect(@bin.image).to eql @image
       end
 
     end
@@ -67,16 +67,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bin_other = BinImage.new(@narray, @image)
-        (@bin == bin_other).should be_true
+        expect(@bin == bin_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         bin_other = BinImage.new(NArray.byte(@columns, @rows).fill(1), @image)
-        (@bin == bin_other).should be_false
+        expect(@bin == bin_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@bin == 42).should be_false
+        expect(@bin == 42).to be_false
       end
 
     end
@@ -109,9 +109,9 @@ module RTKIT
         new_indices = [4,5,6,7,8,10]
         pixels[new_indices] = 1
         bin.add(pixels)
-        (bin.narray.eq 1).where.to_a.should eql (original_indices + new_indices).uniq
+        expect((bin.narray.eq 1).where.to_a).to eql (original_indices + new_indices).uniq
         # Ensure the rest of the pixels are (still) zero:
-        (bin.narray.eq 0).where.length.should eql (bin.narray.length - (bin.narray.eq 1).where.length)
+        expect((bin.narray.eq 0).where.length).to eql (bin.narray.length - (bin.narray.eq 1).where.length)
       end
 
     end
@@ -120,7 +120,7 @@ module RTKIT
     context "#col_spacing" do
 
       it "should return the 'col_spacing' attribute of the referenced Image instance" do
-        @bin.col_spacing.should eql @image.col_spacing
+        expect(@bin.col_spacing).to eql @image.col_spacing
       end
 
     end
@@ -129,7 +129,7 @@ module RTKIT
     context "#columns" do
 
       it "should return the number of rows in the instance 'narray' attribute" do
-        @bin.columns.should eql @narray.shape[0]
+        expect(@bin.columns).to eql @narray.shape[0]
       end
 
     end
@@ -139,9 +139,9 @@ module RTKIT
 
       it "should return an empty image array (with shape equal to the shape of the instance narray) when called on a empty BinImage instance" do
         image = @bin.contour_image
-        image.class.should eql NArray
-        image.shape.should eql @bin.narray.shape
-        (image.eq 0).where.length.should eql @bin.narray.length
+        expect(image.class).to eql NArray
+        expect(image.shape).to eql @bin.narray.shape
+        expect((image.eq 0).where.length).to eql @bin.narray.length
       end
 
       it "should return an NArray image which is equal to instance narray, which features a compact 2x2 square" do
@@ -149,7 +149,7 @@ module RTKIT
         image[1..2, 1..2] = 1
         @bin.add(image)
         image = @bin.contour_image
-        image.to_a.should eql @bin.narray.to_a
+        expect(image.to_a).to eql @bin.narray.to_a
       end
 
       it "should return an NArray image with the 4 corners of the original square marked" do
@@ -157,7 +157,7 @@ module RTKIT
         image[1..3, 1..3] = 1
         @bin.add(image)
         image = @bin.contour_image
-        (image.eq 1).where.to_a.should eql [11, 13, 31, 33]
+        expect((image.eq 1).where.to_a).to eql [11, 13, 31, 33]
       end
 
       it "should return the four corner coordinates of two 3x3 squares, marked by values of 1 and 2 respectively" do
@@ -166,8 +166,8 @@ module RTKIT
         image[5..7, 3..5] = 1
         @bin.add(image)
         img = @bin.contour_image
-        (img.eq 1).where.to_a.should eql [11, 13, 31, 33]
-        (img.eq 2).where.to_a.should eql [35, 37, 55, 57]
+        expect((img.eq 1).where.to_a).to eql [11, 13, 31, 33]
+        expect((img.eq 2).where.to_a).to eql [35, 37, 55, 57]
       end
 
     end
@@ -186,43 +186,43 @@ module RTKIT
 
       it "should return an empty array when called on a empty BinImage instance" do
         contours = @bin.contour_indices
-        contours.class.should eql Array
-        contours.length.should eql 0
+        expect(contours.class).to eql Array
+        expect(contours.length).to eql 0
       end
 
       it "should return a selection of the four corner indices of a compact 2x2 square, in a one-element array (with the corners appearing in a clockwise order, the top left coordinate first, the bottom left last)" do
         @bin.narray[1..2, 1..2] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [11, 12, 22, 21]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [11, 12, 22, 21]
       end
 
       it "should return a selection of the four corner indices of a 3x3 square, in a one-element array (with the corners appearing in a clockwise order, the top left coordinate first, the bottom left last)" do
         @bin.narray[1..3, 1..3] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [11, 13, 33, 31]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [11, 13, 33, 31]
       end
 
       it "should return the four corner indices of the completely filled image, in a one-element array (with the corners appearing in a clockwise order, the top left coordinate first, the bottom left last)" do
         @bin.narray.fill(1)
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [0, 9, 79, 70]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [0, 9, 79, 70]
       end
 
       it "should return the three corner indices of a compact triangle, in a one-element array (with the corners appearing in a clockwise order, the top left coordinate first, the bottom left last)" do
         @bin.narray[[1, 2, 11]] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [1, 2, 11]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [1, 2, 11]
       end
 
       it "should return a selection of the three corner indices of a triangle, in a one-element array (with the corners appearing in a clockwise order, the top left coordinate first, the bottom left last)" do
         @bin.narray[[1, 2, 3, 4, 11, 12, 13, 21, 22, 31]] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [1, 4, 31]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [1, 4, 31]
       end
 
       it "should return the corner indices of an irregular shape consisting of multiple rectangles, in a one-element array (with the corners appearing in a clockwise order, the top left coordinate first, the bottom left last)" do
@@ -230,24 +230,24 @@ module RTKIT
         @bin.narray[3..8, 5..6] = 1
         @bin.narray[7..8, 3..4] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [11, 18, 68, 63, 53, 56, 47, 37, 26, 21]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [11, 18, 68, 63, 53, 56, 47, 37, 26, 21]
       end
 
       it "should return indices for a single contour for the two compact squares which are 8-connected " do
         @bin.narray[0..1, 2..3] = 1
         @bin.narray[2..3, 0..1] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [2, 3, 13, 12, 21, 31, 30, 20, 21, 12]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [2, 3, 13, 12, 21, 31, 30, 20, 21, 12]
       end
 
       it "should return indices for a single contour for the two 8-connected squares spanning the length of the image" do
         @bin.narray[0..4, 4..7] = 1
         @bin.narray[5..9, 0..3] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [5, 9, 39, 35, 44, 74, 70, 40, 44, 35]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [5, 9, 39, 35, 44, 74, 70, 40, 44, 35]
       end
 
       it "should return indices for a single contour for the three compact 8-connected squares" do
@@ -255,8 +255,8 @@ module RTKIT
         @bin.narray[2..3, 2..3] = 1
         @bin.narray[4..5, 4..5] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [0, 1, 11, 22, 23, 33, 44, 45, 55, 54, 44, 33, 32, 22, 11, 10]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [0, 1, 11, 22, 23, 33, 44, 45, 55, 54, 44, 33, 32, 22, 11, 10]
       end
 
       it "should return indices for a single contour for the three 8-connected squares" do
@@ -265,8 +265,8 @@ module RTKIT
         @bin.narray[3..5, 3..5] = 1
         @bin.narray[6..8, 6..8] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [0, 2, 22, 33, 35, 55, 66, 68, 88, 86, 66, 55, 53, 33, 22, 20]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [0, 2, 22, 33, 35, 55, 66, 68, 88, 86, 66, 55, 53, 33, 22, 20]
       end
 
       it "should return indices for a single contour for the three 8-connected squares" do
@@ -275,17 +275,17 @@ module RTKIT
         @bin.narray[3..5, 3..5] = 1
         @bin.narray[0..2, 6..8] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.indices.should eql [0, 2, 22, 33, 35, 55, 53, 62, 82, 80, 60, 62, 53, 33, 22, 20]
+        expect(contours.length).to eql 1
+        expect(contours.first.indices).to eql [0, 2, 22, 33, 35, 55, 53, 62, 82, 80, 60, 62, 53, 33, 22, 20]
       end
 
       it "should return two sets of four corner indices of two 3x3 squares, in a two-element array (with the corners of each contour appearing in a clockwise order, the top left coordinate first, the bottom left last)" do
         @bin.narray[1..3, 1..3] = 1
         @bin.narray[5..7, 5..7] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 2
-        contours.first.indices.should eql [11, 13, 33, 31]
-        contours.last.indices.should eql [55, 57, 77, 75]
+        expect(contours.length).to eql 2
+        expect(contours.first.indices).to eql [11, 13, 33, 31]
+        expect(contours.last.indices).to eql [55, 57, 77, 75]
       end
 
       it "should return the expected 16 corner indices from a rectangle with inward dents on each side" do
@@ -296,9 +296,9 @@ module RTKIT
         @bin.narray[2..3, 5] = 0
         @bin.narray[1, 2..3] = 0
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.length.should eql 16
-        contours.first.indices.should eql [11, 12, 23, 14, 15, 25, 34, 45, 55, 54, 43, 42, 51, 41, 32, 22]
+        expect(contours.length).to eql 1
+        expect(contours.first.length).to eql 16
+        expect(contours.first.indices).to eql [11, 12, 23, 14, 15, 25, 34, 45, 55, 54, 43, 42, 51, 41, 32, 22]
       end
 
       it "should return 7 corner indices for a rectangle with a single-width, dual-pixel 'appendix' in one corner" do
@@ -307,9 +307,9 @@ module RTKIT
         @bin.narray[5, 4] = 1
         @bin.narray[6, 3] = 1
         contours = @bin.contour_indices
-        contours.length.should eql 1
-        contours.first.length.should eql 7
-        contours.first.indices.should eql [11, 14, 34, 45, 36, 45, 41]
+        expect(contours.length).to eql 1
+        expect(contours.first.length).to eql 7
+        expect(contours.first.indices).to eql [11, 14, 34, 45, 36, 45, 41]
       end
 
     end
@@ -318,7 +318,7 @@ module RTKIT
     context "#cosines" do
 
       it "should return the 'cosines' attribute of the referenced Image instance" do
-        @bin.cosines.should eql @image.cosines
+        expect(@bin.cosines).to eql @image.cosines
       end
 
     end
@@ -328,12 +328,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bin_other = BinImage.new(@narray, @image)
-        @bin.eql?(bin_other).should be_true
+        expect(@bin.eql?(bin_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bin_other = BinImage.new(NArray.byte(@columns, @rows).fill(1), @image)
-        @bin.eql?(bin_other).should be_false
+        expect(@bin.eql?(bin_other)).to be_false
       end
 
     end
@@ -343,13 +343,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         bin_other = BinImage.new(@narray, @image)
-        @bin.hash.should be_a Fixnum
-        @bin.hash.should eql bin_other.hash
+        expect(@bin.hash).to be_a Fixnum
+        expect(@bin.hash).to eql bin_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         bin_other = BinImage.new(NArray.byte(@columns, @rows).fill(1), @image)
-        @bin.hash.should_not eql bin_other.hash
+        expect(@bin.hash).not_to eql bin_other.hash
       end
 
     end
@@ -360,14 +360,14 @@ module RTKIT
       it "should return the indices of the pixels of value 1 (true pixels)" do
         true_indices = [2, 5, 9]
         @bin.narray[true_indices] = 1
-        @bin.indices.should eql true_indices
+        expect(@bin.indices).to eql true_indices
       end
 
       it "should return the indices of the pixels of value 0 (false pixels) when called with false" do
         false_indices = [3, 4, 8]
         @bin.narray.fill(1)
         @bin.narray[false_indices] = 0
-        @bin.indices(false).should eql false_indices
+        expect(@bin.indices(false)).to eql false_indices
       end
 
     end
@@ -396,8 +396,8 @@ module RTKIT
         new_arr = NArray.byte(@columns, @rows)
         new_arr[12..16] = 1
         @bin.narray = new_arr
-        @bin.narray.should_not eql @narray
-        @bin.narray.should eql new_arr
+        expect(@bin.narray).not_to eql @narray
+        expect(@bin.narray).to eql new_arr
       end
 
     end
@@ -406,7 +406,7 @@ module RTKIT
     context "#pos_slice" do
 
       it "should return the 'pos_slice' attribute of the referenced Image instance" do
-        @bin.pos_slice.should eql @image.pos_slice
+        expect(@bin.pos_slice).to eql @image.pos_slice
       end
 
     end
@@ -415,7 +415,7 @@ module RTKIT
     context "#pos_x" do
 
       it "should return the 'pos_x' attribute of the referenced Image instance" do
-        @bin.pos_x.should eql @image.pos_x
+        expect(@bin.pos_x).to eql @image.pos_x
       end
 
     end
@@ -424,7 +424,7 @@ module RTKIT
     context "#pos_y" do
 
       it "should return the 'pos_y' attribute of the referenced Image instance" do
-        @bin.pos_y.should eql @image.pos_y
+        expect(@bin.pos_y).to eql @image.pos_y
       end
 
     end
@@ -433,7 +433,7 @@ module RTKIT
     context "#row_spacing" do
 
       it "should return the 'row_spacing' attribute of the referenced Image instance" do
-        @bin.row_spacing.should eql @image.row_spacing
+        expect(@bin.row_spacing).to eql @image.row_spacing
       end
 
     end
@@ -442,7 +442,7 @@ module RTKIT
     context "#rows" do
 
       it "should return the number of rows in the instance 'narray' attribute" do
-        @bin.rows.should eql @narray.shape[1]
+        expect(@bin.rows).to eql @narray.shape[1]
       end
 
     end
@@ -451,7 +451,7 @@ module RTKIT
     context "#to_bin_image" do
 
       it "should return itself" do
-        @bin.to_bin_image.equal?(@bin).should be_true
+        expect(@bin.to_bin_image.equal?(@bin)).to be_true
       end
 
     end
@@ -465,8 +465,8 @@ module RTKIT
 
       it "should return an empty array when called on an empty BinImage instance" do
         contours = @bin.to_contours(@slice)
-        contours.class.should eql Array
-        contours.length.should eql 0
+        expect(contours.class).to eql Array
+        expect(contours.length).to eql 0
       end
 
       it "should return a one-element Array with a Contour instance holding 4 Coordinates with the expected values" do
@@ -474,13 +474,13 @@ module RTKIT
         image[1..3, 1..3] = 1
         @bin.add(image)
         contours = @bin.to_contours(@slice)
-        contours.length.should eql 1
+        expect(contours.length).to eql 1
         contour = contours.first
-        contour.coordinates.length.should eql 4
+        expect(contour.coordinates.length).to eql 4
         x, y, z = contour.coords
-        x.should eql [-15.0, -14.0, -14.0, -15.0]
-        y.should eql [-24.5, -24.5, -22.5, -22.5]
-        z.should eql [99.9, 99.9, 99.9, 99.9]
+        expect(x).to eql [-15.0, -14.0, -14.0, -15.0]
+        expect(y).to eql [-24.5, -24.5, -22.5, -22.5]
+        expect(z).to eql [99.9, 99.9, 99.9, 99.9]
       end
 
       it "should return an array of two contours from an image with two separate 3x3 squares" do
@@ -489,7 +489,7 @@ module RTKIT
         image[5..7, 3..5] = 1
         @bin.add(image)
         contours = @bin.to_contours(@slice)
-        contours.length.should eql 2
+        expect(contours.length).to eql 2
       end
 
     end
@@ -507,24 +507,24 @@ module RTKIT
 
       it "should return a proper DObject instance with equal number of elements as that of the source DObject" do
         b_dcm = @b.to_dcm
-        b_dcm.class.should eql DICOM::DObject
-        b_dcm.count.should >= 42
-        b_dcm.value('0010,0010').should eql @dcm.value('0010,0010')
-        b_dcm['0010,0010'].parent.should eql b_dcm
+        expect(b_dcm.class).to eql DICOM::DObject
+        expect(b_dcm.count).to be >= 42
+        expect(b_dcm.value('0010,0010')).to eql @dcm.value('0010,0010')
+        expect(b_dcm['0010,0010'].parent).to eql b_dcm
       end
 
       it "should insert the binary image to the pixel data of the DObject" do
         b_dcm = @b.to_dcm
-        b_dcm.narray.shape.should eql @narr.shape
-        b_dcm.narray[1].should be >= 1
-        b_dcm.narray[0].should eql 0
+        expect(b_dcm.narray.shape).to eql @narr.shape
+        expect(b_dcm.narray[1]).to be >= 1
+        expect(b_dcm.narray[0]).to eql 0
       end
 
       it "should not make any changes to the original DObject instance when creating a DObject instance from the BinImage" do
         b_dcm = @b.to_dcm
         b_dcm['0010,0010'].value = 'DUPLICATE'
-        @image.dcm.value('0010,0010').should_not eql 'DUPLICATE'
-        @image.dcm.narray[1].should_not eql 1
+        expect(@image.dcm.value('0010,0010')).not_to eql 'DUPLICATE'
+        expect(@image.dcm.narray[1]).not_to eql 1
       end
 
     end
@@ -539,7 +539,7 @@ module RTKIT
       it "should return a Slice (which will have no contours added to it) when called on an empty BinImage instance" do
         Slice.any_instance.expects(:add_contour).never
         s = @bin.to_slice(@roi)
-        s.class.should eql Slice
+        expect(s.class).to eql Slice
       end
 
       it "should return a Slice (with one Contour added to it)" do
@@ -547,9 +547,9 @@ module RTKIT
         image[1..3, 1..3] = 1
         @bin.add(image)
         s = @bin.to_slice(@roi)
-        s.class.should eql Slice
-        s.contours.length.should eql 1
-        s.contours.first.class.should eql Contour
+        expect(s.class).to eql Slice
+        expect(s.contours.length).to eql 1
+        expect(s.contours.first.class).to eql Contour
       end
 
       it "should return a Slice (with two Contour instances added to it)" do
@@ -558,9 +558,9 @@ module RTKIT
         image[5..7, 3..5] = 1
         @bin.add(image)
         s = @bin.to_slice(@roi)
-        s.class.should eql Slice
-        s.contours.length.should eql 2
-        s.contours.last.class.should eql Contour
+        expect(s.class).to eql Slice
+        expect(s.contours.length).to eql 2
+        expect(s.contours.last.class).to eql Contour
       end
 
     end

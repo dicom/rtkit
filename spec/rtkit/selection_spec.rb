@@ -46,17 +46,17 @@ module RTKIT
 
       it "should return a Selection instance" do
         s = Selection.create_from_array(@indices, @bin)
-        s.class.should eql Selection
+        expect(s.class).to eql Selection
       end
 
       it "should pass the indices array to the indices attribute" do
         s = Selection.create_from_array(@indices, @bin)
-        s.indices.should eql @indices
+        expect(s.indices).to eql @indices
       end
 
       it "should pass the indices NArray to the indices attribute, converted to an array" do
         s = Selection.create_from_array(NArray[1, 2, 3, 4], @bin)
-        s.indices.should eql [1, 2, 3, 4]
+        expect(s.indices).to eql [1, 2, 3, 4]
       end
 
     end
@@ -69,11 +69,11 @@ module RTKIT
       end
 
       it "should pass the 'bin_image' argument to the 'bin_image' attribute" do
-        @sel.bin_image.should eql @bin
+        expect(@sel.bin_image).to eql @bin
       end
 
       it "should by default set the 'indices' attribute as an empty array" do
-        @sel.indices.should eql Array.new
+        expect(@sel.indices).to eql Array.new
       end
 
     end
@@ -83,17 +83,17 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         sel_other = Selection.new(@bin)
-        (@sel == sel_other).should be_true
+        expect(@sel == sel_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         sel_other = Selection.new(@bin)
         sel_other.add_indices([9,12])
-        (@sel == sel_other).should be_false
+        expect(@sel == sel_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@sel == 42).should be_false
+        expect(@sel == 42).to be_false
       end
 
     end
@@ -112,21 +112,21 @@ module RTKIT
       it "should add the indices to the empty Selection instance" do
         arr = [42, 24]
         @sel.add_indices(arr)
-        @sel.indices.should eql arr
+        expect(@sel.indices).to eql arr
       end
 
       it "should add the indices to the Selection instance already containing indices" do
         arr = [50, 3]
         @sel.add_indices(@indices)
         @sel.add_indices(arr)
-        @sel.indices.should eql [*@indices, *arr]
+        expect(@sel.indices).to eql [*@indices, *arr]
       end
 
       it "should add the NArray indices to the Selection instance" do
         narr = NArray[50, 3]
         @sel.add_indices(@indices)
         @sel.add_indices(narr)
-        @sel.indices.should eql [*@indices, *narr.to_a]
+        expect(@sel.indices).to eql [*@indices, *narr.to_a]
       end
 
     end
@@ -135,7 +135,7 @@ module RTKIT
     context "#columns" do
 
       it "should return an empty array when called on an 'empty' selection" do
-        @sel.columns.should eql Array.new
+        expect(@sel.columns).to eql Array.new
       end
 
       it "should return an array containing the expected column indices" do
@@ -143,7 +143,7 @@ module RTKIT
         narray = NArray.byte(columns, rows)
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([2, 4, 6, 10, 14], bin)
-        sel.columns.should eql [2, 1, 0, 1, 2]
+        expect(sel.columns).to eql [2, 1, 0, 1, 2]
       end
 
     end
@@ -153,13 +153,13 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         sel_other = Selection.new(@bin)
-        @sel.eql?(sel_other).should be_true
+        expect(@sel.eql?(sel_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         sel_other = Selection.new(@bin)
         sel_other.add_indices([9,12])
-        @sel.eql?(sel_other).should be_false
+        expect(@sel.eql?(sel_other)).to be_false
       end
 
     end
@@ -169,14 +169,14 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         sel_other = Selection.new(@bin)
-        @sel.hash.should be_a Fixnum
-        @sel.hash.should eql sel_other.hash
+        expect(@sel.hash).to be_a Fixnum
+        expect(@sel.hash).to eql sel_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         sel_other = Selection.new(@bin)
         sel_other.add_indices([9,12])
-        @sel.hash.should_not eql sel_other.hash
+        expect(@sel.hash).not_to eql sel_other.hash
       end
 
     end
@@ -185,13 +185,13 @@ module RTKIT
     context "#length" do
 
       it "should return the length of this empty selection" do
-        @sel.length.should eql 0
+        expect(@sel.length).to eql 0
       end
 
       it "should return the length of this selection" do
         arr = [50, 3, 4, 5, 10]
         @sel.add_indices(arr)
-        @sel.length.should eql arr.length
+        expect(@sel.length).to eql arr.length
       end
 
     end
@@ -200,7 +200,7 @@ module RTKIT
     context "#rows" do
 
       it "should return an empty array when called on an 'empty' selection" do
-        @sel.rows.should eql Array.new
+        expect(@sel.rows).to eql Array.new
       end
 
       it "should return an array containing the expected row indices" do
@@ -208,7 +208,7 @@ module RTKIT
         narray = NArray.byte(columns, rows)
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([2, 4, 6, 10, 14], bin)
-        sel.rows.should eql [0, 1, 2, 3, 4]
+        expect(sel.rows).to eql [0, 1, 2, 3, 4]
       end
 
     end
@@ -226,7 +226,7 @@ module RTKIT
 
       it "should not change the indices array when executed on an 'empty' selection" do
         @sel.shift(-1, -1)
-        @sel.indices.should eql Array.new
+        expect(@sel.indices).to eql Array.new
       end
 
       it "should shift the indices as expected (negative)" do
@@ -235,7 +235,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([4, 8, 10], bin)
         sel.shift(-1, -1)
-        sel.indices.should eql [0, 4, 6]
+        expect(sel.indices).to eql [0, 4, 6]
       end
 
       it "should shift the indices as expected (positive)" do
@@ -244,7 +244,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([0, 4, 6], bin)
         sel.shift(1, 1)
-        sel.indices.should eql [4, 8, 10]
+        expect(sel.indices).to eql [4, 8, 10]
       end
 
     end
@@ -262,13 +262,13 @@ module RTKIT
 
       it "should not change the indices array when executed on an 'empty' selection" do
         @sel.shift_and_crop(-1, -1)
-        @sel.indices.should eql Array.new
+        expect(@sel.indices).to eql Array.new
       end
 
       it "should not change the indices array when executed with zero shifts" do
         @sel.add_indices(@indices)
         @sel.shift_and_crop(0, 0)
-        @sel.indices.should eql @indices
+        expect(@sel.indices).to eql @indices
       end
 
       it "should shift the indices as expected (negative)" do
@@ -277,7 +277,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([5, 6, 10], bin)
         sel.shift_and_crop(-1, -1)
-        sel.indices.should eql [0, 1, 3]
+        expect(sel.indices).to eql [0, 1, 3]
       end
 
       it "should shift the indices as expected (positive)" do
@@ -286,7 +286,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([5, 6, 10], bin)
         sel.shift_and_crop(1, 1)
-        sel.indices.should eql [0, 1, 3]
+        expect(sel.indices).to eql [0, 1, 3]
       end
 
     end
@@ -300,7 +300,7 @@ module RTKIT
 
       it "should not change the indices array when executed on an 'empty' selection" do
         @sel.shift_columns(-1)
-        @sel.indices.should eql Array.new
+        expect(@sel.indices).to eql Array.new
       end
 
       it "should shift the indices as expected (negative)" do
@@ -309,7 +309,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([4, 8, 10], bin)
         sel.shift_columns(-1)
-        sel.indices.should eql [3, 7, 9]
+        expect(sel.indices).to eql [3, 7, 9]
       end
 
       it "should shift the indices as expected (positive)" do
@@ -318,7 +318,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([0, 4, 6], bin)
         sel.shift_columns(1)
-        sel.indices.should eql [1, 5, 7]
+        expect(sel.indices).to eql [1, 5, 7]
       end
 
     end
@@ -332,7 +332,7 @@ module RTKIT
 
       it "should not change the indices array when executed on an 'empty' selection" do
         @sel.shift_rows(-1)
-        @sel.indices.should eql Array.new
+        expect(@sel.indices).to eql Array.new
       end
 
       it "should shift the indices as expected (negative)" do
@@ -341,7 +341,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([4, 8, 10], bin)
         sel.shift_rows(-1)
-        sel.indices.should eql [1, 5, 7]
+        expect(sel.indices).to eql [1, 5, 7]
       end
 
       it "should shift the indices as expected (positive)" do
@@ -350,7 +350,7 @@ module RTKIT
         bin = BinImage.new(narray, @image)
         sel = Selection.create_from_array([0, 4, 6], bin)
         sel.shift_rows(1)
-        sel.indices.should eql [3, 7, 9]
+        expect(sel.indices).to eql [3, 7, 9]
       end
 
     end
@@ -359,7 +359,7 @@ module RTKIT
     context "#to_selection" do
 
       it "should return itself" do
-        @sel.to_selection.equal?(@sel).should be_true
+        expect(@sel.to_selection.equal?(@sel)).to be_true
       end
 
     end

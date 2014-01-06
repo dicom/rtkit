@@ -42,27 +42,27 @@ module RTKIT
 
       it "should create an RTImage instance with attributes taken from the DICOM Object" do
         rt = RTImage.load(@dcm, @st)
-        rt.series_uid.should eql @dcm.value('0020,000E')
-        rt.modality.should eql @dcm.value('0008,0060')
-        rt.class_uid.should eql @dcm.value('0008,0016')
-        rt.date.should eql @dcm.value('0008,0021')
-        rt.time.should eql @dcm.value('0008,0031')
-        rt.description.should eql @dcm.value('0008,103E')
+        expect(rt.series_uid).to eql @dcm.value('0020,000E')
+        expect(rt.modality).to eql @dcm.value('0008,0060')
+        expect(rt.class_uid).to eql @dcm.value('0008,0016')
+        expect(rt.date).to eql @dcm.value('0008,0021')
+        expect(rt.time).to eql @dcm.value('0008,0031')
+        expect(rt.description).to eql @dcm.value('0008,103E')
       end
 
       it "should set up the DICOM RTIMAGE object as a ProjectionImage instance belonging to the RTImage series" do
         rt = RTImage.load(@dcm, @st)
-        rt.images.first.should be_a ProjectionImage
+        expect(rt.images.first).to be_a ProjectionImage
       end
 
       it "should create an RTImage instance which is properly referenced to its study" do
         rt = RTImage.load(@dcm, @st)
-        rt.study.should eql @st
+        expect(rt.study).to eql @st
       end
 
       it "should set up a Plan reference when no corresponding Plan have been loaded" do
         rt = RTImage.load(@dcm, @st)
-        rt.plan.should be_a Plan
+        expect(rt.plan).to be_a Plan
       end
 
     end
@@ -79,55 +79,55 @@ module RTKIT
       end
 
       it "should by default set the 'images' attribute as an empty array" do
-        @rt.images.should eql Array.new
+        expect(@rt.images).to eql Array.new
       end
 
       it "should by default set the 'modality' attribute equal as 'RTIMAGE'" do
-        @rt.modality.should eql 'RTIMAGE'
+        expect(@rt.modality).to eql 'RTIMAGE'
       end
 
       it "should by default set the 'class_uid' attribute equal to the RT Image Storage Class UID" do
-        @rt.class_uid.should eql '1.2.840.10008.5.1.4.1.1.481.1'
+        expect(@rt.class_uid).to eql '1.2.840.10008.5.1.4.1.1.481.1'
       end
 
       it "should by default set the 'date' attribute as nil" do
-        @rt.date.should be_nil
+        expect(@rt.date).to be_nil
       end
 
       it "should by default set the 'time' attribute as nil" do
-        @rt.time.should be_nil
+        expect(@rt.time).to be_nil
       end
 
       it "should by default set the 'description' attribute as nil" do
-        @rt.description.should be_nil
+        expect(@rt.description).to be_nil
       end
 
       it "should pass the 'series_uid' argument to the 'series_uid' attribute" do
-        @rt.series_uid.should eql @uid
+        expect(@rt.series_uid).to eql @uid
       end
 
       it "should pass the 'plan' argument to the 'plan' attribute" do
-        @rt.plan.should eql @plan
+        expect(@rt.plan).to eql @plan
       end
 
       it "should pass the optional 'date' argument to the 'date' attribute" do
         rt = RTImage.new(@uid, @plan, :date => @date)
-        rt.date.should eql @date
+        expect(rt.date).to eql @date
       end
 
       it "should pass the optional 'time' argument to the 'time' attribute" do
         rt = RTImage.new(@uid, @plan, :time => @time)
-        rt.time.should eql @time
+        expect(rt.time).to eql @time
       end
 
       it "should pass the optional 'description' argument to the 'description' attribute" do
         rt = RTImage.new(@uid, @plan, :description => @description)
-        rt.description.should eql @description
+        expect(rt.description).to eql @description
       end
 
       it "should add the RTImage instance (once) to the referenced Plan" do
-        @rt.plan.rt_images.length.should eql 1
-        @rt.plan.rt_images.first.should eql @rt
+        expect(@rt.plan.rt_images.length).to eql 1
+        expect(@rt.plan.rt_images.first).to eql @rt
       end
 
     end
@@ -137,16 +137,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         rt_other = RTImage.new(@uid, @plan)
-        (@rt == rt_other).should be_true
+        expect(@rt == rt_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         rt_other = RTImage.new('1.6.99', @plan)
-        (@rt == rt_other).should be_false
+        expect(@rt == rt_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@rt == 42).should be_false
+        expect(@rt == 42).to be_false
       end
 
     end
@@ -156,12 +156,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         rt_other = RTImage.new(@uid, @plan)
-        @rt.eql?(rt_other).should be_true
+        expect(@rt.eql?(rt_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         rt_other = RTImage.new('1.6.99', @plan)
-        @rt.eql?(rt_other).should be_false
+        expect(@rt.eql?(rt_other)).to be_false
       end
 
     end
@@ -171,13 +171,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         rt_other = RTImage.new(@uid, @plan)
-        @rt.hash.should be_a Fixnum
-        @rt.hash.should eql rt_other.hash
+        expect(@rt.hash).to be_a Fixnum
+        expect(@rt.hash).to eql rt_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         rt_other = RTImage.new('1.6.99', @plan)
-        @rt.hash.should_not eql rt_other.hash
+        expect(@rt.hash).not_to eql rt_other.hash
       end
 
     end
@@ -186,7 +186,7 @@ module RTKIT
     context "#to_rt_image" do
 
       it "should return itself" do
-        @rt.to_rt_image.equal?(@rt).should be_true
+        expect(@rt.to_rt_image.equal?(@rt)).to be_true
       end
 
     end

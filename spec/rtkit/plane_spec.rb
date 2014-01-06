@@ -51,10 +51,10 @@ module RTKIT
 
       it "should create a Plane with the expected (Float) attribute values" do
         p = Plane.calculate(@c1, @c2, @c3)
-        p.a.should eql 0.0
-        p.b.should eql 0.0
-        p.c.should eql -50.0
-        p.d.should eql 500.0
+        expect(p.a).to eql 0.0
+        expect(p.b).to eql 0.0
+        expect(p.c).to eql -50.0
+        expect(p.d).to eql 500.0
       end
 
     end
@@ -76,19 +76,19 @@ module RTKIT
 
 
       it "should pass the 'a' argument to the 'a' attribute" do
-        @p.a.should eql @a
+        expect(@p.a).to eql @a
       end
 
       it "should pass the 'b' argument to the 'b' attribute" do
-        @p.b.should eql @b
+        expect(@p.b).to eql @b
       end
 
       it "should pass the 'c' argument to the 'c' attribute" do
-        @p.c.should eql @c
+        expect(@p.c).to eql @c
       end
 
       it "should use the default 'd' value as set by the Plane class" do
-        @p.d.should eql Plane.d
+        expect(@p.d).to eql Plane.d
       end
 
     end
@@ -98,16 +98,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Plane.new(@a, @b, @c)
-        (@p == p_other).should be_true
+        expect(@p == p_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         p_other = Plane.new(99.9, @b, @c)
-        (@p == p_other).should be_false
+        expect(@p == p_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@p == 42).should be_false
+        expect(@p == 42).to be_false
       end
 
     end
@@ -117,12 +117,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Plane.new(@a, @b, @c)
-        @p.eql?(p_other).should be_true
+        expect(@p.eql?(p_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         p_other = Plane.new(99.9, @b, @c)
-        @p.eql?(p_other).should be_false
+        expect(@p.eql?(p_other)).to be_false
       end
 
     end
@@ -132,13 +132,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         p_other = Plane.new(@a, @b, @c)
-        @p.hash.should be_a Fixnum
-        @p.hash.should eql p_other.hash
+        expect(@p.hash).to be_a Fixnum
+        expect(@p.hash).to eql p_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         p_other = Plane.new(99.9, @b, @c)
-        @p.hash.should_not eql p_other.hash
+        expect(@p.hash).not_to eql p_other.hash
       end
 
     end
@@ -174,27 +174,27 @@ module RTKIT
       end
 
       it "should produce a match when the planes array contains only one element, which is a plane equal to the one we compare against" do
-        @p.match([@plane_equal]).should eql 0
+        expect(@p.match([@plane_equal])).to eql 0
       end
 
       it "should produce a match (with the expected index) when the planes array contains a plane equal to the one we compare against" do
-        @p.match([@plane_equal, @plane_dev_parallel]).should eql 0
+        expect(@p.match([@plane_equal, @plane_dev_parallel])).to eql 0
       end
 
       it "should produce a match (with the expected index) when the planes array contains a plane equal to the one we compare against" do
-        @p.match([@plane_dev_parallel, @plane_equal]).should eql 1
+        expect(@p.match([@plane_dev_parallel, @plane_equal])).to eql 1
       end
 
       it "should not produce a match when the planes array contains only one element, which is a plane parallel to itself" do
-        @p.match([@plane_dev_parallel]).should be_nil
+        expect(@p.match([@plane_dev_parallel])).to be_nil
       end
 
       it "should not produce a match when the planes array contains only one element, which is a plane intersecting itself" do
-        @p.match([@plane_dev_intersect]).should be_nil
+        expect(@p.match([@plane_dev_intersect])).to be_nil
       end
 
       it "should not produce a match when compared against planes that are parallel to and/or intersecting itself" do
-        @p.match([@plane_dev_parallel, @plane_dev_intersect]).should be_nil
+        expect(@p.match([@plane_dev_parallel, @plane_dev_intersect])).to be_nil
       end
 
     end
@@ -203,7 +203,7 @@ module RTKIT
     context "#to_plane" do
 
       it "should return itself" do
-        @p.to_plane.equal?(@p).should be_true
+        expect(@p.to_plane.equal?(@p)).to be_true
       end
 
     end

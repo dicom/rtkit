@@ -48,49 +48,49 @@ module RTKIT
 
       it "should fill the 'slices' array attribute with Slices created from the items" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.slices.length.should eql @contour_item['3006,0040'].count
-        roi.slices.first.class.should eql Slice
+        expect(roi.slices.length).to eql @contour_item['3006,0040'].count
+        expect(roi.slices.first.class).to eql Slice
       end
 
       it "should set the ROI's 'algorithm' attribute equal to that of the value found in the Structure Set ROI Item" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.algorithm.should eql @roi_item.value('3006,0036')
+        expect(roi.algorithm).to eql @roi_item.value('3006,0036')
       end
 
       it "should set the ROI's 'name' attribute equal to that of the value found in the Structure Set ROI Item" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.name.should eql @roi_item.value('3006,0026')
+        expect(roi.name).to eql @roi_item.value('3006,0026')
       end
 
       it "should set the ROI's 'number' attribute equal to that of the value found in the Structure Set ROI Item" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.number.should eql @roi_item.value('3006,0022').to_i
+        expect(roi.number).to eql @roi_item.value('3006,0022').to_i
       end
 
       it "should set the ROI's 'type' attribute equal to that of the value found in the RT ROI Observations Item" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.type.should eql @rt_item.value('3006,00A4')
+        expect(roi.type).to eql @rt_item.value('3006,00A4')
       end
 
       it "should set the ROI's 'interpreter' attribute equal to that of the value found in the RT ROI Observations Item" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
         value = @contour_item.value('3006,00A6') || ""
-        roi.interpreter.should eql value
+        expect(roi.interpreter).to eql value
       end
 
       it "should set the ROI's 'color' attribute equal to that of the value found in the ROI Contour Item" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.color.should eql @contour_item.value('3006,002A')
+        expect(roi.color).to eql @contour_item.value('3006,002A')
       end
 
       it "should set the ROI's 'struct' attribute equal to the 'struct' argument" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.struct.should eql @ss
+        expect(roi.struct).to eql @ss
       end
 
       it "should create a referenced Frame instance who's UID matches the value of the Frame UID tag of the 'ROI Item'" do
         roi = ROI.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.frame.uid.should eql @roi_item.value('3006,0024')
+        expect(roi.frame.uid).to eql @roi_item.value('3006,0024')
       end
 
     end
@@ -131,50 +131,50 @@ module RTKIT
       end
 
       it "should pass the 'name' argument to the 'name' attribute" do
-        @roi.name.should eql @name
+        expect(@roi.name).to eql @name
       end
 
       it "should pass the 'number' argument to the 'number' attribute" do
-        @roi.number.should eql @number
+        expect(@roi.number).to eql @number
       end
 
       it "should pass the 'frame' argument to the 'frame' attribute" do
-        @roi.frame.should eql @f
+        expect(@roi.frame).to eql @f
       end
 
       it "should pass the 'struct' argument to the 'struct' attribute" do
-        @roi.struct.should eql @ss
+        expect(@roi.struct).to eql @ss
       end
 
       it "should by default set the 'slices' attribute to an empty array" do
-        @roi.slices.should eql Array.new
+        expect(@roi.slices).to eql Array.new
       end
 
       it "should by default set the 'algorithm' attribute to 'Automatic'" do
-        @roi.algorithm.should eql 'Automatic'
+        expect(@roi.algorithm).to eql 'Automatic'
       end
 
       it "should by default set the 'type' attribute to a 'CONTROL'" do
-        @roi.type.should eql 'CONTROL'
+        expect(@roi.type).to eql 'CONTROL'
       end
 
       it "should by default set the 'interpreter' attribute to 'RTKIT'" do
-        @roi.interpreter.should eql 'RTKIT'
+        expect(@roi.interpreter).to eql 'RTKIT'
       end
 
       it "should by default set the 'color' attribute to a proper color string" do
-        @roi.color.class.should eql String
-        @roi.color.split("\\").length.should eql 3
+        expect(@roi.color.class).to eql String
+        expect(@roi.color.split("\\").length).to eql 3
       end
 
       it "should add the ROI instance (once) to the referenced StructureSet" do
-        @ss.structures.length.should eql 1
-        @ss.structure(@roi.name).should eql @roi
+        expect(@ss.structures.length).to eql 1
+        expect(@ss.structure(@roi.name)).to eql @roi
       end
 
       it "should add the ROI instance (once) to the referenced Frame" do
-        @f.structures.length.should eql 1
-        @f.structure(@roi.name).should eql @roi
+        expect(@f.structures.length).to eql 1
+        expect(@f.structure(@roi.name)).to eql @roi
       end
 
     end
@@ -185,16 +185,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         roi = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         roi_other = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        (roi == roi_other).should be_true
+        expect(roi == roi_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         roi_other = ROI.new('Other ROI', @number, @f, @ss)
-        (@roi == roi_other).should be_false
+        expect(@roi == roi_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@roi == 42).should be_false
+        expect(@roi == 42).to be_false
       end
 
     end
@@ -210,8 +210,8 @@ module RTKIT
         roi_other = ROI.new("Brain", 2, @f, @ss)
         s = Slice.new(@sop, roi_other)
         @roi.add_slice(s)
-        @roi.slices.size.should eql 1
-        @roi.slices.first.should eql s
+        expect(@roi.slices.size).to eql 1
+        expect(@roi.slices.first).to eql s
       end
 
       it "should add the Slice to the ROI instance already containing a Slice" do
@@ -219,16 +219,16 @@ module RTKIT
         s1 = Slice.new(@sop, @roi)
         s2 = Slice.new("1.567.322", roi_other)
         @roi.add_slice(s2)
-        @roi.slices.size.should eql 2
-        @roi.slices.first.should eql s1
-        @roi.slices.last.should eql s2
+        expect(@roi.slices.size).to eql 2
+        expect(@roi.slices.first).to eql s1
+        expect(@roi.slices.last).to eql s2
       end
 
       it "should not add multiple entries of the same Slice" do
         s = Slice.new(@sop, @roi)
         @roi.add_slice(s)
-        @roi.slices.size.should eql 1
-        @roi.slices.first.should eql s
+        expect(@roi.slices.size).to eql 1
+        expect(@roi.slices.first).to eql s
       end
 
     end
@@ -259,8 +259,8 @@ module RTKIT
         roi = @ss1.create_roi(@f1)
         @ss1.expects(:remove_structure).once.with(roi)
         roi.attach_to(series)
-        roi.frame.should eql series.frame
-        series.structures.include?(roi).should be_true
+        expect(roi.frame).to eql series.frame
+        expect(series.structures.include?(roi)).to be_true
       end
 
       it "should add the ROI (containing slices) to the ImageSeries instance" do
@@ -269,47 +269,47 @@ module RTKIT
         roi = ROI.new(@name, @number, @f, @ss)
         @ss.expects(:remove_structure).once.with(roi)
         roi.attach_to(series)
-        roi.frame.should eql series.frame
-        series.structures.include?(roi).should be_true
+        expect(roi.frame).to eql series.frame
+        expect(series.structures.include?(roi)).to be_true
       end
 
       it "should not do anything with the rois when they already belong to the given ImageSeries and have the correct frame" do
         roi1 = @ss1.create_roi(@f1)
         roi2 = @ss1.create_roi(@f1)
         # Before any processing (verify):
-        @ss1.structures.length.should eql 2
-        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi1.__id__, roi2.__id__]
+        expect(@ss1.structures.length).to eql 2
+        expect(@ss1.structures.collect{|roi| roi.__id__}).to eql [roi1.__id__, roi2.__id__]
         @ss1.structures.each do |roi|
           roi.attach_to(@is1)
         end
         # After processing (test):
-        @ss1.structures.collect{|roi| roi.frame}.should eql [@f1, @f1]
-        @ss1.structures.length.should eql 2
-        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi1.__id__, roi2.__id__]
+        expect(@ss1.structures.collect{|roi| roi.frame}).to eql [@f1, @f1]
+        expect(@ss1.structures.length).to eql 2
+        expect(@ss1.structures.collect{|roi| roi.__id__}).to eql [roi1.__id__, roi2.__id__]
       end
 
       it "should not remove (and subsequently re-add) a ROI which belongs to the correct struct, but belongs to another frame than that of the ImageSeries" do
         roi_wrong_frame = @ss1.create_roi(@f2)
         roi_corr_frame = @ss1.create_roi(@f1)
         # Before any processing (verify):
-        @ss1.structures.length.should eql 2
-        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
+        expect(@ss1.structures.length).to eql 2
+        expect(@ss1.structures.collect{|roi| roi.__id__}).to eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
         @ss1.structures.each do |roi|
           roi.attach_to(@is1)
         end
         # After processing (test):
-        [roi_wrong_frame, roi_corr_frame].collect{|roi| roi.frame}.should eql [@f1, @f1]
-        @ss1.structures.length.should eql 2
-        @ss1.structures.collect{|roi| roi.__id__}.should eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
+        expect([roi_wrong_frame, roi_corr_frame].collect{|roi| roi.frame}).to eql [@f1, @f1]
+        expect(@ss1.structures.length).to eql 2
+        expect(@ss1.structures.collect{|roi| roi.__id__}).to eql [roi_wrong_frame.__id__, roi_corr_frame.__id__]
       end
 
       it "should successfully add the ROI to a struct-less ImageSeries instance (creating a new StructureSet instance)" do
         roi = ROI.new(@name, @number, @f, @ss1)
         struct_less_is = ImageSeries.new('1.767.232', 'CT', @f1, @st)
         roi.attach_to(struct_less_is)
-        roi.frame.should eql struct_less_is.frame
-        struct_less_is.structures.include?(roi).should be_true
-        roi.image_series.should eql struct_less_is
+        expect(roi.frame).to eql struct_less_is.frame
+        expect(struct_less_is.structures.include?(roi)).to be_true
+        expect(roi.image_series).to eql struct_less_is
       end
 
     end
@@ -325,26 +325,26 @@ module RTKIT
       end
 
       it "should return a BinVolume instance, containing 5 BinImage references, from this ROI" do
-        @bin_volume.class.should eql BinVolume
-        @bin_volume.bin_images.length.should eql 5
+        expect(@bin_volume.class).to eql BinVolume
+        expect(@bin_volume.bin_images.length).to eql 5
       end
 
       it "should set the BinVolume's series equal to that of the ROI" do
-        @bin_volume.series.should eql @roi.image_series
+        expect(@bin_volume.series).to eql @roi.image_series
       end
 
       it "should set the ROI as the BinVolume's source" do
-        @bin_volume.source.should eql @roi
+        expect(@bin_volume.source).to eql @roi
       end
 
       it "should return a BinVolume instance, where the narray matches the number of contours in this ROI as well as the dimensions of the referenced images" do
-        @bin_volume.narray.shape.should eql [5, 512, 171]
+        expect(@bin_volume.narray.shape).to eql [5, 512, 171]
       end
 
       it "should return a BinVolume instance, where the segmented indices (as derived from the ROI's Contours) are marked as 1 and the non-segmented indices are 0" do
         # Note: This is not so much a principal test as a consistency test.
-        (@bin_volume.narray.eq 1).where.length.should eql 37410
-        (@bin_volume.narray.eq 0).where.length.should eql 400350
+        expect((@bin_volume.narray.eq 1).where.length).to eql 37410
+        expect((@bin_volume.narray.eq 0).where.length).to eql 400350
       end
 
     end
@@ -361,11 +361,11 @@ module RTKIT
       end
 
       it "should accept a DoseVolume as argument and return a bin_volume instance" do
-        @bin_volume.class.should eql BinVolume
+        expect(@bin_volume.class).to eql BinVolume
       end
 
       it "should return a BinVolume instance, where the narray matches the number of contours in this ROI as well as the dimensions of the dose volume (images)" do
-        @bin_volume.narray.shape.should eql [@roi.slices.length, @dvol.images.first.columns, @dvol.images.first.rows]
+        expect(@bin_volume.narray.shape).to eql [@roi.slices.length, @dvol.images.first.columns, @dvol.images.first.rows]
       end
 
     end
@@ -379,11 +379,11 @@ module RTKIT
 
       it "should return a ROI Contour Sequence Item properly populated with values from the ROI instance" do
         item = @roi.contour_item
-        item.class.should eql DICOM::Item
-        item.count.should eql 3
-        item.value('3006,002A').should eql @roi.color
-        item.value('3006,0084').should eql @roi.number.to_s
-        item['3006,0040'].count.should eql 0
+        expect(item.class).to eql DICOM::Item
+        expect(item.count).to eql 3
+        expect(item.value('3006,002A')).to eql @roi.color
+        expect(item.value('3006,0084')).to eql @roi.number.to_s
+        expect(item['3006,0040'].count).to eql 0
       end
 
     end
@@ -403,7 +403,7 @@ module RTKIT
 
       it "should create Slices from the information in the Contour Sequence and add these to the ROI" do
         @roi.create_slices(@sequence)
-        @roi.slices.length.should eql 5
+        expect(@roi.slices.length).to eql 5
       end
 
     end
@@ -420,12 +420,12 @@ module RTKIT
 
       it "should return a DoseDistribution instance when called without an argument" do
         distribution = @roi.distribution
-        distribution.class.should eql DoseDistribution
+        expect(distribution.class).to eql DoseDistribution
       end
 
       it "should return a DoseDistribution instance when called with a DoseVolume argument" do
         distribution = @roi.distribution(@dvol)
-        distribution.class.should eql DoseDistribution
+        expect(distribution.class).to eql DoseDistribution
       end
 
     end
@@ -436,12 +436,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         roi = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         roi_other = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        roi.eql?(roi_other).should be_true
+        expect(roi.eql?(roi_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         roi_other = ROI.new('Other ROI', @number, @f, @ss)
-        @roi.eql?(roi_other).should be_false
+        expect(@roi.eql?(roi_other)).to be_false
       end
 
     end
@@ -486,11 +486,11 @@ module RTKIT
         c21 = Contour.create_from_coordinates([5, 15, 15, 5], [5, 5, 15, 15], [8, 8, 8, 8], s2)
         offset = Coordinate.new(5, -5, 10)
         @roi.export_pixels(t_series, offset)
-        t1.narray[[2, 3, 8, 16, 17, 22]].to_a.should eql [7, 8, 13, 21, 22, 27]
-        (t1.narray.eq 0).where.length.should eql 30
-        t2.narray[[2, 3, 4, 8, 9, 10, 14, 15, 16]].to_a.should eql [107, 108, 109, 113, 114, 115, 119, 120, 121]
-        (t2.narray.eq 0).where.length.should eql 27
-        t3.narray.should be_nil
+        expect(t1.narray[[2, 3, 8, 16, 17, 22]].to_a).to eql [7, 8, 13, 21, 22, 27]
+        expect((t1.narray.eq 0).where.length).to eql 30
+        expect(t2.narray[[2, 3, 4, 8, 9, 10, 14, 15, 16]].to_a).to eql [107, 108, 109, 113, 114, 115, 119, 120, 121]
+        expect((t2.narray.eq 0).where.length).to eql 27
+        expect(t3.narray).to be_nil
       end
 
     end
@@ -532,7 +532,7 @@ module RTKIT
       it "should assign the new frame to the roi" do
         f_other = Frame.new('1.787.434', @p)
         @roi.frame = f_other
-        @roi.frame.should eql f_other
+        expect(@roi.frame).to eql f_other
       end
 
     end
@@ -543,13 +543,13 @@ module RTKIT
       it "should return the same Fixnum for two instances having the same attribute values" do
         roi = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         roi_other = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        roi.hash.should be_a Fixnum
-        roi.hash.should eql roi_other.hash
+        expect(roi.hash).to be_a Fixnum
+        expect(roi.hash).to eql roi_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         roi_other = ROI.new('Other ROI', @number, @f, @ss)
-        @roi.hash.should_not eql roi_other.hash
+        expect(@roi.hash).not_to eql roi_other.hash
       end
 
     end
@@ -564,12 +564,12 @@ module RTKIT
       end
 
       it "should return 0 for a ROI containing no contours" do
-        @roi.slices.length.should eql 0
+        expect(@roi.slices.length).to eql 0
       end
 
       it "should return 5 for a ROI containing 5 contours" do
         @roi.create_slices(@sequence)
-        @roi.num_contours.should eql 5
+        expect(@roi.num_contours).to eql 5
       end
 
     end
@@ -580,12 +580,12 @@ module RTKIT
       it "should return a RT ROI Observations Sequence Item properly populated with values from the ROI instance" do
         roi = ROI.new(@name, @number, @f, @ss)
         item = roi.obs_item
-        item.class.should eql DICOM::Item
-        item.count.should eql 4
-        item.value('3006,0082').should eql roi.number.to_s
-        item.value('3006,0084').should eql roi.number.to_s
-        item.value('3006,00A4').should eql roi.type
-        item.value('3006,00A6').should eql roi.interpreter
+        expect(item.class).to eql DICOM::Item
+        expect(item.count).to eql 4
+        expect(item.value('3006,0082')).to eql roi.number.to_s
+        expect(item.value('3006,0084')).to eql roi.number.to_s
+        expect(item.value('3006,00A4')).to eql roi.type
+        expect(item.value('3006,00A6')).to eql roi.interpreter
       end
 
     end
@@ -596,8 +596,8 @@ module RTKIT
       it "should nullify the 'frame' and 'struct' attributes of the ROI instance" do
         roi = ROI.new(@name, @number, @f, @ss)
         roi.remove_references
-        roi.frame.should be_nil
-        roi.struct.should be_nil
+        expect(roi.frame).to be_nil
+        expect(roi.struct).to be_nil
       end
 
     end
@@ -630,8 +630,8 @@ module RTKIT
 
       it "should return the expected size (as a float value in units of cm^3) for this case" do
         size = @roi.size
-        size.should be_a Float
-        size.should eql 0.265
+        expect(size).to be_a Float
+        expect(size).to eql 0.265
       end
 
       it "should give this value for this ROI (NB: But the expected value is not an exact, principal value!!)" do
@@ -639,7 +639,7 @@ module RTKIT
         # According to Oncentra 4.1, this volume is 708.845, and according to dicompyler 0.4.1 it is 933.75 cm^3.
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         roi = d.patient.study.image_series.first.struct.structure('External')
-        roi.size.round(1).should eql 770.6
+        expect(roi.size.round(1)).to eql 770.6
       end
 
     end
@@ -663,13 +663,13 @@ module RTKIT
       end
 
       it "should return the first slice when no arguments are used" do
-        @roi.slice.should eql @roi.slices.first
+        expect(@roi.slice).to eql @roi.slices.first
       end
 
       it "should return the the matching Slice when a UID string is supplied" do
         uid = '1.3.6.1.4.1.2452.6.685926274.1132857921.4126754476.3684171967'
         slice = @roi.slice(uid)
-        slice.uid.should eql uid
+        expect(slice.uid).to eql uid
       end
 
     end
@@ -680,12 +680,12 @@ module RTKIT
       it "should return a Structure Set ROI Sequence Item properly populated with values from the ROI instance" do
         roi = ROI.new(@name, @number, @f, @ss)
         item = roi.ss_item
-        item.class.should eql DICOM::Item
-        item.count.should eql 4
-        item.value('3006,0022').should eql roi.number.to_s
-        item.value('3006,0024').should eql roi.frame.uid
-        item.value('3006,0026').should eql roi.name
-        item.value('3006,0036').should eql roi.algorithm
+        expect(item.class).to eql DICOM::Item
+        expect(item.count).to eql 4
+        expect(item.value('3006,0022')).to eql roi.number.to_s
+        expect(item.value('3006,0024')).to eql roi.frame.uid
+        expect(item.value('3006,0026')).to eql roi.name
+        expect(item.value('3006,0036')).to eql roi.algorithm
       end
 
     end
@@ -694,7 +694,7 @@ module RTKIT
     context "#to_roi" do
 
       it "should return itself" do
-        @roi.to_roi.equal?(@roi).should be_true
+        expect(@roi.to_roi.equal?(@roi)).to be_true
       end
 
     end

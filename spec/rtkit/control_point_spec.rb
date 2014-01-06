@@ -38,82 +38,82 @@ module RTKIT
 
       it "should set the ControlPoint's 'collimator_angle' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.collimator_angle.should eql @cp_item.value('300A,0120').to_f
+        expect(s.collimator_angle).to eql @cp_item.value('300A,0120').to_f
       end
 
       it "should set the ControlPoint's 'collimator_direction' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.collimator_direction.should eql @cp_item.value('300A,0121')
+        expect(s.collimator_direction).to eql @cp_item.value('300A,0121')
       end
 
       it "should set the ControlPoint's 'cum_meterset' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.cum_meterset.should eql @cp_item.value('300A,0134').to_f
+        expect(s.cum_meterset).to eql @cp_item.value('300A,0134').to_f
       end
 
       it "should set the ControlPoint's 'energy' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.energy.should eql @cp_item.value('300A,0114').to_f
+        expect(s.energy).to eql @cp_item.value('300A,0114').to_f
       end
 
       it "should set the ControlPoint's 'gantry_angle' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.gantry_angle.should eql @cp_item.value('300A,011E').to_f
+        expect(s.gantry_angle).to eql @cp_item.value('300A,011E').to_f
       end
 
       it "should set the ControlPoint's 'gantry_direction' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.gantry_direction.should eql @cp_item.value('300A,011F')
+        expect(s.gantry_direction).to eql @cp_item.value('300A,011F')
       end
 
       it "should set the ControlPoint's 'index' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.index.should eql @cp_item.value('300A,0112').to_i
+        expect(s.index).to eql @cp_item.value('300A,0112').to_i
       end
 
       it "should set the ControlPoint's 'iso' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.iso.should == @cp_item.value('300A,012C').to_coordinate
+        expect(s.iso).to eq(@cp_item.value('300A,012C').to_coordinate)
       end
 
       it "should set the ControlPoint's 'pedestal_angle' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.pedestal_angle.should eql @cp_item.value('300A,0122').to_f
+        expect(s.pedestal_angle).to eql @cp_item.value('300A,0122').to_f
       end
 
       it "should set the ControlPoint's 'pedestal_direction' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.pedestal_direction.should eql @cp_item.value('300A,0123')
+        expect(s.pedestal_direction).to eql @cp_item.value('300A,0123')
       end
 
       it "should set the ControlPoint's 'ssd' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.ssd.should eql @cp_item.value('300A,0130').to_f
+        expect(s.ssd).to eql @cp_item.value('300A,0130').to_f
       end
 
       it "should set the ControlPoint's 'table_top_angle' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.table_top_angle.should eql @cp_item.value('300A,0125').to_f
+        expect(s.table_top_angle).to eql @cp_item.value('300A,0125').to_f
       end
 
       it "should set the ControlPoint's 'table_top_direction' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.table_top_direction.should eql @cp_item.value('300A,0126')
+        expect(s.table_top_direction).to eql @cp_item.value('300A,0126')
       end
 
       it "should set the ControlPoint's 'table_top_lateral' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.table_top_lateral.should eql @cp_item.value('300A,012A').to_f
+        expect(s.table_top_lateral).to eql @cp_item.value('300A,012A').to_f
       end
 
       it "should set the ControlPoint's 'table_top_vertical' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.table_top_vertical.should eql @cp_item.value('300A,0128').to_f
+        expect(s.table_top_vertical).to eql @cp_item.value('300A,0128').to_f
       end
 
       it "should set the ControlPoint's 'table_top_longitudinal' attribute equal to the value found in the ControlPoint Item" do
         s = ControlPoint.create_from_item(@cp_item, @beam)
-        s.table_top_longitudinal.should eql @cp_item.value('300A,0129').to_f
+        expect(s.table_top_longitudinal).to eql @cp_item.value('300A,0129').to_f
       end
 
     end
@@ -134,75 +134,75 @@ module RTKIT
       end
 
       it "should pass the 'index' argument to the 'index' attribute" do
-        @cp.index.should eql @index
+        expect(@cp.index).to eql @index
       end
 
       it "should pass the 'cum_meterset' argument to the 'cum_meterset' attribute" do
-        @cp.cum_meterset.should eql @cum_meterset
+        expect(@cp.cum_meterset).to eql @cum_meterset
       end
 
       it "should by default set the 'collimators' attribute as an empty array" do
-        @cp.collimators.should eql Array.new
+        expect(@cp.collimators).to eql Array.new
       end
 
       it "should by default set the 'collimator_angle' attribute as nil" do
-        @cp.collimator_angle.should be_nil
+        expect(@cp.collimator_angle).to be_nil
       end
 
       it "should by default set the 'collimator_direction' attribute as nil" do
-        @cp.collimator_direction.should be_nil
+        expect(@cp.collimator_direction).to be_nil
       end
 
       it "should by default set the 'energy' attribute as nil" do
-        @cp.energy.should be_nil
+        expect(@cp.energy).to be_nil
       end
 
       it "should by default set the 'gantry_angle' attribute as nil" do
-        @cp.gantry_angle.should be_nil
+        expect(@cp.gantry_angle).to be_nil
       end
 
       it "should by default set the 'gantry_direction' attribute as nil" do
-        @cp.gantry_direction.should be_nil
+        expect(@cp.gantry_direction).to be_nil
       end
 
       it "should by default set the 'iso' attribute as nil" do
-        @cp.iso.should be_nil
+        expect(@cp.iso).to be_nil
       end
 
       it "should by default set the 'pedestal_angle' attribute as nil" do
-        @cp.pedestal_angle.should be_nil
+        expect(@cp.pedestal_angle).to be_nil
       end
 
       it "should by default set the 'pedestal_direction' attribute as nil" do
-        @cp.pedestal_direction.should be_nil
+        expect(@cp.pedestal_direction).to be_nil
       end
 
       it "should by default set the 'ssd' attribute as nil" do
-        @cp.ssd.should be_nil
+        expect(@cp.ssd).to be_nil
       end
 
       it "should by default set the 'table_top_angle' attribute as nil" do
-        @cp.table_top_angle.should be_nil
+        expect(@cp.table_top_angle).to be_nil
       end
 
       it "should by default set the 'table_top_direction' attribute as nil" do
-        @cp.table_top_direction.should be_nil
+        expect(@cp.table_top_direction).to be_nil
       end
 
       it "should by default set the 'table_top_lateral' attribute as nil" do
-        @cp.table_top_lateral.should be_nil
+        expect(@cp.table_top_lateral).to be_nil
       end
 
       it "should by default set the 'table_top_vertical' attribute as nil" do
-        @cp.table_top_vertical.should be_nil
+        expect(@cp.table_top_vertical).to be_nil
       end
 
       it "should by default set the 'table_top_longitudinal' attribute as nil" do
-        @cp.table_top_longitudinal.should be_nil
+        expect(@cp.table_top_longitudinal).to be_nil
       end
 
       it "should add the ControlPoint instance to the referenced Beam" do
-        @beam.control_point.should eql @cp
+        expect(@beam.control_point).to eql @cp
       end
 
     end
@@ -212,16 +212,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         cp_other = ControlPoint.new(@index, @cum_meterset, @beam)
-        (@cp == cp_other).should be_true
+        expect(@cp == cp_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         cp_other = ControlPoint.new(99, @cum_meterset, @beam)
-        (@cp == cp_other).should be_false
+        expect(@cp == cp_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@cp == 42).should be_false
+        expect(@cp == 42).to be_false
       end
 
     end
@@ -237,8 +237,8 @@ module RTKIT
         cp_other = ControlPoint.new(3, 0.45, @beam)
         coll = CollimatorSetup.new('ASYMX', [[-10.0, 10.0]], cp_other)
         @cp.add_collimator(coll)
-        @cp.collimators.size.should eql 1
-        @cp.collimators.first.should eql coll
+        expect(@cp.collimators.size).to eql 1
+        expect(@cp.collimators.first).to eql coll
       end
 
       it "should add the Collimator to the ControlPoint instance already containing a Collimator" do
@@ -246,16 +246,16 @@ module RTKIT
         coll1 = CollimatorSetup.new('ASYMX', [[-10.0, 10.0]], @cp)
         coll2 = CollimatorSetup.new('ASYMY', [[-15.0, 15.0]], cp_other)
         @cp.add_collimator(coll2)
-        @cp.collimators.size.should eql 2
-        @cp.collimators.first.should eql coll1
-        @cp.collimators.last.should eql coll2
+        expect(@cp.collimators.size).to eql 2
+        expect(@cp.collimators.first).to eql coll1
+        expect(@cp.collimators.last).to eql coll2
       end
 
       it "should not add multiple entries of the same Collimator" do
         coll = CollimatorSetup.new('ASYMX', [[-10.0, 10.0]], @cp)
         @cp.add_collimator(coll)
-        @cp.collimators.size.should eql 1
-        @cp.collimators.first.should eql coll
+        expect(@cp.collimators.size).to eql 1
+        expect(@cp.collimators.first).to eql coll
       end
 
     end
@@ -273,13 +273,13 @@ module RTKIT
       end
 
       it "should return the first collimator setup when no arguments are used" do
-        @cp.collimator.should eql @cp.collimators.first
+        expect(@cp.collimator).to eql @cp.collimators.first
       end
 
       it "should return the the matching CollimatorSetup when a type string is supplied" do
         type = "ASYMY"
         coll = @cp.collimator(type)
-        coll.type.should eql type
+        expect(coll.type).to eql type
       end
 
     end
@@ -290,7 +290,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 45.0
         @cp.collimator_angle = value
-        @cp.collimator_angle.should eql value
+        expect(@cp.collimator_angle).to eql value
       end
 
     end
@@ -301,7 +301,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'CW'
         @cp.collimator_direction = value
-        @cp.collimator_direction.should eql value
+        expect(@cp.collimator_direction).to eql value
       end
 
     end
@@ -312,7 +312,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 1.0
         @cp.cum_meterset = value
-        @cp.cum_meterset.should eql value
+        expect(@cp.cum_meterset).to eql value
       end
 
     end
@@ -323,7 +323,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 6.0
         @cp.energy = value
-        @cp.energy.should eql value
+        expect(@cp.energy).to eql value
       end
 
     end
@@ -333,12 +333,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         cp_other = ControlPoint.new(@index, @cum_meterset, @beam)
-        @cp.eql?(cp_other).should be_true
+        expect(@cp.eql?(cp_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         cp_other = ControlPoint.new(99, @cum_meterset, @beam)
-        @cp.eql?(cp_other).should be_false
+        expect(@cp.eql?(cp_other)).to be_false
       end
 
     end
@@ -349,7 +349,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 90.0
         @cp.gantry_angle = value
-        @cp.gantry_angle.should eql value
+        expect(@cp.gantry_angle).to eql value
       end
 
     end
@@ -360,7 +360,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'CCW'
         @cp.gantry_direction = value
-        @cp.gantry_direction.should eql value
+        expect(@cp.gantry_direction).to eql value
       end
 
     end
@@ -370,13 +370,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         cp_other = ControlPoint.new(@index, @cum_meterset, @beam)
-        @cp.hash.should be_a Fixnum
-        @cp.hash.should eql cp_other.hash
+        expect(@cp.hash).to be_a Fixnum
+        expect(@cp.hash).to eql cp_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         cp_other = ControlPoint.new(99, @cum_meterset, @beam)
-        @cp.hash.should_not eql cp_other.hash
+        expect(@cp.hash).not_to eql cp_other.hash
       end
 
     end
@@ -387,7 +387,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 3
         @cp.index = value
-        @cp.index.should eql value
+        expect(@cp.index).to eql value
       end
 
     end
@@ -398,7 +398,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = "45.0\\-5.5\\0.0"
         @cp.iso = value
-        @cp.iso.should eql value.to_coordinate
+        expect(@cp.iso).to eql value.to_coordinate
       end
 
     end
@@ -409,7 +409,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 33.3
         @cp.pedestal_angle = value
-        @cp.pedestal_angle.should eql value
+        expect(@cp.pedestal_angle).to eql value
       end
 
     end
@@ -420,7 +420,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'CW'
         @cp.pedestal_direction = value
-        @cp.pedestal_direction.should eql value
+        expect(@cp.pedestal_direction).to eql value
       end
 
     end
@@ -431,7 +431,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 999.9
         @cp.ssd = value
-        @cp.ssd.should eql value
+        expect(@cp.ssd).to eql value
       end
 
     end
@@ -442,7 +442,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 0.0
         @cp.table_top_angle = value
-        @cp.table_top_angle.should eql value
+        expect(@cp.table_top_angle).to eql value
       end
 
     end
@@ -453,7 +453,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'CCW'
         @cp.table_top_direction = value
-        @cp.table_top_direction.should eql value
+        expect(@cp.table_top_direction).to eql value
       end
 
     end
@@ -464,7 +464,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 2.2
         @cp.table_top_lateral = value
-        @cp.table_top_lateral.should eql value
+        expect(@cp.table_top_lateral).to eql value
       end
 
     end
@@ -475,7 +475,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 65.0
         @cp.table_top_longitudinal = value
-        @cp.table_top_longitudinal.should eql value
+        expect(@cp.table_top_longitudinal).to eql value
       end
 
     end
@@ -486,7 +486,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = -4.0
         @cp.table_top_vertical = value
-        @cp.table_top_vertical.should eql value
+        expect(@cp.table_top_vertical).to eql value
       end
 
     end
@@ -495,7 +495,7 @@ module RTKIT
     context "#to_control_point" do
 
       it "should return itself" do
-        @cp.to_control_point.equal?(@cp).should be_true
+        expect(@cp.to_control_point.equal?(@cp)).to be_true
       end
 
     end

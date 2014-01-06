@@ -27,43 +27,43 @@ module RTKIT
       end
 
       it "should pass the 'delta_x' argument to the 'delta_x' attribute" do
-        @vs.delta_x.should eql @delta_x
+        expect(@vs.delta_x).to eql @delta_x
       end
 
       it "should pass the 'delta_y' argument to the 'delta_y' attribute" do
-        @vs.delta_y.should eql @delta_y
+        expect(@vs.delta_y).to eql @delta_y
       end
 
       it "should pass the 'delta_z' argument to the 'delta_z' attribute" do
-        @vs.delta_z.should eql @delta_z
+        expect(@vs.delta_z).to eql @delta_z
       end
 
       it "should pass the 'pos' argument to the 'pos' attribute" do
-        @vs.pos.should eql @pos
+        expect(@vs.pos).to eql @pos
       end
 
       it "should pass the 'nx' argument to the 'nx' attribute" do
-        @vs.nx.should eql @nx
+        expect(@vs.nx).to eql @nx
       end
 
       it "should pass the 'ny' argument to the 'ny' attribute" do
-        @vs.ny.should eql @ny
+        expect(@vs.ny).to eql @ny
       end
 
       it "should pass the 'nz' argument to the 'nz' attribute" do
-        @vs.nz.should eql @nz
+        expect(@vs.nz).to eql @nz
       end
 
       it "should alias 'columns' to the 'nx' attribute" do
-        @vs.columns.should eql @nx
+        expect(@vs.columns).to eql @nx
       end
 
       it "should alias 'rows' to the 'ny' attribute" do
-        @vs.rows.should eql @ny
+        expect(@vs.rows).to eql @ny
       end
 
       it "should alias 'slices' to the 'nz' attribute" do
-        @vs.slices.should eql @nz
+        expect(@vs.slices).to eql @nz
       end
 
     end
@@ -73,22 +73,22 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vs_other = VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, @pos)
-        (@vs == vs_other).should be_true
+        expect(@vs == vs_other).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         vs_other = VoxelSpace.create(3, 3, 3, 1, 1, 1, Coordinate.new(0, 0, 0))
-        (@vs == vs_other).should be_false
+        expect(@vs == vs_other).to be_false
       end
 
       it "should be false when comparing two instances with the same attributes, but different voxel values" do
         vs_other = VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, @pos)
         vs_other[0] = 1
-        (@vs == vs_other).should be_false
+        expect(@vs == vs_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@vs == 42).should be_false
+        expect(@vs == 42).to be_false
       end
 
     end
@@ -100,7 +100,7 @@ module RTKIT
         n = 4
         vs = VoxelSpace.new(3, n, n, n)
         vs.delta_x = @delta_x
-        vs.delta_x.should eql @delta_x
+        expect(vs.delta_x).to eql @delta_x
       end
 
     end
@@ -111,7 +111,7 @@ module RTKIT
         n = 4
         vs = VoxelSpace.new(3, n, n, n)
         vs.delta_y = @delta_y
-        vs.delta_y.should eql @delta_y
+        expect(vs.delta_y).to eql @delta_y
       end
 
     end
@@ -122,7 +122,7 @@ module RTKIT
         n = 4
         vs = VoxelSpace.new(3, n, n, n)
         vs.delta_z = @delta_z
-        vs.delta_z.should eql @delta_z
+        expect(vs.delta_z).to eql @delta_z
       end
 
     end
@@ -132,12 +132,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vs_other = VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, @pos)
-        @vs.eql?(vs_other).should be_true
+        expect(@vs.eql?(vs_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         vs_other = VoxelSpace.create(3, 3, 3, 1, 1, 1, Coordinate.new(0, 0, 0))
-        @vs.eql?(vs_other).should be_false
+        expect(@vs.eql?(vs_other)).to be_false
       end
 
     end
@@ -147,13 +147,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         vs_other = VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, @pos)
-        @vs.hash.should be_a Fixnum
-        @vs.hash.should eql vs_other.hash
+        expect(@vs.hash).to be_a Fixnum
+        expect(@vs.hash).to eql vs_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         vs_other = VoxelSpace.create(3, 3, 3, 1, 1, 1, Coordinate.new(0, 0, 0))
-        @vs.hash.should_not eql vs_other.hash
+        expect(@vs.hash).not_to eql vs_other.hash
       end
 
     end
@@ -169,7 +169,7 @@ module RTKIT
         n = 4
         vs = VoxelSpace.new(3, n, n, n)
         vs.pos = @pos
-        vs.pos.should eql @pos
+        expect(vs.pos).to eql @pos
       end
 
     end
@@ -178,7 +178,7 @@ module RTKIT
     context "#to_voxel_space" do
 
       it "should return itself" do
-        @vs.to_voxel_space.equal?(@vs).should be_true
+        expect(@vs.to_voxel_space.equal?(@vs)).to be_true
       end
 
     end

@@ -27,11 +27,11 @@ module RTKIT
         [FILE_IMAGE, FILE_STRUCT].collect {|f| objects << DICOM::DObject.read(f)}
         ds = DataSet.load(objects)
         is = ds.patient.study.iseries
-        is.class.should eql ImageSeries
-        is.structs.class.should eql Array
-        is.structs.first.class.should eql StructureSet
-        is.structs.first.image_series.class.should eql Array
-        is.structs.first.image_series.first.class.should eql ImageSeries
+        expect(is.class).to eql ImageSeries
+        expect(is.structs.class).to eql Array
+        expect(is.structs.first.class).to eql StructureSet
+        expect(is.structs.first.image_series.class).to eql Array
+        expect(is.structs.first.image_series.first.class).to eql ImageSeries
       end
 
       it "should properly connect a image series and a structure set when the structure set series is loaded first" do
@@ -39,11 +39,11 @@ module RTKIT
         [FILE_STRUCT, FILE_IMAGE].collect {|f| objects << DICOM::DObject.read(f)}
         ds = DataSet.load(objects)
         is = ds.patient.study.iseries
-        is.class.should eql ImageSeries
-        is.structs.class.should eql Array
-        is.structs.first.class.should eql StructureSet
-        is.structs.first.image_series.class.should eql Array
-        is.structs.first.image_series.first.class.should eql ImageSeries
+        expect(is.class).to eql ImageSeries
+        expect(is.structs.class).to eql Array
+        expect(is.structs.first.class).to eql StructureSet
+        expect(is.structs.first.image_series.class).to eql Array
+        expect(is.structs.first.image_series.first.class).to eql ImageSeries
       end
 
     end
@@ -52,11 +52,11 @@ module RTKIT
     context "::new" do
 
       it "should by default set the 'frames' attribute as an empty array" do
-        @ds.frames.should eql Array.new
+        expect(@ds.frames).to eql Array.new
       end
 
       it "should by default set the 'patients' attribute as an empty array" do
-        @ds.patients.should eql Array.new
+        expect(@ds.patients).to eql Array.new
       end
 
     end
@@ -83,12 +83,12 @@ module RTKIT
 
       it "should successfully load a folder containing only an image" do
         ds = DataSet.read(DIR_IMAGE_ONLY)
-        ds.should be_a DataSet
+        expect(ds).to be_a DataSet
       end
 
       it "should successfully load a folder containing only a Structure Set" do
         ds = DataSet.read(DIR_STRUCT_ONLY)
-        ds.should be_a DataSet
+        expect(ds).to be_a DataSet
       end
 
     end
@@ -98,17 +98,17 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ds_other = DataSet.new
-        (@ds == ds_other).should be_true
+        expect(@ds == ds_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         ds_other = DataSet.new
         Patient.new('John', '12345', ds_other)
-        (@ds == ds_other).should be_false
+        expect(@ds == ds_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@ds == 42).should be_false
+        expect(@ds == 42).to be_false
       end
 
     end
@@ -124,8 +124,8 @@ module RTKIT
         p = Patient.new('John', '12345', @ds)
         frame = Frame.new('1.234', p)
         @ds.add_frame(frame)
-        @ds.frames.size.should eql 1
-        @ds.frames.should eql [frame]
+        expect(@ds.frames.size).to eql 1
+        expect(@ds.frames).to eql [frame]
       end
 
       it "should add the Frame to the DataSet instance already containing frame(s)" do
@@ -134,8 +134,8 @@ module RTKIT
         previous_size = ds.frames.size
         frame = Frame.new('1.234', p)
         ds.add_frame(frame)
-        ds.frames.size.should eql previous_size + 1
-        ds.frames.last.should eql frame
+        expect(ds.frames.size).to eql previous_size + 1
+        expect(ds.frames.last).to eql frame
       end
 
     end
@@ -151,8 +151,8 @@ module RTKIT
         ds_other = DataSet.new
         pat = Patient.new('John', '12345', ds_other)
         @ds.add_patient(pat)
-        @ds.patients.size.should eql 1
-        @ds.patient(pat.id).should eql pat
+        expect(@ds.patients.size).to eql 1
+        expect(@ds.patient(pat.id)).to eql pat
       end
 
       it "should add the Patient to the DataSet instance already containing patient(s)" do
@@ -160,15 +160,15 @@ module RTKIT
         previous_size = ds.patients.size
         pat = Patient.new('John', '12345', ds)
         ds.add_patient(pat)
-        ds.patients.size.should eql previous_size + 1
-        ds.patients.last.should eql pat
+        expect(ds.patients.size).to eql previous_size + 1
+        expect(ds.patients.last).to eql pat
       end
 
       it "should not add multiple entries of the same Patient" do
         pat = Patient.new('John', '12345', @ds) # added once
         @ds.add_patient(pat) # trying to add second time
-        @ds.patients.size.should eql 1
-        @ds.patient(pat.id).should eql pat
+        expect(@ds.patients.size).to eql 1
+        expect(@ds.patient(pat.id)).to eql pat
       end
 
     end
@@ -178,13 +178,13 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ds_other = DataSet.new
-        @ds.eql?(ds_other).should be_true
+        expect(@ds.eql?(ds_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         ds_other = DataSet.new
         Patient.new('John', '12345', ds_other)
-        @ds.eql?(ds_other).should be_false
+        expect(@ds.eql?(ds_other)).to be_false
       end
 
     end
@@ -209,12 +209,12 @@ module RTKIT
       end
 
       it "should return the first Frame when no arguments are used" do
-        @ds.frame.should eql @ds.frames.first
+        expect(@ds.frame).to eql @ds.frames.first
       end
 
       it "should return the the matching Frame when a UID string is supplied" do
         frame = @ds.frame(@uid2)
-        frame.uid.should eql @uid2
+        expect(frame.uid).to eql @uid2
       end
 
     end
@@ -224,14 +224,14 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         ds_other = DataSet.new
-        @ds.hash.should be_a Fixnum
-        @ds.hash.should eql ds_other.hash
+        expect(@ds.hash).to be_a Fixnum
+        expect(@ds.hash).to eql ds_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         ds_other = DataSet.new
         Patient.new('John', '12345', ds_other)
-        @ds.hash.should_not eql ds_other.hash
+        expect(@ds.hash).not_to eql ds_other.hash
       end
 
     end
@@ -255,12 +255,12 @@ module RTKIT
       end
 
       it "should return the first Patient when no arguments are used" do
-        @ds.patient.should eql @ds.patients.first
+        expect(@ds.patient).to eql @ds.patients.first
       end
 
       it "should return the the matching Patient when an ID string is supplied" do
         patient = @ds.patient(@id2)
-        patient.id.should eql @id2
+        expect(patient.id).to eql @id2
       end
 
     end
@@ -269,7 +269,7 @@ module RTKIT
     context "#to_data_set" do
 
       it "should return itself" do
-        @ds.to_data_set.equal?(@ds).should be_true
+        expect(@ds.to_data_set.equal?(@ds)).to be_true
       end
 
     end

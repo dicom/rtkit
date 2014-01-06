@@ -30,38 +30,38 @@ module RTKIT
 
       it "should by default set the 'image_series' attribute as an empty array" do
         f = Frame.new(@uid, @p)
-        f.image_series.should eql Array.new
+        expect(f.image_series).to eql Array.new
       end
 
       it "should by default set the 'rois' attribute as an empty array" do
-        @f.structures.should eql Array.new
+        expect(@f.structures).to eql Array.new
       end
 
       it "should by default set the 'indicator' attribute as nil" do
-        @f.indicator.should be_nil
+        expect(@f.indicator).to be_nil
       end
 
       it "should pass the 'uid' argument to the 'uid' attribute" do
-        @f.uid.should eql @uid
+        expect(@f.uid).to eql @uid
       end
 
       it "should pass the 'patient' argument to the 'patient' attribute" do
-        @f.patient.should eql @p
+        expect(@f.patient).to eql @p
       end
 
       it "should pass the optional 'indicator' argument to the 'indicator' attribute" do
         f = Frame.new(@uid, @p, :indicator => @indicator)
-        f.indicator.should eql @indicator
+        expect(f.indicator).to eql @indicator
       end
 
       it "should add the Frame instance (once) to the referenced Patient" do
-        @f.patient.frames.length.should eql 1
-        @f.patient.frame(@f.uid).should eql @f
+        expect(@f.patient.frames.length).to eql 1
+        expect(@f.patient.frame(@f.uid)).to eql @f
       end
 
       it "should add the Frame instance (once) to the DataSet which is referenced through the Patient reference" do
-        @f.patient.dataset.frames.length.should eql 1
-        @f.patient.dataset.frame(@f.uid).should eql @f
+        expect(@f.patient.dataset.frames.length).to eql 1
+        expect(@f.patient.dataset.frame(@f.uid)).to eql @f
       end
 
     end
@@ -72,16 +72,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         f = Frame.new(@uid, @p)
         f_other = Frame.new(@uid, @p)
-        (f == f_other).should be_true
+        expect(f == f_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         f_other = Frame.new('1.2.99', @p)
-        (@f == f_other).should be_false
+        expect(@f == f_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@f == 42).should be_false
+        expect(@f == 42).to be_false
       end
 
     end
@@ -96,8 +96,8 @@ module RTKIT
       it "should add the ImageSeries to the series-less Frame instance" do
         f = Frame.new('1.76.888', @p)
         f.add_series(@is)
-        f.image_series.size.should eql 1
-        f.image_series.first.should eql @is
+        expect(f.image_series.size).to eql 1
+        expect(f.image_series.first).to eql @is
       end
 
       it "should add the ImageSeries to the Frame instance already containing one or more ImageSeries" do
@@ -105,8 +105,8 @@ module RTKIT
         f = ds.frame
         previous_size = f.image_series.size
         f.add_series(@is)
-        f.image_series.size.should eql previous_size + 1
-        f.image_series.last.should eql @is
+        expect(f.image_series.size).to eql previous_size + 1
+        expect(f.image_series.last).to eql @is
       end
 
     end
@@ -121,14 +121,14 @@ module RTKIT
       it "should add the Image to the image-less Frame instance" do
         f = Frame.new('1.76.888', @p)
         f.add_image(@img)
-        f.image(@img.uid).should eql @img
+        expect(f.image(@img.uid)).to eql @img
       end
 
       it "should add the Image to the Frame instance already containing one or more images" do
         ds = DataSet.read(DIR_IMAGE_ONLY)
         f = ds.frame
         f.add_image(@img)
-        f.image(@img.uid).should eql @img
+        expect(f.image(@img.uid)).to eql @img
       end
 
     end
@@ -149,8 +149,8 @@ module RTKIT
         f = Frame.new('1.76.888', @p)
         roi = ROI.new('Brain', 10, @f, @ss)
         f.add_structure(roi)
-        f.structures.size.should eql 1
-        f.structures.first.should eql roi
+        expect(f.structures.size).to eql 1
+        expect(f.structures.first).to eql roi
       end
 
       it "should add the ROI to the Frame instance already containing one or more ROIs" do
@@ -159,15 +159,15 @@ module RTKIT
         roi = ROI.new('Brain', 10, @f, @ss)
         previous_size = f.structures.size
         f.add_structure(roi)
-        f.structures.size.should eql previous_size + 1
-        f.structures.last.should eql roi
+        expect(f.structures.size).to eql previous_size + 1
+        expect(f.structures.last).to eql roi
       end
 
       it "should not add multiple entries of the same ROI" do
         roi = ROI.new('Brain', 10, @f, @ss)
         @f.add_structure(roi)
-        @f.structures.size.should eql 1
-        @f.structures.first.should eql roi
+        expect(@f.structures.size).to eql 1
+        expect(@f.structures.first).to eql roi
       end
 
     end
@@ -178,12 +178,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         f = Frame.new(@uid, @p)
         f_other = Frame.new(@uid, @p)
-        f.eql?(f_other).should be_true
+        expect(f.eql?(f_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         f_other = Frame.new('1.2.99', @p)
-        @f.eql?(f_other).should be_false
+        expect(@f.eql?(f_other)).to be_false
       end
 
     end
@@ -194,13 +194,13 @@ module RTKIT
       it "should return the same Fixnum for two instances having the same attribute values" do
         f = Frame.new(@uid, @p)
         f_other = Frame.new(@uid, @p)
-        f.hash.should be_a Fixnum
-        f.hash.should eql f_other.hash
+        expect(f.hash).to be_a Fixnum
+        expect(f.hash).to eql f_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         f_other = Frame.new('1.2.99', @p)
-        @f.hash.should_not eql f_other.hash
+        expect(@f.hash).not_to eql f_other.hash
       end
 
     end
@@ -226,12 +226,12 @@ module RTKIT
       end
 
       it "should return the first Image of the Frame's first ImageSeries when no arguments are used" do
-        @f.image.should eql @f.image_series.first.images.first
+        expect(@f.image).to eql @f.image_series.first.images.first
       end
 
       it "should return the matching Image when a UID string is supplied" do
         image = @f.image(@uid2)
-        image.uid.should eql @uid2
+        expect(image.uid).to eql @uid2
       end
 
     end
@@ -256,12 +256,12 @@ module RTKIT
       end
 
       it "should return the first ImageSeries when no arguments are used" do
-        @f.series.should eql @f.image_series.first
+        expect(@f.series).to eql @f.image_series.first
       end
 
       it "should return the matching ImageSeries when a UID string is supplied" do
         series = @f.series(@uid2)
-        series.uid.should eql @uid2
+        expect(series.uid).to eql @uid2
       end
 
     end
@@ -270,7 +270,7 @@ module RTKIT
     context "#to_frame" do
 
       it "should return itself" do
-        @f.to_frame.equal?(@f).should be_true
+        expect(@f.to_frame.equal?(@f)).to be_true
       end
 
     end

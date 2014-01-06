@@ -42,35 +42,35 @@ module RTKIT
 
       it "should create a RTDose instance with attributes taken from the DICOM Object" do
         dose = RTDose.load(@dcm, @st)
-        dose.series_uid.should eql @dcm.value('0020,000E')
-        dose.modality.should eql @dcm.value('0008,0060')
-        dose.class_uid.should eql @dcm.value('0008,0016')
-        dose.date.should eql @dcm.value('0008,0021')
-        dose.time.should eql @dcm.value('0008,0031')
-        dose.description.should eql @dcm.value('0008,103E')
+        expect(dose.series_uid).to eql @dcm.value('0020,000E')
+        expect(dose.modality).to eql @dcm.value('0008,0060')
+        expect(dose.class_uid).to eql @dcm.value('0008,0016')
+        expect(dose.date).to eql @dcm.value('0008,0021')
+        expect(dose.time).to eql @dcm.value('0008,0031')
+        expect(dose.description).to eql @dcm.value('0008,103E')
       end
 
       it "should create a RTDose instance which is properly referenced to its study" do
         dose = RTDose.load(@dcm, @st)
-        dose.study.should eql @st
+        expect(dose.study).to eql @st
       end
 
       it "should set up a Plan reference when no corresponding Plan have been loaded" do
         dose = RTDose.load(@dcm, @st)
-        dose.plan.should be_a Plan
+        expect(dose.plan).to be_a Plan
       end
 
       it "should ignore the 'empty' dose volume amongst the three 'real volumes' (in this case exported from the Oncentra TPS)" do
         ds = DataSet.read(DIR_SIMPLE_PHANTOM_CASE)
         dose = ds.patient.study.iseries.struct.plan.rt_dose
         # This case contains 3 beams and 3 corresponding dose volumes, and an additional 'empty' volume:
-        dose.volumes.length.should eql 3
+        expect(dose.volumes.length).to eql 3
       end
 
       it "should ignore the single 'empty' dose volume (in this case exported from the Oncentra TPS)" do
         dcm = DICOM::DObject.read(FILE_EMPTY_DOSE)
         dose = RTDose.load(dcm, @st)
-        dose.volumes.length.should eql 0
+        expect(dose.volumes.length).to eql 0
       end
 
     end
@@ -87,55 +87,55 @@ module RTKIT
       end
 
       it "should by default set the 'volumes' attribute as an empty array" do
-        @dose.volumes.should eql Array.new
+        expect(@dose.volumes).to eql Array.new
       end
 
       it "should by default set the 'modality' attribute equal as 'RTDOSE'" do
-        @dose.modality.should eql 'RTDOSE'
+        expect(@dose.modality).to eql 'RTDOSE'
       end
 
       it "should by default set the 'class_uid' attribute equal to the RT Dose Storage Class UID" do
-        @dose.class_uid.should eql '1.2.840.10008.5.1.4.1.1.481.2'
+        expect(@dose.class_uid).to eql '1.2.840.10008.5.1.4.1.1.481.2'
       end
 
       it "should by default set the 'date' attribute as nil" do
-        @dose.date.should be_nil
+        expect(@dose.date).to be_nil
       end
 
       it "should by default set the 'time' attribute as nil" do
-        @dose.time.should be_nil
+        expect(@dose.time).to be_nil
       end
 
       it "should by default set the 'description' attribute as nil" do
-        @dose.description.should be_nil
+        expect(@dose.description).to be_nil
       end
 
       it "should pass the 'series_uid' argument to the 'series_uid' attribute" do
-        @dose.series_uid.should eql @uid
+        expect(@dose.series_uid).to eql @uid
       end
 
       it "should pass the 'plan' argument to the 'plan' attribute" do
-        @dose.plan.should eql @plan
+        expect(@dose.plan).to eql @plan
       end
 
       it "should pass the optional 'date' argument to the 'date' attribute" do
         dose = RTDose.new(@uid, @plan, :date => @date)
-        dose.date.should eql @date
+        expect(dose.date).to eql @date
       end
 
       it "should pass the optional 'time' argument to the 'time' attribute" do
         dose = RTDose.new(@uid, @plan, :time => @time)
-        dose.time.should eql @time
+        expect(dose.time).to eql @time
       end
 
       it "should pass the optional 'description' argument to the 'description' attribute" do
         dose = RTDose.new(@uid, @plan, :description => @description)
-        dose.description.should eql @description
+        expect(dose.description).to eql @description
       end
 
       it "should add the Dose instance (once) to the referenced Plan" do
-        @dose.plan.rt_doses.length.should eql 1
-        @dose.plan.rt_doses.first.should eql @dose
+        expect(@dose.plan.rt_doses.length).to eql 1
+        expect(@dose.plan.rt_doses.first).to eql @dose
       end
 
     end
@@ -145,16 +145,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dose_other = RTDose.new(@uid, @plan)
-        (@dose == dose_other).should be_true
+        expect(@dose == dose_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         dose_other = RTDose.new('1.7.99', @plan)
-        (@dose == dose_other).should be_false
+        expect(@dose == dose_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@dose == 42).should be_false
+        expect(@dose == 42).to be_false
       end
 
     end
@@ -170,8 +170,8 @@ module RTKIT
         dose_other = RTDose.new('1.23.787', @plan)
         vol = DoseVolume.new('1.45.876', @f, dose_other)
         @dose.add_volume(vol)
-        @dose.volumes.size.should eql 1
-        @dose.volumes.first.should eql vol
+        expect(@dose.volumes.size).to eql 1
+        expect(@dose.volumes.first).to eql vol
       end
 
       it "should add the Volume to the RTDose instance already containing one or more volumes" do
@@ -180,15 +180,15 @@ module RTKIT
         previous_size = dose.volumes.size
         vol = DoseVolume.new('1.45.876', @f, @dose)
         dose.add_volume(vol)
-        dose.volumes.size.should eql previous_size + 1
-        dose.volumes.last.should eql vol
+        expect(dose.volumes.size).to eql previous_size + 1
+        expect(dose.volumes.last).to eql vol
       end
 
       it "should not add multiple entries of the same DoseVolume" do
         vol = DoseVolume.new('1.45.876', @f, @dose)
         @dose.add_volume(vol)
-        @dose.volumes.size.should eql 1
-        @dose.volumes.first.should eql vol
+        expect(@dose.volumes.size).to eql 1
+        expect(@dose.volumes.first).to eql vol
       end
 
     end
@@ -198,12 +198,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dose_other = RTDose.new(@uid, @plan)
-        @dose.eql?(dose_other).should be_true
+        expect(@dose.eql?(dose_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         dose_other = RTDose.new('1.7.99', @plan)
-        @dose.eql?(dose_other).should be_false
+        expect(@dose.eql?(dose_other)).to be_false
       end
 
     end
@@ -213,13 +213,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         dose_other = RTDose.new(@uid, @plan)
-        @dose.hash.should be_a Fixnum
-        @dose.hash.should eql dose_other.hash
+        expect(@dose.hash).to be_a Fixnum
+        expect(@dose.hash).to eql dose_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         dose_other = RTDose.new('1.7.99', @plan)
-        @dose.hash.should_not eql dose_other.hash
+        expect(@dose.hash).not_to eql dose_other.hash
       end
 
     end
@@ -254,13 +254,13 @@ module RTKIT
 
       it "should return a DoseVolume which is a proper sum of the beam dose volumes" do
         sum = @dose.sum
-        sum.class.should eql DoseVolume
-        sum.images.length.should eql 2
-        sum.scaling.should be_a Float
-        sum.scaling.should be > 0.0
-        sum.narray.shape.should eql @vol1.narray.shape
+        expect(sum.class).to eql DoseVolume
+        expect(sum.images.length).to eql 2
+        expect(sum.scaling).to be_a Float
+        expect(sum.scaling).to be > 0.0
+        expect(sum.narray.shape).to eql @vol1.narray.shape
         # Because of float precision we can't expect perfect equality. We are satisfied if the result is within a small threshold:
-        (sum.dose_arr - (@vol1.dose_arr + @vol2.dose_arr)).abs.max.should < 0.001
+        expect((sum.dose_arr - (@vol1.dose_arr + @vol2.dose_arr)).abs.max).to be < 0.001
       end
 
     end
@@ -269,7 +269,7 @@ module RTKIT
     context "#to_rt_dose" do
 
       it "should return itself" do
-        @dose.to_rt_dose.equal?(@dose).should be_true
+        expect(@dose.to_rt_dose.equal?(@dose)).to be_true
       end
 
     end
@@ -293,12 +293,12 @@ module RTKIT
       end
 
       it "should return the first DoseVolume when no arguments are used" do
-        @dose.volume.should eql @dose.volumes.first
+        expect(@dose.volume).to eql @dose.volumes.first
       end
 
       it "should return the matching DoseVolume when a UID string is supplied" do
         vol = @dose.volume(@uid2)
-        vol.uid.should eql @uid2
+        expect(vol.uid).to eql @uid2
       end
 
     end

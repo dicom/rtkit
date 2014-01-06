@@ -37,37 +37,37 @@ module RTKIT
 
       it "should set the Setup's 'position' attribute equal to the value found in the Setup Item" do
         s = Setup.create_from_item(@setup_item, @plan)
-        s.position.should eql @setup_item.value('0018,5100')
+        expect(s.position).to eql @setup_item.value('0018,5100')
       end
 
       it "should set the Setup's 'number' attribute equal to the value found in the Setup Item" do
         s = Setup.create_from_item(@setup_item, @plan)
-        s.number.should eql @setup_item.value('300A,0182').to_i
+        expect(s.number).to eql @setup_item.value('300A,0182').to_i
       end
 
       it "should set the Setup's 'technique' attribute equal to the value found in the Setup Item" do
         s = Setup.create_from_item(@setup_item, @plan)
-        s.technique.should eql @setup_item.value('300A,01B0')
+        expect(s.technique).to eql @setup_item.value('300A,01B0')
       end
 
       it "should set the Setup's 'offset_vertical' attribute equal to the value found in the Setup Item" do
         s = Setup.create_from_item(@setup_item, @plan)
-        s.offset_vertical.should eql @setup_item.value('300A,01D2').to_f
+        expect(s.offset_vertical).to eql @setup_item.value('300A,01D2').to_f
       end
 
       it "should set the Setup's 'offset_longitudinal' attribute equal to the value found in the Setup Item" do
         s = Setup.create_from_item(@setup_item, @plan)
-        s.offset_longitudinal.should eql @setup_item.value('300A,01D4').to_f
+        expect(s.offset_longitudinal).to eql @setup_item.value('300A,01D4').to_f
       end
 
       it "should set the Setup's 'offset_lateral' attribute equal to the value found in the Setup Item" do
         s = Setup.create_from_item(@setup_item, @plan)
-        s.offset_lateral.should eql @setup_item.value('300A,01D6').to_f
+        expect(s.offset_lateral).to eql @setup_item.value('300A,01D6').to_f
       end
 
       it "should set the 'plan' argument as the Setup's 'plan' attribute" do
         s = Setup.create_from_item(@setup_item, @plan)
-        s.plan.should eql @plan
+        expect(s.plan).to eql @plan
       end
 
     end
@@ -104,31 +104,31 @@ module RTKIT
       end
 
       it "should pass the 'position' argument to the 'position' attribute" do
-        @s.position.should eql @position
+        expect(@s.position).to eql @position
       end
 
       it "should pass the 'number' argument to the 'number' attribute" do
-        @s.number.should eql @number
+        expect(@s.number).to eql @number
       end
 
       it "should by default set the 'technique' attribute as nil" do
-        @s.technique.should be_nil
+        expect(@s.technique).to be_nil
       end
 
       it "should by default set the 'offset_vertical' attribute as nil" do
-        @s.offset_vertical.should be_nil
+        expect(@s.offset_vertical).to be_nil
       end
 
       it "should by default set the 'offset_longitudinal' attribute as nil" do
-        @s.offset_longitudinal.should be_nil
+        expect(@s.offset_longitudinal).to be_nil
       end
 
       it "should by default set the 'offset_lateral' attribute as nil" do
-        @s.offset_lateral.should be_nil
+        expect(@s.offset_lateral).to be_nil
       end
 
       it "should add the Setup instance to the referenced Plan" do
-        @plan.setup.should eql @s
+        expect(@plan.setup).to eql @s
       end
 
     end
@@ -138,16 +138,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         s_other = Setup.new(@position, @number, @plan)
-        (@s == s_other).should be_true
+        expect(@s == s_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         s_other = Setup.new('FFP', @number, @plan)
-        (@s == s_other).should be_false
+        expect(@s == s_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@s == 42).should be_false
+        expect(@s == 42).to be_false
       end
 
     end
@@ -157,12 +157,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         s_other = Setup.new(@position, @number, @plan)
-        @s.eql?(s_other).should be_true
+        expect(@s.eql?(s_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         s_other = Setup.new('FFP', @number, @plan)
-        @s.eql?(s_other).should be_false
+        expect(@s.eql?(s_other)).to be_false
       end
 
     end
@@ -172,13 +172,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         s_other = Setup.new(@position, @number, @plan)
-        @s.hash.should be_a Fixnum
-        @s.hash.should eql s_other.hash
+        expect(@s.hash).to be_a Fixnum
+        expect(@s.hash).to eql s_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         s_other = Setup.new('FFP', @number, @plan)
-        @s.hash.should_not eql s_other.hash
+        expect(@s.hash).not_to eql s_other.hash
       end
 
     end
@@ -193,7 +193,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 420
         @s.number = value
-        @s.number.should eql value
+        expect(@s.number).to eql value
       end
 
     end
@@ -208,7 +208,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = -4.0
         @s.offset_lateral = value
-        @s.offset_lateral.should eql value
+        expect(@s.offset_lateral).to eql value
       end
 
     end
@@ -223,7 +223,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 6.0
         @s.offset_longitudinal = value
-        @s.offset_longitudinal.should eql value
+        expect(@s.offset_longitudinal).to eql value
       end
 
     end
@@ -238,7 +238,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 42.0
         @s.offset_vertical = value
-        @s.offset_vertical.should eql value
+        expect(@s.offset_vertical).to eql value
       end
 
     end
@@ -253,7 +253,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'FFP'
         @s.position = value
-        @s.position.should eql value
+        expect(@s.position).to eql value
       end
 
     end
@@ -268,7 +268,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'FIXED_SSD'
         @s.technique = value
-        @s.technique.should eql value
+        expect(@s.technique).to eql value
       end
 
     end
@@ -295,7 +295,7 @@ module RTKIT
     context "#to_setup" do
 
       it "should return itself" do
-        @s.to_setup.equal?(@s).should be_true
+        expect(@s.to_setup.equal?(@s)).to be_true
       end
 
     end

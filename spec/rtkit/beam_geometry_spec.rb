@@ -39,15 +39,15 @@ module RTKIT
       end
 
       it "should pass the 'source' argument to the 'source' attribute" do
-        @bg.source.should eql @source
+        expect(@bg.source).to eql @source
       end
 
       it "should pass the 'isocenter' argument to the 'isocenter' attribute" do
-        @bg.isocenter.should eql @isocenter
+        expect(@bg.isocenter).to eql @isocenter
       end
 
       it "should pass the 'voxel_space' argument to the 'voxel_space' attribute" do
-        @bg.voxel_space.should eql @vs
+        expect(@bg.voxel_space).to eql @vs
       end
 
     end
@@ -68,7 +68,7 @@ module RTKIT
         sid = 50
         angle = 0
         bg = BeamGeometry.setup(angle, sid, iso, @vs)
-        bg.source.should eql Coordinate.new(0, -50, 0)
+        expect(bg.source).to eql Coordinate.new(0, -50, 0)
       end
 
       it "should give the expected 'source' attribute for this setup" do
@@ -76,7 +76,7 @@ module RTKIT
         sid = 100.0
         angle = 180.0
         bg = BeamGeometry.setup(angle, sid, iso, @vs)
-        bg.source.should eql Coordinate.new(0, 95, -10.0)
+        expect(bg.source).to eql Coordinate.new(0, 95, -10.0)
       end
 
       it "should give the expected 'source' attribute for this setup" do
@@ -84,7 +84,7 @@ module RTKIT
         sid = 500.0
         angle = 90.0
         bg = BeamGeometry.setup(angle, sid, iso, @vs)
-        bg.source.should eql Coordinate.new(505, 0, 10)
+        expect(bg.source).to eql Coordinate.new(505, 0, 10)
       end
 
       it "should give the expected 'source' attribute for this setup" do
@@ -92,7 +92,7 @@ module RTKIT
         sid = 1000
         angle = 270
         bg = BeamGeometry.setup(angle, sid, iso, @vs)
-        bg.source.should eql Coordinate.new(-995, 0, 10)
+        expect(bg.source).to eql Coordinate.new(-995, 0, 10)
       end
 
       it "should give the expected 'source' attribute for this setup" do
@@ -100,7 +100,7 @@ module RTKIT
         sid = 100
         angle = 60
         bg = BeamGeometry.setup(angle, sid, iso, @vs)
-        bg.source.should eql Coordinate.new(86.6025403784439, -50.0, 0.0)
+        expect(bg.source).to eql Coordinate.new(86.6025403784439, -50.0, 0.0)
       end
 
       it "should give the expected 'source' attribute for this setup" do
@@ -109,19 +109,19 @@ module RTKIT
         angle = 225.0
         bg = BeamGeometry.setup(angle, sid, iso, @vs)
         source = bg.source
-        source.x.round(6).should eql -70.710678
-        source.y.round(6).should eql 70.710678
-        source.z.should eql 0.0
+        expect(source.x.round(6)).to eql -70.710678
+        expect(source.y.round(6)).to eql 70.710678
+        expect(source.z).to eql 0.0
       end
 
       it "should pass the 'isocenter' argument to the 'isocenter' attribute" do
         bg = BeamGeometry.setup(0.0, 1000.0, @isocenter, @vs)
-        bg.isocenter.should eql @isocenter
+        expect(bg.isocenter).to eql @isocenter
       end
 
       it "should pass the 'voxel_space' argument to the 'voxel_space' attribute" do
         bg = BeamGeometry.setup(0.0, 1000.0, @isocenter, @vs)
-        bg.voxel_space.should eql @vs
+        expect(bg.voxel_space).to eql @vs
       end
 
     end
@@ -131,16 +131,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bg_other = BeamGeometry.new(@source, @isocenter, @vs)
-        (@bg == bg_other).should be_true
+        expect(@bg == bg_other).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bg_other = BeamGeometry.new(@source, Coordinate.new(4, -5, 6), @vs)
-        (@bg == bg_other).should be_false
+        expect(@bg == bg_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@bg == 42).should be_false
+        expect(@bg == 42).to be_false
       end
 
     end
@@ -154,7 +154,7 @@ module RTKIT
 
       it "should return a PixelSpace instance (when the rays intersect the voxel space)" do
         result = @bg.create_drr(@ps)
-        result.should be_a PixelSpace
+        expect(result).to be_a PixelSpace
       end
 
       it "should return a PixelSpace instance (when the rays misses the voxel space)" do
@@ -164,7 +164,7 @@ module RTKIT
         bg = BeamGeometry.new(source, iso, vs)
         ps = PixelSpace.create(@nx, @ny, @delta_x, @delta_y, Coordinate.new(-50, 10, -50), @cosines)
         result = bg.create_drr(ps)
-        result.should be_a PixelSpace
+        expect(result).to be_a PixelSpace
       end
 
 =begin
@@ -228,12 +228,12 @@ puts result.inspect
 
       it "should be true when comparing two instances having the same attribute values" do
         bg_other = BeamGeometry.new(@source, @isocenter, @vs)
-        @bg.eql?(bg_other).should be_true
+        expect(@bg.eql?(bg_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bg_other = BeamGeometry.new(Coordinate.new(4, -5, 6), @isocenter, @vs)
-        @bg.eql?(bg_other).should be_false
+        expect(@bg.eql?(bg_other)).to be_false
       end
 
     end
@@ -243,13 +243,13 @@ puts result.inspect
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         bg_other = BeamGeometry.new(@source, @isocenter, @vs)
-        @bg.hash.should be_a Fixnum
-        @bg.hash.should eql bg_other.hash
+        expect(@bg.hash).to be_a Fixnum
+        expect(@bg.hash).to eql bg_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         bg_other = BeamGeometry.new(@source, @isocenter, VoxelSpace.create(3, 3, 3, 2, 2, 2, @volume_pos))
-        @bg.hash.should_not eql bg_other.hash
+        expect(@bg.hash).not_to eql bg_other.hash
       end
 
     end
@@ -264,7 +264,7 @@ puts result.inspect
       it "should pass the position argument to the 'isocenter' attribute" do
         isocenter = Coordinate.new(1, 2, 3)
         @bg.isocenter = isocenter
-        @bg.isocenter.should eql isocenter
+        expect(@bg.isocenter).to eql isocenter
       end
 
     end
@@ -279,7 +279,7 @@ puts result.inspect
       it "should pass the position argument to the 'source' attribute" do
         source = Coordinate.new(1, 2, 3)
         @bg.source = source
-        @bg.source.should eql source
+        expect(@bg.source).to eql source
       end
 
     end
@@ -288,7 +288,7 @@ puts result.inspect
     context "#to_beam_geometry" do
 
       it "should return itself" do
-        @bg.to_beam_geometry.equal?(@bg).should be_true
+        expect(@bg.to_beam_geometry.equal?(@bg)).to be_true
       end
 
     end
@@ -303,7 +303,7 @@ puts result.inspect
       it "should pass the vs argument to the 'voxel_space' attribute" do
         vs = VoxelSpace.create(3, 3, 3, 2, 2, 2, @volume_pos)
         @bg.voxel_space = vs
-        @bg.voxel_space.should eql vs
+        expect(@bg.voxel_space).to eql vs
       end
 
     end

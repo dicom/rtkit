@@ -36,24 +36,24 @@ module RTKIT
 
       it "should create an Image instance with attributes taken from the DICOM Object" do
         im = Image.load(@dcm, @s)
-        im.uid.should eql @dcm.value('0008,0018')
-        im.date.should eql @dcm.value('0008,0012')
-        im.time.should eql @dcm.value('0008,0013')
-        im.columns.should eql @dcm.value('0028,0011')
-        im.rows.should eql @dcm.value('0028,0010')
+        expect(im.uid).to eql @dcm.value('0008,0018')
+        expect(im.date).to eql @dcm.value('0008,0012')
+        expect(im.time).to eql @dcm.value('0008,0013')
+        expect(im.columns).to eql @dcm.value('0028,0011')
+        expect(im.rows).to eql @dcm.value('0028,0010')
         spacing = @dcm.value('0028,0030').split("\\").collect {|val| val.to_f}
-        im.col_spacing.should eql spacing[1]
-        im.row_spacing.should eql spacing[0]
+        expect(im.col_spacing).to eql spacing[1]
+        expect(im.row_spacing).to eql spacing[0]
       end
 
       it "should create an Image instance which is properly referenced to its series" do
         im = Image.load(@dcm, @s)
-        im.series.should eql @s
+        expect(im.series).to eql @s
       end
 
       it "should pass the 'dcm' argument to the 'dcm' attribute" do
         im = Image.load(@dcm, @s)
-        im.dcm.should eql @dcm
+        expect(im.dcm).to eql @dcm
       end
 
     end
@@ -74,52 +74,52 @@ module RTKIT
       end
 
       it "should by default set the 'date' attribute as an nil" do
-        @im.date.should be_nil
+        expect(@im.date).to be_nil
       end
 
       it "should by default set the 'columns' attribute as an nil" do
-        @im.columns.should be_nil
+        expect(@im.columns).to be_nil
       end
 
       it "should by default set the 'rows' attribute as an nil" do
-        @im.rows.should be_nil
+        expect(@im.rows).to be_nil
       end
 
       it "should by default set the 'dcm' attribute as an nil" do
-        @im.dcm.should be_nil
+        expect(@im.dcm).to be_nil
       end
 
       it "should by default set the 'pos_x' attribute as an nil" do
-        @im.pos_x.should be_nil
+        expect(@im.pos_x).to be_nil
       end
 
       it "should by default set the 'pos_y' attribute as an nil" do
-        @im.pos_y.should be_nil
+        expect(@im.pos_y).to be_nil
       end
 
       it "should by default set the 'col_spacing' attribute as an nil" do
-        @im.col_spacing.should be_nil
+        expect(@im.col_spacing).to be_nil
       end
 
       it "should by default set the 'row_spacing' attribute as an nil" do
-        @im.row_spacing.should be_nil
+        expect(@im.row_spacing).to be_nil
       end
 
       it "should by default set the 'time' attribute as an nil" do
-        @im.time.should be_nil
+        expect(@im.time).to be_nil
       end
 
       it "should pass the 'uid' argument to the 'uid' attribute" do
-        @im.uid.should eql @uid
+        expect(@im.uid).to eql @uid
       end
 
       it "should pass the 'series' argument to the 'series' attribute" do
-        @im.series.should eql @s
+        expect(@im.series).to eql @s
       end
 
       it "should add the Image instance (once) to the referenced CRSeries" do
-        @im.series.images.length.should eql 1
-        @im.series.image(@im.uid).should eql @im
+        expect(@im.series.images.length).to eql 1
+        expect(@im.series.image(@im.uid)).to eql @im
       end
 
     end
@@ -129,7 +129,7 @@ module RTKIT
 
       it "should return a DICOM object (when called on an image instance created from scratch, i.e. non-dicom source)" do
         dcm = @im.to_dcm
-        dcm.should be_a DICOM::DObject
+        expect(dcm).to be_a DICOM::DObject
       end
 
       it "should add series level attributes" do
@@ -144,13 +144,13 @@ module RTKIT
         @im.row_spacing = 1.0
         @im.col_spacing = 2.0
         dcm = @im.to_dcm
-        dcm.value('0008,0012').should eql @im.date
-        dcm.value('0008,0013').should eql @im.time
-        dcm.value('0008,0018').should eql @im.uid
-        dcm.value('0028,0011').should eql @im.columns
-        dcm.value('0028,0010').should eql @im.rows
-        dcm.value('0028,0030').should eql [@im.row_spacing, @im.col_spacing].join("\\")
-        dcm.narray.should eql @im.narray
+        expect(dcm.value('0008,0012')).to eql @im.date
+        expect(dcm.value('0008,0013')).to eql @im.time
+        expect(dcm.value('0008,0018')).to eql @im.uid
+        expect(dcm.value('0028,0011')).to eql @im.columns
+        expect(dcm.value('0028,0010')).to eql @im.rows
+        expect(dcm.value('0028,0030')).to eql [@im.row_spacing, @im.col_spacing].join("\\")
+        expect(dcm.narray).to eql @im.narray
       end
 
     end
@@ -159,7 +159,7 @@ module RTKIT
     context "#to_image" do
 
       it "should return itself" do
-        @im.to_image.equal?(@im).should be_true
+        expect(@im.to_image.equal?(@im)).to be_true
       end
 
     end

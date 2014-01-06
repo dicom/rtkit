@@ -40,13 +40,13 @@ module RTKIT
 
       it "should create a DoseVolume instance with attributes taken from the DICOM Object" do
         dose = RTDose.load(@dcm, @st)
-        dose.series_uid.should eql @dcm.value('0020,000E')
-        dose.modality.should eql @dcm.value('0008,0060')
+        expect(dose.series_uid).to eql @dcm.value('0020,000E')
+        expect(dose.modality).to eql @dcm.value('0008,0060')
       end
 
       it "should create a DoseVolume instance which is properly referenced to its RTDose" do
         vol = DoseVolume.load(@dcm, @dose)
-        vol.dose_series.should eql @dose
+        expect(vol.dose_series).to eql @dose
       end
 
     end
@@ -71,28 +71,28 @@ module RTKIT
       end
 
       it "should by default set the 'images' attribute as an empty array" do
-        @vol.images.should eql Array.new
+        expect(@vol.images).to eql Array.new
       end
 
       it "should by default set the 'modality' attribute as 'RTDOSE'" do
-        @vol.modality.should eql 'RTDOSE'
+        expect(@vol.modality).to eql 'RTDOSE'
       end
 
       it "should by default set the 'class_uid' attribute as nil" do
-        @vol.class_uid.should be_nil
+        expect(@vol.class_uid).to be_nil
       end
 
       it "should pass the series UID of the referenced RTDose instance to the 'series_uid' attribute" do
-        @vol.series_uid.should eql @dose.series_uid
+        expect(@vol.series_uid).to eql @dose.series_uid
       end
 
       it "should pass the 'series' argument to the 'dose_series' attribute" do
-        @vol.dose_series.should eql @dose
+        expect(@vol.dose_series).to eql @dose
       end
 
       it "should add the Volume instance (once) to the referenced RTDose" do
-        @vol.dose_series.volumes.length.should eql 1
-        @vol.dose_series.volumes.first.should eql @vol
+        expect(@vol.dose_series.volumes.length).to eql 1
+        expect(@vol.dose_series.volumes.first).to eql @vol
       end
 
     end
@@ -102,16 +102,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vol_other = DoseVolume.new(@uid, @f, @dose)
-        (@vol == vol_other).should be_true
+        expect(@vol == vol_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         vol_other = DoseVolume.new('1.6.99', @f, @dose)
-        (@vol == vol_other).should be_false
+        expect(@vol == vol_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@vol == 42).should be_false
+        expect(@vol == 42).to be_false
       end
 
     end
@@ -127,8 +127,8 @@ module RTKIT
         vol_other = DoseVolume.new('1.23.787', @f, @dose)
         img = SliceImage.new('1.45.876', 5.0, vol_other)
         @vol.add_image(img)
-        @vol.images.size.should eql 1
-        @vol.images.first.should eql img
+        expect(@vol.images.size).to eql 1
+        expect(@vol.images.first).to eql img
       end
 
       it "should add the Image to the DoseVolume instance already containing one or more images" do
@@ -137,15 +137,15 @@ module RTKIT
         previous_size = vol.images.size
         img = SliceImage.new('1.45.876', 5.0, vol)
         vol.add_image(img)
-        vol.images.size.should eql previous_size + 1
-        vol.images.last.should eql img
+        expect(vol.images.size).to eql previous_size + 1
+        expect(vol.images.last).to eql img
       end
 
       it "should not add multiple entries of the same Image" do
         img = SliceImage.new('1.45.876', 5.0, @vol)
         @vol.add_image(img)
-        @vol.images.size.should eql 1
-        @vol.images.first.should eql img
+        expect(@vol.images.size).to eql 1
+        expect(@vol.images.first).to eql img
       end
 
       it "should register an image's slice position in such a way that it can be matched later on even though the original slice position is somewhat deviant (to address typical float inaccuracy issues)" do
@@ -153,7 +153,7 @@ module RTKIT
         im2 = SliceImage.new('1.678', 5.0037, @vol)
         im3 = SliceImage.new('1.987', 9.9989, @vol)
         image = @vol.image(5.0)
-        image.uid.should eql '1.678'
+        expect(image.uid).to eql '1.678'
       end
 
     end
@@ -175,12 +175,12 @@ module RTKIT
         end
 
         it "should return a BinVolume instance, containing 5 BinImage references, from this DoseVolume" do
-          @bin_volume.class.should eql BinVolume
-          @bin_volume.bin_images.length.should eql 5
+          expect(@bin_volume.class).to eql BinVolume
+          expect(@bin_volume.bin_images.length).to eql 5
         end
 
         it "should set the BinVolume's series equal to that of the DoseVolume" do
-          @bin_volume.series.should eql @dvol
+          expect(@bin_volume.series).to eql @dvol
         end
 
 =begin
@@ -191,13 +191,13 @@ module RTKIT
 
         it "should return a BinVolume instance, where the narray matches the number of images for this volume as well as the dimensions of the referenced images" do
           # [5, 22, 22]
-          @bin_volume.narray.shape.should eql [@dvol.images.length, @dvol.images.first.columns, @dvol.images.first.rows]
+          expect(@bin_volume.narray.shape).to eql [@dvol.images.length, @dvol.images.first.columns, @dvol.images.first.rows]
         end
 
         it "should return a BinVolume instance, where the segmented indices (as derived from the dose limits) are marked as 1 and the non-segmented indices are 0" do
           # Note: This is not so much a principal test as a consistency test.
-          (@bin_volume.narray.eq 1).where.length.should eql 180
-          (@bin_volume.narray.eq 0).where.length.should eql 2240
+          expect((@bin_volume.narray.eq 1).where.length).to eql 180
+          expect((@bin_volume.narray.eq 0).where.length).to eql 2240
         end
 
       end
@@ -254,27 +254,27 @@ module RTKIT
           @i1.narray[[2, 3, 6, 7]] = [700, 680, 720, 730]
           @i2.narray[[2, 3, 6, 7]] = [690, 670, 700, 710]
           bv = @vol.bin_volume(:min => 65.0)
-          bv.bin_images.length.should eql 2
-          (bv.bin_images.first.narray.eq 1).where.to_a.should eql [2, 3, 6, 7]
-          (bv.bin_images.last.narray.eq 1).where.to_a.should eql [2, 3, 6, 7]
+          expect(bv.bin_images.length).to eql 2
+          expect((bv.bin_images.first.narray.eq 1).where.to_a).to eql [2, 3, 6, 7]
+          expect((bv.bin_images.last.narray.eq 1).where.to_a).to eql [2, 3, 6, 7]
         end
 
         it "should give the expected binary images when comparing against this ROI using the :max option" do
           @i1.narray[[8, 9, 12, 13]] = [310, 380, 320, 330]
           @i2.narray[[8, 9, 12, 13]] = [390, 370, 300, 310]
           bv = @vol.bin_volume(:max => 45.0)
-          bv.bin_images.length.should eql 2
-          (bv.bin_images.first.narray.eq 1).where.to_a.should eql [8, 9, 12, 13]
-          (bv.bin_images.last.narray.eq 1).where.to_a.should eql [8, 9, 12, 13]
+          expect(bv.bin_images.length).to eql 2
+          expect((bv.bin_images.first.narray.eq 1).where.to_a).to eql [8, 9, 12, 13]
+          expect((bv.bin_images.last.narray.eq 1).where.to_a).to eql [8, 9, 12, 13]
         end
 
         it "should give the expected binary images when comparing against this ROI using both :min and :max options" do
           @i1.narray[[8, 9, 12, 13]] = [520, 580, 520, 550]
           @i2.narray[[2, 3, 6, 7]] = [560, 570, 540, 530]
           bv = @vol.bin_volume(:min => 51.0, :max => 59.0)
-          bv.bin_images.length.should eql 2
-          (bv.bin_images.first.narray.eq 1).where.to_a.should eql [8, 9, 12, 13]
-          (bv.bin_images.last.narray.eq 1).where.to_a.should eql [2, 3, 6, 7]
+          expect(bv.bin_images.length).to eql 2
+          expect((bv.bin_images.first.narray.eq 1).where.to_a).to eql [8, 9, 12, 13]
+          expect((bv.bin_images.last.narray.eq 1).where.to_a).to eql [2, 3, 6, 7]
         end
 
         it "should give a perfect score with Dice's coeffiecent for this case" do
@@ -284,7 +284,7 @@ module RTKIT
           roi_bv = @partial.bin_volume(@vol)
           bm = BinMatcher.new([dose_bv], roi_bv)
           bm.score_dice
-          dose_bv.dice.should eql 1.0
+          expect(dose_bv.dice).to eql 1.0
         end
 
       end
@@ -331,15 +331,15 @@ module RTKIT
         exp_arr = NArray.int(2, @cols, @rows)
         exp_arr[0, true, true] = NArray.int(@cols, @rows).indgen! * 10.0
         exp_arr[1, true, true] = NArray.int(@cols, @rows).indgen! * 2 * 10.0
-        (@vol.dose_arr == exp_arr).should be_true
+        expect(@vol.dose_arr == exp_arr).to be_true
       end
 
       it "should (when called without argument) return the full dose distribution" do
         full_dist = @vol.distribution
-        full_dist.length.should eql 32
-        full_dist.max.should eql 300.0
-        full_dist.min.should eql 0.0
-        full_dist.median.should eql 100.0
+        expect(full_dist.length).to eql 32
+        expect(full_dist.max).to eql 300.0
+        expect(full_dist.min).to eql 0.0
+        expect(full_dist.median).to eql 100.0
       end
 
       context "(with external ROI)" do
@@ -361,24 +361,24 @@ module RTKIT
         end
 
         it "should, as a starting point, have the slices properly referenced to corresponding images" do
-          @s1.image.should eql @ct1
-          @s2.image.should eql @ct2
+          expect(@s1.image).to eql @ct1
+          expect(@s2.image).to eql @ct2
         end
 
         it "should have length equal to that of the entire dose array" do
-          @vol.distribution(@external).length.should eql 32
+          expect(@vol.distribution(@external).length).to eql 32
         end
 
         it "should return the global max dose" do
-          @vol.distribution(@external).max.should eql 300.0
+          expect(@vol.distribution(@external).max).to eql 300.0
         end
 
         it "should return the global min dose" do
-          @vol.distribution(@external).min.should eql 0.0
+          expect(@vol.distribution(@external).min).to eql 0.0
         end
 
         it "should return the global median dose" do
-          @vol.distribution(@external).median.should eql 100.0
+          expect(@vol.distribution(@external).median).to eql 100.0
         end
 
       end
@@ -402,24 +402,24 @@ module RTKIT
         end
 
         it "should, as a starting point, have the slices properly referenced to corresponding images" do
-          @s1.image.should eql @ct1
-          @s2.image.should eql @ct2
+          expect(@s1.image).to eql @ct1
+          expect(@s2.image).to eql @ct2
         end
 
         it "should have length equal to a fourth of the entire dose array" do
-          @vol.distribution(@partial).length.should eql 8
+          expect(@vol.distribution(@partial).length).to eql 8
         end
 
         it "should return the partial max dose" do
-          @vol.distribution(@partial).max.should eql 140.0
+          expect(@vol.distribution(@partial).max).to eql 140.0
         end
 
         it "should return the partial min dose" do
-          @vol.distribution(@partial).min.should eql 20.0
+          expect(@vol.distribution(@partial).min).to eql 20.0
         end
 
         it "should return the partial median dose" do
-          @vol.distribution(@partial).median.should eql 60.0
+          expect(@vol.distribution(@partial).median).to eql 60.0
         end
 
       end
@@ -439,29 +439,29 @@ module RTKIT
 
       it "should return a DoseDistribution instance when called without an argument" do
         distribution = @rt_dose.volumes.first.distribution
-        distribution.class.should eql DoseDistribution
+        expect(distribution.class).to eql DoseDistribution
       end
 
       it "should return a DoseDistribution instance when called with a ROI argument" do
         distribution = @rt_dose.volumes.first.distribution(@roi)
-        distribution.class.should eql DoseDistribution
+        expect(distribution.class).to eql DoseDistribution
       end
 
       it "should return a DoseDistribution with size equal to the number of images * columns * rows" do
         dvol = @rt_dose.volumes.first
         distribution = dvol.distribution
-        distribution.length.should eql dvol.images.length * dvol.images.first.columns * dvol.images.first.rows
+        expect(distribution.length).to eql dvol.images.length * dvol.images.first.columns * dvol.images.first.rows
       end
 
       it "should return the single beam's dose distribution with the expected properties (as per the source TPS for this dataset)" do
         dvol = @rt_dose.volume("1.3.6.1.4.1.2452.6.3641918815.1239528433.2837719487.3331095889")
         roi_distribution = dvol.distribution(@roi)
         #roi_distribution.length.should eql 336
-        roi_distribution.max.should be_within(0.002).of(6.25)
-        roi_distribution.min.should be_within(0.001).of(0.0)
-        roi_distribution.median.should be_within(0.095).of(0.11)
-        roi_distribution.mean.should be_within(0.86).of(1.75)
-        roi_distribution.rmsdev.should be_within(0.38).of(2.41)
+        expect(roi_distribution.max).to be_within(0.002).of(6.25)
+        expect(roi_distribution.min).to be_within(0.001).of(0.0)
+        expect(roi_distribution.median).to be_within(0.095).of(0.11)
+        expect(roi_distribution.mean).to be_within(0.86).of(1.75)
+        expect(roi_distribution.rmsdev).to be_within(0.38).of(2.41)
       end
 
       it "should return the summed dose distribution with the expected properties (as per the source TPS for this dataset)" do
@@ -469,11 +469,11 @@ module RTKIT
         # Our results don't exactly match those given in the TPS.
         # Perform an approximate check instead of a precise comparison:
         #roi_distribution.length.should eql 336 # RTKIT gives a larger number of elements, which as of yet hasn't been shown to be incorrect
-        roi_distribution.max.should be_within(0.001).of(17.17)
-        roi_distribution.min.should be_within(0.0501).of(0.05)
-        roi_distribution.median.should be_within(0.18).of(0.43)
-        roi_distribution.mean.should be_within(2.2).of(4.89)
-        roi_distribution.rmsdev.should be_within(0.92).of(6.27)
+        expect(roi_distribution.max).to be_within(0.001).of(17.17)
+        expect(roi_distribution.min).to be_within(0.0501).of(0.05)
+        expect(roi_distribution.median).to be_within(0.18).of(0.43)
+        expect(roi_distribution.mean).to be_within(2.2).of(4.89)
+        expect(roi_distribution.rmsdev).to be_within(0.92).of(6.27)
       end
 
     end
@@ -483,12 +483,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vol_other = DoseVolume.new(@uid, @f, @dose)
-        @vol.eql?(vol_other).should be_true
+        expect(@vol.eql?(vol_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         vol_other = DoseVolume.new('1.6.99', @f, @dose)
-        @vol.eql?(vol_other).should be_false
+        expect(@vol.eql?(vol_other)).to be_false
       end
 
     end
@@ -498,13 +498,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         vol_other = DoseVolume.new(@uid, @f, @dose)
-        @vol.hash.should be_a Fixnum
-        @vol.hash.should eql vol_other.hash
+        expect(@vol.hash).to be_a Fixnum
+        expect(@vol.hash).to eql vol_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         vol_other = DoseVolume.new('1.6.99', @f, @dose)
-        @vol.hash.should_not eql vol_other.hash
+        expect(@vol.hash).not_to eql vol_other.hash
       end
 
     end
@@ -526,32 +526,32 @@ module RTKIT
       end
 
       it "should return the first Image when no arguments are used" do
-        @vol.image.should eql @vol.images.first
+        expect(@vol.image).to eql @vol.images.first
       end
 
       it "should return the matching Image when a UID string is supplied" do
         img = @vol.image(@uid2)
-        img.uid.should eql @uid2
+        expect(img.uid).to eql @uid2
       end
 
       it "should return the matching Image when a slice position float is supplied" do
         img = @vol.image(@pos_slice2)
-        img.pos_slice.should eql @pos_slice2
+        expect(img.pos_slice).to eql @pos_slice2
       end
 
       it "should return the matching Image when a minimally deviant slice position is supplied (to address typical float inaccuracy issues)" do
         image = @vol.image(66.5045)
-        image.pos_slice.should eql 66.5
+        expect(image.pos_slice).to eql 66.5
       end
 
       it "should return the matching Image when a slice position which deviates with less than 1/3 slice gap from a real slice position is given" do
         image = @vol.image(67.2)
-        image.pos_slice.should eql 67.5
+        expect(image.pos_slice).to eql 67.5
       end
 
       it "should return nil when a slice position is given that deviates from any particular image slice position with more than a third of the slice gap" do
         image = @vol.image(67.0)
-        image.should be_nil
+        expect(image).to be_nil
       end
 
     end
@@ -560,7 +560,7 @@ module RTKIT
     context "#to_dose_volume" do
 
       it "should return itself" do
-        @vol.to_dose_volume.equal?(@vol).should be_true
+        expect(@vol.to_dose_volume.equal?(@vol)).to be_true
       end
 
     end

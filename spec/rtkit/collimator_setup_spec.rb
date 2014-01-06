@@ -39,12 +39,12 @@ module RTKIT
 
       it "should set the CollimatorSetup's 'type' attribute equal to the value found in the Item" do
         coll = CollimatorSetup.create_from_item(@coll_item, @cp)
-        coll.type.should eql @coll_item.value('300A,00B8')
+        expect(coll.type).to eql @coll_item.value('300A,00B8')
       end
 
       it "should set the CollimatorSetup's 'positions' attribute equal to the value found in the Item" do
         coll = CollimatorSetup.create_from_item(@coll_item, @cp)
-        coll.positions.should eql [@coll_item.value('300A,011C').split("\\").collect{|s| s.to_f}]
+        expect(coll.positions).to eql [@coll_item.value('300A,011C').split("\\").collect{|s| s.to_f}]
       end
 
     end
@@ -65,15 +65,15 @@ module RTKIT
       end
 
       it "should pass the 'type' argument to the 'type' attribute" do
-        @coll.type.should eql @type
+        expect(@coll.type).to eql @type
       end
 
       it "should pass the 'positions' argument to the 'positions' attribute" do
-        @coll.positions.should eql @pos
+        expect(@coll.positions).to eql @pos
       end
 
       it "should add the CollimatorSetup instance to the referenced ControlPoint" do
-        @cp.collimator.should eql @coll
+        expect(@cp.collimator).to eql @coll
       end
 
     end
@@ -83,16 +83,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coll_other = CollimatorSetup.new(@type, @pos, @cp)
-        (@coll == coll_other).should be_true
+        expect(@coll == coll_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         coll_other = CollimatorSetup.new('MLCY', @pos, @cp)
-        (@coll == coll_other).should be_false
+        expect(@coll == coll_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@coll == 42).should be_false
+        expect(@coll == 42).to be_false
       end
 
     end
@@ -102,12 +102,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coll_other = CollimatorSetup.new(@type, @pos, @cp)
-        @coll.eql?(coll_other).should be_true
+        expect(@coll.eql?(coll_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         coll_other = CollimatorSetup.new('MLCY', @pos, @cp)
-        @coll.eql?(coll_other).should be_false
+        expect(@coll.eql?(coll_other)).to be_false
       end
 
     end
@@ -117,13 +117,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         coll_other = CollimatorSetup.new(@type, @pos, @cp)
-        @coll.hash.should be_a Fixnum
-        @coll.hash.should eql coll_other.hash
+        expect(@coll.hash).to be_a Fixnum
+        expect(@coll.hash).to eql coll_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         coll_other = CollimatorSetup.new('MLCY', @pos, @cp)
-        @coll.hash.should_not eql coll_other.hash
+        expect(@coll.hash).not_to eql coll_other.hash
       end
 
     end
@@ -138,19 +138,19 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = [[-50, 45.0]]
         @coll.positions = value
-        @coll.positions.should eql value
+        expect(@coll.positions).to eql value
       end
 
       it "should convert the string containing one pair of values to an array" do
         value = "-50.0\\45.5"
         @coll.positions = value
-        @coll.positions.should eql [[-50.0, 45.5]]
+        expect(@coll.positions).to eql [[-50.0, 45.5]]
       end
 
       it "should convert the string containing two pairs of values to an array" do
         value = "-50.0\\-50.5\\40.5\\40.0"
         @coll.positions = value
-        @coll.positions.should eql [[-50.0, 40.5], [-50.5, 40.0]]
+        expect(@coll.positions).to eql [[-50.0, 40.5], [-50.5, 40.0]]
       end
 
     end
@@ -159,7 +159,7 @@ module RTKIT
     context "#to_collimator_setup" do
 
       it "should return itself" do
-        @coll.to_collimator_setup.equal?(@coll).should be_true
+        expect(@coll.to_collimator_setup.equal?(@coll)).to be_true
       end
 
     end
@@ -172,9 +172,9 @@ module RTKIT
         coll_item = dcm['300A,00B0'][0]['300A,0111'][0]['300A,011A'][0]
         coll = CollimatorSetup.create_from_item(coll_item, @cp)
         item = coll.to_item
-        item.count.should eql 2
-        item.value('300A,00B8').should eql coll_item.value('300A,00B8')
-        item.value('300A,011C').split("\\").collect{|s| s.to_f}.should eql coll_item.value('300A,011C').split("\\").collect{|s| s.to_f}
+        expect(item.count).to eql 2
+        expect(item.value('300A,00B8')).to eql coll_item.value('300A,00B8')
+        expect(item.value('300A,011C').split("\\").collect{|s| s.to_f}).to eql coll_item.value('300A,011C').split("\\").collect{|s| s.to_f}
       end
 
     end
@@ -188,7 +188,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'MLCX'
         @coll.type = value
-        @coll.type.should eql value
+        expect(@coll.type).to eql value
       end
 
     end

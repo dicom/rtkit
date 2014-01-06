@@ -11,12 +11,12 @@ module RTKIT
 
       it "should return the most common value in this array of integers" do
         array = [9,9,1,2,2,2,3,3,4,4,5,6,6,7]
-        array.most_common_value.should eql 2
+        expect(array.most_common_value).to eql 2
       end
 
       it "should return the single value in an array containing only one element" do
         array = [7]
-        array.most_common_value.should eql 7
+        expect(array.most_common_value).to eql 7
       end
 
     end

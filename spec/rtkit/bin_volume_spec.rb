@@ -62,25 +62,25 @@ module RTKIT
       end
 
       it "should pass the 'series' argument to the 'series' attribute" do
-        @bv.series.should eql @is
+        expect(@bv.series).to eql @is
       end
 
       it "should pass the 'images' option to the 'images' attribute" do
-        @bv.bin_images.should eql @bin_images
+        expect(@bv.bin_images).to eql @bin_images
       end
 
       it "should pass the 'source' option to the 'source' attribute" do
-        @bv.source.should eql @roi
+        expect(@bv.source).to eql @roi
       end
 
       it "should by default set the 'images' attribute to an empty array" do
         bv = BinVolume.new(@is)
-        bv.bin_images.should eql Array.new
+        expect(bv.bin_images).to eql Array.new
       end
 
       it "should by default set the 'source' attribute to nil" do
         bv = BinVolume.new(@is)
-        bv.source.should be_nil
+        expect(bv.source).to be_nil
       end
 
     end
@@ -90,16 +90,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bv_other = BinVolume.new(@is, :images => @bin_images, :source => @roi)
-        (@bv == bv_other).should be_true
+        expect(@bv == bv_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         bv_other = BinVolume.new(@is)
-        (@bv == bv_other).should be_false
+        expect(@bv == bv_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@bv == 42).should be_false
+        expect(@bv == 42).to be_false
       end
 
     end
@@ -114,13 +114,13 @@ module RTKIT
       it "should add the BinImage instance to the empty BinVolume" do
         bv = BinVolume.new(@is)
         bv.add(@b1)
-        bv.bin_images.should eql [@b1]
+        expect(bv.bin_images).to eql [@b1]
       end
 
       it "should add the BinImage to the BinVolume instance which already has one BinImage" do
         bv = BinVolume.new(@is, :images => [@b1])
         bv.add(@b2)
-        bv.bin_images.should eql [@b1, @b2]
+        expect(bv.bin_images).to eql [@b1, @b2]
       end
 
     end
@@ -129,7 +129,7 @@ module RTKIT
     context "#columns" do
 
       it "should return the number of columns in the images of the volume" do
-        @bv.columns.should eql @columns
+        expect(@bv.columns).to eql @columns
       end
 
     end
@@ -139,12 +139,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bv_other = BinVolume.new(@is, :images => @bin_images, :source => @roi)
-        @bv.eql?(bv_other).should be_true
+        expect(@bv.eql?(bv_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bv_other = BinVolume.new(@is)
-        @bv.eql?(bv_other).should be_false
+        expect(@bv.eql?(bv_other)).to be_false
       end
 
     end
@@ -153,7 +153,7 @@ module RTKIT
     context "#frames" do
 
       it "should return the number of frames in the image series" do
-        @bv.frames.should eql 2
+        expect(@bv.frames).to eql 2
       end
 
     end
@@ -163,13 +163,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         bv_other = BinVolume.new(@is, :images => @bin_images, :source => @roi)
-        @bv.hash.should be_a Fixnum
-        @bv.hash.should eql bv_other.hash
+        expect(@bv.hash).to be_a Fixnum
+        expect(@bv.hash).to eql bv_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         bv_other = BinVolume.new(@is)
-        @bv.hash.should_not eql bv_other.hash
+        expect(@bv.hash).not_to eql bv_other.hash
       end
 
     end
@@ -179,29 +179,29 @@ module RTKIT
 
       it "should return nil when there are no BinImage instance belonging to the BinVolume" do
         bv = BinVolume.new(@is)
-        bv.narray.should be_nil
+        expect(bv.narray).to be_nil
       end
 
       it "should return a three-dimensional byte NArray which matches the dimensions of the referenced BinImages" do
         vol_arr = @bv.narray
-        vol_arr.element_size.should eql 1
-        vol_arr.shape.should eql [2, @columns, @rows]
+        expect(vol_arr.element_size).to eql 1
+        expect(vol_arr.shape).to eql [2, @columns, @rows]
       end
 
       it "should return a 3d NArray where the order of the BinImage slices corresponds to the 'slice_pos' attribute of the referenced Images (when the order of the given BinImages already corresponds to the slice position order)" do
         bv = BinVolume.new(@is, :images => [@b2, @b1])
         vol_arr = @bv.narray
-        @b2.pos_slice.should < @b1.pos_slice # just making sure that the slice position relationship is as expected
-        (vol_arr[0, true, true].eq @b2.narray).where.length.should eql @b2.narray.length
-        (vol_arr[1, true, true].eq @b1.narray).where.length.should eql @b1.narray.length
+        expect(@b2.pos_slice).to be < @b1.pos_slice # just making sure that the slice position relationship is as expected
+        expect((vol_arr[0, true, true].eq @b2.narray).where.length).to eql @b2.narray.length
+        expect((vol_arr[1, true, true].eq @b1.narray).where.length).to eql @b1.narray.length
       end
 
       it "should return a 3d NArray where the order of the BinImage slices corresponds to the 'slice_pos' attribute of the referenced Images (when the order of the given BinImages do not correspond to the slice position order)" do
         bv = BinVolume.new(@is, :images => [@b1, @b2])
         vol_arr = @bv.narray
-        @b2.pos_slice.should < @b1.pos_slice # just making sure that the slice position relationship is as expected
-        (vol_arr[0, true, true].eq @b2.narray).where.length.should eql @b2.narray.length
-        (vol_arr[1, true, true].eq @b1.narray).where.length.should eql @b1.narray.length
+        expect(@b2.pos_slice).to be < @b1.pos_slice # just making sure that the slice position relationship is as expected
+        expect((vol_arr[0, true, true].eq @b2.narray).where.length).to eql @b2.narray.length
+        expect((vol_arr[1, true, true].eq @b1.narray).where.length).to eql @b1.narray.length
       end
 
     end
@@ -210,7 +210,7 @@ module RTKIT
     context "#rows" do
 
       it "should return the number of rows in the images of the volume" do
-        @bv.rows.should eql @rows
+        expect(@bv.rows).to eql @rows
       end
 
     end
@@ -219,7 +219,7 @@ module RTKIT
     context "#to_bin_volume" do
 
       it "should return itself" do
-        @bv.to_bin_volume.equal?(@bv).should be_true
+        expect(@bv.to_bin_volume.equal?(@bv)).to be_true
       end
 
     end
@@ -239,12 +239,12 @@ module RTKIT
         dcm = DICOM::DObject.read(FILE_STRUCT)
         struct = StructureSet.load(dcm, @st)
         roi = @bv.to_roi(struct)
-        roi.algorithm.should eql 'Automatic'
-        roi.name.should eql 'BinVolume'
-        roi.number.should eql struct.structures.length
-        roi.interpreter.should eql 'RTKIT'
-        roi.type.should eql 'CONTROL'
-        roi.slices.length.should eql 2
+        expect(roi.algorithm).to eql 'Automatic'
+        expect(roi.name).to eql 'BinVolume'
+        expect(roi.number).to eql struct.structures.length
+        expect(roi.interpreter).to eql 'RTKIT'
+        expect(roi.type).to eql 'CONTROL'
+        expect(roi.slices.length).to eql 2
       end
 
       it "should return a ROI where the attributes are set by the specified optional values" do
@@ -256,11 +256,11 @@ module RTKIT
         interpreter = 'HUMAN'
         type = 'EXTERNAL'
         roi = @bv.to_roi(struct, :algorithm => algorithm, :name => name, :number => number, :interpreter => interpreter, :type => type)
-        roi.algorithm.should eql algorithm
-        roi.name.should eql name
-        roi.number.should eql number
-        roi.interpreter.should eql interpreter
-        roi.type.should eql type
+        expect(roi.algorithm).to eql algorithm
+        expect(roi.name).to eql name
+        expect(roi.number).to eql number
+        expect(roi.interpreter).to eql interpreter
+        expect(roi.type).to eql type
       end
 
     end

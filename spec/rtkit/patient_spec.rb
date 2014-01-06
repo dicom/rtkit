@@ -32,28 +32,28 @@ module RTKIT
 
       it "should create a Patient instance with attributes taken from the DICOM Object" do
         p = Patient.load(@dcm, @ds)
-        p.name.should eql @dcm.value('0010,0010')
-        p.id.should eql @dcm.value('0010,0020')
-        p.birth_date.should eql @dcm.value('0010,0030')
-        p.sex.should eql @dcm.value('0010,0040')
+        expect(p.name).to eql @dcm.value('0010,0010')
+        expect(p.id).to eql @dcm.value('0010,0020')
+        expect(p.birth_date).to eql @dcm.value('0010,0030')
+        expect(p.sex).to eql @dcm.value('0010,0040')
       end
 
       it "should create a Patient instance which is properly referenced to its dataset" do
         p = Patient.load(@dcm, @ds)
-        p.dataset.should eql @ds
+        expect(p.dataset).to eql @ds
       end
 
       it "should create a Patient instance which adds itself (once) to the referenced DataSet" do
         previous_count = @ds.patients.length
         p = Patient.load(@dcm, @ds)
-        @ds.patient(p.id).should eql p
-        @ds.patients.length.should eql previous_count + 1
+        expect(@ds.patient(p.id)).to eql p
+        expect(@ds.patients.length).to eql previous_count + 1
       end
 
       it "should create a Patient instance which is properly referenced to a Study created from the DICOM Object" do
         p = Patient.load(@dcm, @ds)
-        p.studies.length.should eql 1
-        p.studies.first.uid.should eql @dcm.value('0020,000D')
+        expect(p.studies.length).to eql 1
+        expect(p.studies.first.uid).to eql @dcm.value('0020,000D')
       end
 
     end
@@ -74,47 +74,47 @@ module RTKIT
       end
 
       it "should by default set the 'frames' attribute as an empty array" do
-        @p.frames.should eql Array.new
+        expect(@p.frames).to eql Array.new
       end
 
       it "should by default set the 'studies' attribute as an empty array" do
-        @p.studies.should eql Array.new
+        expect(@p.studies).to eql Array.new
       end
 
       it "should by default set the 'birth_date' attribute as nil" do
-        @p.birth_date.should be_nil
+        expect(@p.birth_date).to be_nil
       end
 
       it "should by default set the 'sex' attribute as nil" do
-        @p.sex.should be_nil
+        expect(@p.sex).to be_nil
       end
 
       it "should pass the 'name' argument to the 'name' attribute" do
-        @p.name.should eql @name
+        expect(@p.name).to eql @name
       end
 
       it "should pass the 'id' argument to the 'id' attribute" do
-        @p.id.should eql @id
+        expect(@p.id).to eql @id
       end
 
       it "should pass the 'dataset' argument to the 'dataset' attribute" do
-        @p.dataset.should eql @ds
+        expect(@p.dataset).to eql @ds
       end
 
       it "should pass the optional 'birth_date' argument to the 'birth_date' attribute" do
         p = Patient.new(@name, @id, @ds, :birth_date => @birth_date)
-        p.birth_date.should eql @birth_date
+        expect(p.birth_date).to eql @birth_date
       end
 
       it "should pass the optional 'sex' argument to the 'sex' attribute" do
         p = Patient.new(@name, @id, @ds, :sex => @sex)
-        p.sex.should eql @sex
+        expect(p.sex).to eql @sex
       end
 
       it "should add the Patient instance (once) to the referenced DataSet" do
         p = Patient.new(@name, @id, @ds)
-        @ds.patient(p.id).should eql p
-        @ds.patients.length.should eql 1
+        expect(@ds.patient(p.id)).to eql p
+        expect(@ds.patients.length).to eql 1
       end
 
     end
@@ -124,16 +124,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Patient.new(@name, @id, @ds)
-        (@p == p_other).should be_true
+        expect(@p == p_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         p_other = Patient.new("Other Patient", @id, @ds)
-        (@p == p_other).should be_false
+        expect(@p == p_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@p == 42).should be_false
+        expect(@p == 42).to be_false
       end
 
     end
@@ -149,8 +149,8 @@ module RTKIT
         p_other = Patient.new("Jack", "54321", @ds)
         frame = Frame.new('1.234', p_other)
         @p.add_frame(frame)
-        @p.frames.size.should eql 1
-        @p.frames.first.should eql frame
+        expect(@p.frames.size).to eql 1
+        expect(@p.frames.first).to eql frame
       end
 
       it "should add the Frame to the Patient instance already containing one or more frame" do
@@ -159,15 +159,15 @@ module RTKIT
         previous_size = p.studies.size
         frame = Frame.new('1.234', @p)
         p.add_frame(frame)
-        p.frames.size.should eql previous_size + 1
-        p.frames.last.should eql frame
+        expect(p.frames.size).to eql previous_size + 1
+        expect(p.frames.last).to eql frame
       end
 
       it "should not add multiple entries of the same Frame" do
         f = Frame.new('1.234', @p) # added once
         @p.add_frame(f) # trying to add second time
-        @p.frames.size.should eql 1
-        @p.frame(f.uid).should eql f
+        expect(@p.frames.size).to eql 1
+        expect(@p.frame(f.uid)).to eql f
       end
 
     end
@@ -183,8 +183,8 @@ module RTKIT
         p_other = Patient.new("Jack", "54321", @ds)
         study = Study.new('1.234', p_other)
         @p.add_study(study)
-        @p.studies.size.should eql 1
-        @p.studies.first.should eql study
+        expect(@p.studies.size).to eql 1
+        expect(@p.studies.first).to eql study
       end
 
       it "should add the Study to the Patient instance already containing one or more studies" do
@@ -193,15 +193,15 @@ module RTKIT
         previous_size = p.studies.size
         study = Study.new('1.234', @p)
         p.add_study(study)
-        p.studies.size.should eql previous_size + 1
-        p.studies.last.should eql study
+        expect(p.studies.size).to eql previous_size + 1
+        expect(p.studies.last).to eql study
       end
 
       it "should not add multiple entries of the same Study" do
         study = Study.new('1.234', @p) # added once
         @p.add_study(study) # trying to add second time
-        @p.studies.size.should eql 1
-        @p.study(study.uid).should eql study
+        expect(@p.studies.size).to eql 1
+        expect(@p.study(study.uid)).to eql study
       end
 
     end
@@ -225,14 +225,14 @@ module RTKIT
 
       it "should pass the arguments to the Frame's attributes" do
         frame = @p.create_frame(@uid1, @indicator)
-        frame.uid.should eql @uid1
-        frame.indicator.should eql @indicator
+        expect(frame.uid).to eql @uid1
+        expect(frame.indicator).to eql @indicator
       end
 
       it "should add the Frame to the frame-less Patient instance" do
         frame = @p.create_frame(@uid1)
-        @p.frames.size.should eql 1
-        @p.frames.first.should eql frame
+        expect(@p.frames.size).to eql 1
+        expect(@p.frames.first).to eql frame
       end
 
       it "should add the Frame to the Patient instance already containing frame(s)" do
@@ -240,15 +240,15 @@ module RTKIT
         p = ds.patient
         previous_size = p.frames.size
         frame = p.create_frame(@uid2)
-        p.frames.size.should eql previous_size + 1
-        p.frames.last.should eql frame
+        expect(p.frames.size).to eql previous_size + 1
+        expect(p.frames.last).to eql frame
       end
 
       it "should add the newly created Frame to the Patient's DataSet instance" do
         previous_size = @p.dataset.frames.size
         frame = @p.create_frame(@uid1)
-        @p.dataset.frames.size.should eql previous_size + 1
-        @p.dataset.frames.last.should eql frame
+        expect(@p.dataset.frames.size).to eql previous_size + 1
+        expect(@p.dataset.frames.last).to eql frame
       end
 
     end
@@ -258,12 +258,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Patient.new(@name, @id, @ds)
-        @p.eql?(p_other).should be_true
+        expect(@p.eql?(p_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         p_other = Patient.new("Other Patient", @id, @ds)
-        @p.eql?(p_other).should be_false
+        expect(@p.eql?(p_other)).to be_false
       end
 
     end
@@ -273,13 +273,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         p_other = Patient.new(@name, @id, @ds)
-        @p.hash.should be_a Fixnum
-        @p.hash.should eql p_other.hash
+        expect(@p.hash).to be_a Fixnum
+        expect(@p.hash).to eql p_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         p_other = Patient.new("Other Patient", @id, @ds)
-        @p.hash.should_not eql p_other.hash
+        expect(@p.hash).not_to eql p_other.hash
       end
 
     end
@@ -288,7 +288,7 @@ module RTKIT
     context "#to_patient" do
 
       it "should return itself" do
-        @p.to_patient.equal?(@p).should be_true
+        expect(@p.to_patient.equal?(@p)).to be_true
       end
 
     end
@@ -312,12 +312,12 @@ module RTKIT
       end
 
       it "should return the first Study when no arguments are used" do
-        @p.study.should eql @p.studies.first
+        expect(@p.study).to eql @p.studies.first
       end
 
       it "should return the matching Study when a UID string is supplied" do
         study = @p.study(@uid2)
-        study.uid.should eql @uid2
+        expect(study.uid).to eql @uid2
       end
 
     end

@@ -44,31 +44,31 @@ module RTKIT
 
       it "should create a Plan instance with attributes taken from the DICOM Object" do
         plan = Plan.load(@dcm, @st)
-        plan.sop_uid.should eql @dcm.value('0008,0018')
-        plan.series_uid.should eql @dcm.value('0020,000E')
-        plan.modality.should eql @dcm.value('0008,0060')
-        plan.class_uid.should eql @dcm.value('0008,0016')
-        plan.date.should eql @dcm.value('0008,0021')
-        plan.time.should eql @dcm.value('0008,0031')
-        plan.description.should eql @dcm.value('0008,103E')
-        plan.label.should eql @dcm.value('300A,0002')
-        plan.name.should eql @dcm.value('300A,0003')
-        plan.plan_description.should eql @dcm.value('300A,0004')
+        expect(plan.sop_uid).to eql @dcm.value('0008,0018')
+        expect(plan.series_uid).to eql @dcm.value('0020,000E')
+        expect(plan.modality).to eql @dcm.value('0008,0060')
+        expect(plan.class_uid).to eql @dcm.value('0008,0016')
+        expect(plan.date).to eql @dcm.value('0008,0021')
+        expect(plan.time).to eql @dcm.value('0008,0031')
+        expect(plan.description).to eql @dcm.value('0008,103E')
+        expect(plan.label).to eql @dcm.value('300A,0002')
+        expect(plan.name).to eql @dcm.value('300A,0003')
+        expect(plan.plan_description).to eql @dcm.value('300A,0004')
       end
 
       it "should create a Plan instance which is properly referenced to its study" do
         plan = Plan.load(@dcm, @st)
-        plan.study.should eql @st
+        expect(plan.study).to eql @st
       end
 
       it "should create and reference a Setup instance based on the Patient Setup Sequence Item" do
         plan = Plan.load(@dcm, @st)
-        plan.setup.class.should eql Setup
+        expect(plan.setup.class).to eql Setup
       end
 
       it "should set up a StructureSet reference when no corresponding StructureSet have been loaded" do
         plan = Plan.load(@dcm, @st)
-        plan.struct.should be_a StructureSet
+        expect(plan.struct).to be_a StructureSet
       end
 
 =begin
@@ -83,16 +83,16 @@ module RTKIT
         # we only get a simple Plan instance with some basic attributes.
         dcm = DICOM::DObject.read(FILE_BRACHY_PLAN)
         plan = Plan.load(dcm, @st)
-        plan.sop_uid.should eql dcm.value('0008,0018')
-        plan.series_uid.should eql dcm.value('0020,000E')
-        plan.modality.should eql dcm.value('0008,0060')
-        plan.class_uid.should eql dcm.value('0008,0016')
-        plan.date.should eql dcm.value('0008,0021')
-        plan.time.should eql dcm.value('0008,0031')
-        plan.description.should eql dcm.value('0008,103E')
-        plan.label.should eql dcm.value('300A,0002')
-        plan.name.should eql dcm.value('300A,0003')
-        plan.plan_description.should eql dcm.value('300A,0004')
+        expect(plan.sop_uid).to eql dcm.value('0008,0018')
+        expect(plan.series_uid).to eql dcm.value('0020,000E')
+        expect(plan.modality).to eql dcm.value('0008,0060')
+        expect(plan.class_uid).to eql dcm.value('0008,0016')
+        expect(plan.date).to eql dcm.value('0008,0021')
+        expect(plan.time).to eql dcm.value('0008,0031')
+        expect(plan.description).to eql dcm.value('0008,103E')
+        expect(plan.label).to eql dcm.value('300A,0002')
+        expect(plan.name).to eql dcm.value('300A,0003')
+        expect(plan.plan_description).to eql dcm.value('300A,0004')
       end
 
     end
@@ -109,87 +109,87 @@ module RTKIT
       end
 
       it "should by default set the 'beams' attribute as an empty array" do
-        @plan.beams.should eql Array.new
+        expect(@plan.beams).to eql Array.new
       end
 
       it "should by default set the 'doses' attribute as an empty array" do
-        @plan.rt_doses.should eql Array.new
+        expect(@plan.rt_doses).to eql Array.new
       end
 
       it "should by default set the 'modality' attribute equal as 'RTPLAN'" do
-        @plan.modality.should eql 'RTPLAN'
+        expect(@plan.modality).to eql 'RTPLAN'
       end
 
       it "should by default set the 'class_uid' attribute equal to the RT Plan Storage Class UID" do
-        @plan.class_uid.should eql '1.2.840.10008.5.1.4.1.1.481.5'
+        expect(@plan.class_uid).to eql '1.2.840.10008.5.1.4.1.1.481.5'
       end
 
       it "should by default set the 'date' attribute as nil" do
-        @plan.date.should be_nil
+        expect(@plan.date).to be_nil
       end
 
       it "should by default set the 'time' attribute as nil" do
-        @plan.time.should be_nil
+        expect(@plan.time).to be_nil
       end
 
       it "should by default set the 'description' attribute as nil" do
-        @plan.description.should be_nil
+        expect(@plan.description).to be_nil
       end
 
       it "should by default set the 'label' attribute as nil" do
-        @plan.label.should be_nil
+        expect(@plan.label).to be_nil
       end
 
       it "should by default set the 'name' attribute as nil" do
-        @plan.name.should be_nil
+        expect(@plan.name).to be_nil
       end
 
       it "should by default set the 'plan_description' attribute as nil" do
-        @plan.plan_description.should be_nil
+        expect(@plan.plan_description).to be_nil
       end
 
       it "should pass the 'sop_uid' argument to the 'sop_uid' attribute" do
-        @plan.sop_uid.should eql @uid
+        expect(@plan.sop_uid).to eql @uid
       end
 
 
       it "should pass the 'struct' argument to the 'struct' attribute" do
-        @plan.struct.should eql @ss
+        expect(@plan.struct).to eql @ss
       end
 
       it "should pass the optional 'date' argument to the 'date' attribute" do
         plan = Plan.new(@uid, @ss, :date => @date)
-        plan.date.should eql @date
+        expect(plan.date).to eql @date
       end
 
       it "should pass the optional 'time' argument to the 'time' attribute" do
         plan = Plan.new(@uid, @ss, :time => @time)
-        plan.time.should eql @time
+        expect(plan.time).to eql @time
       end
 
       it "should pass the optional 'description' argument to the 'description' attribute" do
         plan = Plan.new(@uid, @ss, :description => @description)
-        plan.description.should eql @description
+        expect(plan.description).to eql @description
       end
 
       it "should pass the optional 'label' argument to the 'label' attribute" do
         plan = Plan.new(@uid, @ss, :label => @label)
-        plan.label.should eql @label
+        expect(plan.label).to eql @label
       end
 
       it "should pass the optional 'name' argument to the 'name' attribute" do
         plan = Plan.new(@uid, @ss, :name => @name)
-        plan.name.should eql @name
+        expect(plan.name).to eql @name
       end
 
       it "should pass the optional 'plan_description' argument to the 'plan_description' attribute" do
         plan = Plan.new(@uid, @ss, :plan_description => @plan_description)
-        plan.plan_description.should eql @plan_description
+        expect(plan.plan_description).to eql @plan_description
       end
 
       it "should add the Plan instance (once) to the referenced StructureSet" do
-        @plan.struct.plans.length.should eql 1
-        @plan.struct.plans.first.should eql @plan
+        expect(@plan.struct.plans.length).to eql 1
+        expect(@plan.struct.plans.first).to eql @plan
       end
 
     end
@@ -199,16 +199,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         plan_other = Plan.new(@uid, @ss)
-        (@plan == plan_other).should be_true
+        expect(@plan == plan_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         plan_other = Plan.new('1.5.99', @ss)
-        (@plan == plan_other).should be_false
+        expect(@plan == plan_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@plan == 42).should be_false
+        expect(@plan == 42).to be_false
       end
 
     end
@@ -224,8 +224,8 @@ module RTKIT
         plan_other = Plan.new('1.23.787', @ss)
         dose = RTDose.new('1.45.876', plan_other)
         @plan.add_rt_dose(dose)
-        @plan.rt_doses.size.should eql 1
-        @plan.rt_doses.first.should eql dose
+        expect(@plan.rt_doses.size).to eql 1
+        expect(@plan.rt_doses.first).to eql dose
       end
 
       it "should add the RTDose to the Plan instance already containing one or more dose series" do
@@ -234,15 +234,15 @@ module RTKIT
         previous_size = plan.rt_doses.size
         dose = RTDose.new('1.45.876', @plan)
         plan.add_rt_dose(dose)
-        plan.rt_doses.size.should eql previous_size + 1
-        plan.rt_doses.last.should eql dose
+        expect(plan.rt_doses.size).to eql previous_size + 1
+        expect(plan.rt_doses.last).to eql dose
       end
 
       it "should not add multiple entries of the same RTDose" do
         dose = RTDose.new('1.45.876', @plan)
         @plan.add_rt_dose(dose)
-        @plan.rt_doses.size.should eql 1
-        @plan.rt_doses.first.should eql dose
+        expect(@plan.rt_doses.size).to eql 1
+        expect(@plan.rt_doses.first).to eql dose
       end
 
     end
@@ -252,12 +252,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         plan_other = Plan.new(@uid, @ss)
-        @plan.eql?(plan_other).should be_true
+        expect(@plan.eql?(plan_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         plan_other = Plan.new('1.5.99', @ss)
-        @plan.eql?(plan_other).should be_false
+        expect(@plan.eql?(plan_other)).to be_false
       end
 
     end
@@ -267,13 +267,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         plan_other = Plan.new(@uid, @ss)
-        @plan.hash.should be_a Fixnum
-        @plan.hash.should eql plan_other.hash
+        expect(@plan.hash).to be_a Fixnum
+        expect(@plan.hash).to eql plan_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         plan_other = Plan.new('1.5.99', @ss)
-        @plan.hash.should_not eql plan_other.hash
+        expect(@plan.hash).not_to eql plan_other.hash
       end
 
     end
@@ -297,12 +297,12 @@ module RTKIT
       end
 
       it "should return the first RTDose when no arguments are used" do
-        @plan.rt_dose.should eql @plan.rt_doses.first
+        expect(@plan.rt_dose).to eql @plan.rt_doses.first
       end
 
       it "should return the matching RTDose when a UID string is supplied" do
         dose = @plan.rt_dose(@uid2)
-        dose.uid.should eql @uid2
+        expect(dose.uid).to eql @uid2
       end
 
     end
@@ -311,7 +311,7 @@ module RTKIT
     context "#to_plan" do
 
       it "should return itself" do
-        @plan.to_plan.equal?(@plan).should be_true
+        expect(@plan.to_plan.equal?(@plan)).to be_true
       end
 
     end

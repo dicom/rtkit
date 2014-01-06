@@ -39,23 +39,23 @@ module RTKIT
 
       it "should set the Collimator's 'type' attribute equal to the value found in the Item" do
         coll = Collimator.create_from_item(@coll_item, @beam)
-        coll.type.should eql @coll_item.value('300A,00B8')
+        expect(coll.type).to eql @coll_item.value('300A,00B8')
       end
 
       it "should set the Collimator's 'type' attribute equal to the value found in the Item" do
         coll = Collimator.create_from_item(@coll_item, @beam)
-        coll.num_pairs.should eql @coll_item.value('300A,00BC').to_i
+        expect(coll.num_pairs).to eql @coll_item.value('300A,00BC').to_i
       end
 
       it "should set the Collimator's 'boundaries' attribute from the value found in the Item" do
         @coll_item.add(DICOM::Element.new('300A,00BE', "-50.0\\0.0\\50.0"))
         coll = Collimator.create_from_item(@coll_item, @beam)
-        coll.boundaries.should eql [-50.0, 0.0, 50.0]
+        expect(coll.boundaries).to eql [-50.0, 0.0, 50.0]
       end
 
       it "should set the Collimator's 'boundaries' attribute as nil when the Item doesn't contain it" do
         coll = Collimator.create_from_item(@coll_item, @beam)
-        coll.boundaries.should be_nil
+        expect(coll.boundaries).to be_nil
       end
 
     end
@@ -76,20 +76,20 @@ module RTKIT
       end
 
       it "should pass the 'type' argument to the 'type' attribute" do
-        @coll.type.should eql @type
+        expect(@coll.type).to eql @type
       end
 
       it "should pass the 'num_pairs' argument to the 'num_pairs' attribute" do
-        @coll.num_pairs.should eql @num
+        expect(@coll.num_pairs).to eql @num
       end
 
       it "should pass the 'boundaries' option to the 'boundaries' attribute" do
         coll = Collimator.new(@type, @num, @beam, :boundaries => @boundaries)
-        coll.boundaries.should eql @boundaries
+        expect(coll.boundaries).to eql @boundaries
       end
 
       it "should add the Collimator instance to the referenced Beam" do
-        @beam.collimator.should eql @coll
+        expect(@beam.collimator).to eql @coll
       end
 
     end
@@ -99,16 +99,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coll_other = Collimator.new(@type, @num, @beam)
-        (@coll == coll_other).should be_true
+        expect(@coll == coll_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         coll_other = Collimator.new('MLCY', @num, @beam)
-        (@coll == coll_other).should be_false
+        expect(@coll == coll_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@coll == 42).should be_false
+        expect(@coll == 42).to be_false
       end
 
     end
@@ -119,19 +119,19 @@ module RTKIT
       it "should assign nil to the referenced attribute" do
         value = nil
         @coll.boundaries = value
-        @coll.boundaries.should eql value
+        expect(@coll.boundaries).to eql value
       end
 
       it "should assign the value to the referenced attribute" do
         value = [-50, 0.0, 50.0]
         @coll.boundaries = value
-        @coll.boundaries.should eql value
+        expect(@coll.boundaries).to eql value
       end
 
       it "should convert the string containing a set of values to an array" do
         value = "-50.0\\0.0\\50.0"
         @coll.boundaries = value
-        @coll.boundaries.should eql [-50.0, 0.0, 50.0]
+        expect(@coll.boundaries).to eql [-50.0, 0.0, 50.0]
       end
 
     end
@@ -141,12 +141,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coll_other = Collimator.new(@type, @num, @beam)
-        @coll.eql?(coll_other).should be_true
+        expect(@coll.eql?(coll_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         coll_other = Collimator.new('MLCY', @num, @beam)
-        @coll.eql?(coll_other).should be_false
+        expect(@coll.eql?(coll_other)).to be_false
       end
 
     end
@@ -156,13 +156,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         coll_other = Collimator.new(@type, @num, @beam)
-        @coll.hash.should be_a Fixnum
-        @coll.hash.should eql coll_other.hash
+        expect(@coll.hash).to be_a Fixnum
+        expect(@coll.hash).to eql coll_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         coll_other = Collimator.new('MLCY', @num, @beam)
-        @coll.hash.should_not eql coll_other.hash
+        expect(@coll.hash).not_to eql coll_other.hash
       end
 
     end
@@ -177,7 +177,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 4
         @coll.num_pairs = value
-        @coll.num_pairs.should eql value
+        expect(@coll.num_pairs).to eql value
       end
 
     end
@@ -186,7 +186,7 @@ module RTKIT
     context "#to_collimator" do
 
       it "should return itself" do
-        @coll.to_collimator.equal?(@coll).should be_true
+        expect(@coll.to_collimator.equal?(@coll)).to be_true
       end
 
     end
@@ -201,7 +201,7 @@ module RTKIT
       it "should assign the value to the referenced attribute" do
         value = 'MLCX'
         @coll.type = value
-        @coll.type.should eql value
+        expect(@coll.type).to eql value
       end
 
     end

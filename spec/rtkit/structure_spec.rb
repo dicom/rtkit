@@ -48,54 +48,54 @@ module RTKIT
 
       it "should return a ROI instance" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.should be_a ROI
+        expect(roi).to be_a ROI
       end
 
       it "should fill the 'slices' array attribute with Slices created from the items" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.slices.length.should eql @contour_item['3006,0040'].count
-        roi.slices.first.class.should eql Slice
+        expect(roi.slices.length).to eql @contour_item['3006,0040'].count
+        expect(roi.slices.first.class).to eql Slice
       end
 
       it "should set the ROI's 'algorithm' attribute equal to that of the value found in the Structure Set ROI Item" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.algorithm.should eql @roi_item.value('3006,0036')
+        expect(roi.algorithm).to eql @roi_item.value('3006,0036')
       end
 
       it "should set the ROI's 'name' attribute equal to that of the value found in the Structure Set ROI Item" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.name.should eql @roi_item.value('3006,0026')
+        expect(roi.name).to eql @roi_item.value('3006,0026')
       end
 
       it "should set the ROI's 'number' attribute equal to that of the value found in the Structure Set ROI Item" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.number.should eql @roi_item.value('3006,0022').to_i
+        expect(roi.number).to eql @roi_item.value('3006,0022').to_i
       end
 
       it "should set the ROI's 'type' attribute equal to that of the value found in the RT ROI Observations Item" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.type.should eql @rt_item.value('3006,00A4')
+        expect(roi.type).to eql @rt_item.value('3006,00A4')
       end
 
       it "should set the ROI's 'interpreter' attribute equal to that of the value found in the RT ROI Observations Item" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
         value = @contour_item.value('3006,00A6') || ""
-        roi.interpreter.should eql value
+        expect(roi.interpreter).to eql value
       end
 
       it "should set the ROI's 'color' attribute equal to that of the value found in the ROI Contour Item" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.color.should eql @contour_item.value('3006,002A')
+        expect(roi.color).to eql @contour_item.value('3006,002A')
       end
 
       it "should set the ROI's 'struct' attribute equal to the 'struct' argument" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.struct.should eql @ss
+        expect(roi.struct).to eql @ss
       end
 
       it "should create a referenced Frame instance who's UID matches the value of the Frame UID tag of the 'ROI Item'" do
         roi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        roi.frame.uid.should eql @roi_item.value('3006,0024')
+        expect(roi.frame.uid).to eql @roi_item.value('3006,0024')
       end
 
     end
@@ -128,58 +128,58 @@ module RTKIT
 
       it "should return a POI instance" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.should be_a POI
+        expect(poi).to be_a POI
       end
 
       it "should create a coordinate extracted from the contour item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.coordinate.to_s.split("\\").collect {|val| val.to_f.round(1)}.should eql @contour_item['3006,0040'][0].value('3006,0050').split("\\").collect {|val| val.to_f.round(1)}
+        expect(poi.coordinate.to_s.split("\\").collect {|val| val.to_f.round(1)}).to eql @contour_item['3006,0040'][0].value('3006,0050').split("\\").collect {|val| val.to_f.round(1)}
       end
 
       it "should set the POI's 'uid' attribute equal to that of the value found in the ROI Contour Item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.uid.should eql @contour_item['3006,0040'][0]['3006,0016'][0].value('0008,1155')
+        expect(poi.uid).to eql @contour_item['3006,0040'][0]['3006,0016'][0].value('0008,1155')
       end
 
       it "should set the POI's 'algorithm' attribute equal to that of the value found in the Structure Set ROI Item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.algorithm.should eql @roi_item.value('3006,0036')
+        expect(poi.algorithm).to eql @roi_item.value('3006,0036')
       end
 
       it "should set the POI's 'name' attribute equal to that of the value found in the Structure Set ROI Item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.name.should eql @roi_item.value('3006,0026')
+        expect(poi.name).to eql @roi_item.value('3006,0026')
       end
 
       it "should set the POI's 'number' attribute equal to that of the value found in the Structure Set ROI Item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.number.should eql @roi_item.value('3006,0022').to_i
+        expect(poi.number).to eql @roi_item.value('3006,0022').to_i
       end
 
       it "should set the POI's 'type' attribute equal to that of the value found in the RT ROI Observations Item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.type.should eql @rt_item.value('3006,00A4')
+        expect(poi.type).to eql @rt_item.value('3006,00A4')
       end
 
       it "should set the POI's 'interpreter' attribute equal to that of the value found in the RT ROI Observations Item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
         value = @contour_item.value('3006,00A6') || ""
-        poi.interpreter.should eql value
+        expect(poi.interpreter).to eql value
       end
 
       it "should set the POI's 'color' attribute equal to that of the value found in the ROI Contour Item" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.color.should eql @contour_item.value('3006,002A')
+        expect(poi.color).to eql @contour_item.value('3006,002A')
       end
 
       it "should set the POI's 'struct' attribute equal to the 'struct' argument" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.struct.should eql @ss
+        expect(poi.struct).to eql @ss
       end
 
       it "should create a referenced Frame instance who's UID matches the value of the Frame UID tag of the 'ROI Item'" do
         poi = Structure.create_from_items(@roi_item, @contour_item, @rt_item, @ss)
-        poi.frame.uid.should eql @roi_item.value('3006,0024')
+        expect(poi.frame.uid).to eql @roi_item.value('3006,0024')
       end
 
     end
@@ -220,44 +220,44 @@ module RTKIT
       end
 
       it "should pass the 'name' argument to the 'name' attribute" do
-        @soi.name.should eql @name
+        expect(@soi.name).to eql @name
       end
 
       it "should pass the 'number' argument to the 'number' attribute" do
-        @soi.number.should eql @number
+        expect(@soi.number).to eql @number
       end
 
       it "should pass the 'frame' argument to the 'frame' attribute" do
-        @soi.frame.should eql @f
+        expect(@soi.frame).to eql @f
       end
 
       it "should pass the 'struct' argument to the 'struct' attribute" do
-        @soi.struct.should eql @ss
+        expect(@soi.struct).to eql @ss
       end
 
       it "should by default set the 'algorithm' attribute to 'Automatic'" do
-        @soi.algorithm.should eql 'Automatic'
+        expect(@soi.algorithm).to eql 'Automatic'
       end
 
       it "should by default set the 'type' attribute to a 'CONTROL'" do
-        @soi.type.should eql 'CONTROL'
+        expect(@soi.type).to eql 'CONTROL'
       end
 
       it "should by default set the 'interpreter' attribute to 'RTKIT'" do
-        @soi.interpreter.should eql 'RTKIT'
+        expect(@soi.interpreter).to eql 'RTKIT'
       end
 
       it "should by default set the 'color' attribute to a proper color string" do
-        @soi.color.class.should eql String
-        @soi.color.split("\\").length.should eql 3
+        expect(@soi.color.class).to eql String
+        expect(@soi.color.split("\\").length).to eql 3
       end
 
       it "should not add the Structure instance itself to the referenced StructureSet" do
-        @ss.structures.length.should eql 0
+        expect(@ss.structures.length).to eql 0
       end
 
       it "should not add the Structure instance itself to the referenced Frame" do
-        @f.structures.length.should eql 0
+        expect(@f.structures.length).to eql 0
       end
 
     end
@@ -268,16 +268,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         soi = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         soi_other = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        (soi == soi_other).should be_true
+        expect(soi == soi_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         soi_other = Structure.new('Other ROI', @number, @f, @ss)
-        (@soi == soi_other).should be_false
+        expect(@soi == soi_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@soi == 42).should be_false
+        expect(@soi == 42).to be_false
       end
 
     end
@@ -288,12 +288,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         soi = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         soi_other = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        soi.eql?(soi_other).should be_true
+        expect(soi.eql?(soi_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         soi_other = Structure.new('Other ROI', @number, @f, @ss)
-        @soi.eql?(soi_other).should be_false
+        expect(@soi.eql?(soi_other)).to be_false
       end
 
     end
@@ -304,13 +304,13 @@ module RTKIT
       it "should return the same Fixnum for two instances having the same attribute values" do
         soi = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         soi_other = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        soi.hash.should be_a Fixnum
-        soi.hash.should eql soi_other.hash
+        expect(soi.hash).to be_a Fixnum
+        expect(soi.hash).to eql soi_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         soi_other = Structure.new('Other ROI', @number, @f, @ss)
-        @soi.hash.should_not eql soi_other.hash
+        expect(@soi.hash).not_to eql soi_other.hash
       end
 
     end
@@ -319,7 +319,7 @@ module RTKIT
     context "#to_structure" do
 
       it "should return itself" do
-        @soi.to_structure.equal?(@soi).should be_true
+        expect(@soi.to_structure.equal?(@soi)).to be_true
       end
 
     end

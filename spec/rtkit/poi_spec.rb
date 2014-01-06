@@ -57,54 +57,54 @@ module RTKIT
       end
 
       it "should pass the 'name' argument to the 'name' attribute" do
-        @poi.name.should eql @name
+        expect(@poi.name).to eql @name
       end
 
       it "should pass the 'number' argument to the 'number' attribute" do
-        @poi.number.should eql @number
+        expect(@poi.number).to eql @number
       end
 
       it "should pass the 'frame' argument to the 'frame' attribute" do
-        @poi.frame.should eql @f
+        expect(@poi.frame).to eql @f
       end
 
       it "should pass the 'struct' argument to the 'struct' attribute" do
-        @poi.struct.should eql @ss
+        expect(@poi.struct).to eql @ss
       end
 
       it "should by default set the 'coordinate' attribute to nil" do
-        @poi.coordinate.should be_nil
+        expect(@poi.coordinate).to be_nil
       end
 
       it "should by default set the 'image' attribute to nil" do
-        @poi.image.should be_nil
+        expect(@poi.image).to be_nil
       end
 
       it "should by default set the 'algorithm' attribute to 'Automatic'" do
-        @poi.algorithm.should eql 'Automatic'
+        expect(@poi.algorithm).to eql 'Automatic'
       end
 
       it "should by default set the 'type' attribute to a 'CONTROL'" do
-        @poi.type.should eql 'CONTROL'
+        expect(@poi.type).to eql 'CONTROL'
       end
 
       it "should by default set the 'interpreter' attribute to 'RTKIT'" do
-        @poi.interpreter.should eql 'RTKIT'
+        expect(@poi.interpreter).to eql 'RTKIT'
       end
 
       it "should by default set the 'color' attribute to a proper color string" do
-        @poi.color.class.should eql String
-        @poi.color.split("\\").length.should eql 3
+        expect(@poi.color.class).to eql String
+        expect(@poi.color.split("\\").length).to eql 3
       end
 
       it "should add the POI instance (once) to the referenced StructureSet" do
-        @ss.structures.length.should eql 1
-        @ss.structure(@poi.name).should eql @poi
+        expect(@ss.structures.length).to eql 1
+        expect(@ss.structure(@poi.name)).to eql @poi
       end
 
       it "should add the POI instance (once) to the referenced Frame" do
-        @f.structures.length.should eql 1
-        @f.structure(@poi.name).should eql @poi
+        expect(@f.structures.length).to eql 1
+        expect(@f.structure(@poi.name)).to eql @poi
       end
 
     end
@@ -115,16 +115,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         poi = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         poi_other = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        (poi == poi_other).should be_true
+        expect(poi == poi_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         poi_other = POI.new('Other POI', @number, @f, @ss)
-        (@poi == poi_other).should be_false
+        expect(@poi == poi_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@poi == 42).should be_false
+        expect(@poi == 42).to be_false
       end
 
     end
@@ -138,13 +138,13 @@ module RTKIT
 
       it "should return a ROI Contour Sequence Item properly populated with values from the POI instance" do
         item = @poi.contour_item
-        item.class.should eql DICOM::Item
-        item.count.should eql 3
-        item.value('3006,002A').should eql @poi.color
-        item.value('3006,0084').should eql @poi.number.to_s
-        item['3006,0040'][0].value('3006,0042').should eql 'POINT'
-        item['3006,0040'][0].value('3006,0046').should eql '1'
-        item['3006,0040'][0].value('3006,0048').should eql @poi.number.to_s
+        expect(item.class).to eql DICOM::Item
+        expect(item.count).to eql 3
+        expect(item.value('3006,002A')).to eql @poi.color
+        expect(item.value('3006,0084')).to eql @poi.number.to_s
+        expect(item['3006,0040'][0].value('3006,0042')).to eql 'POINT'
+        expect(item['3006,0040'][0].value('3006,0046')).to eql '1'
+        expect(item['3006,0040'][0].value('3006,0048')).to eql @poi.number.to_s
       end
 
     end
@@ -155,12 +155,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         poi = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         poi_other = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        poi.eql?(poi_other).should be_true
+        expect(poi.eql?(poi_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         POI_other = POI.new('Other POI', @number, @f, @ss)
-        @POI.eql?(POI_other).should be_false
+        expect(@POI.eql?(POI_other)).to be_false
       end
 
     end
@@ -175,7 +175,7 @@ module RTKIT
       it "should assign the new frame to the POI" do
         f_other = Frame.new('1.787.434', @p)
         @poi.frame = f_other
-        @poi.frame.should eql f_other
+        expect(@poi.frame).to eql f_other
       end
 
     end
@@ -186,13 +186,13 @@ module RTKIT
       it "should return the same Fixnum for two instances having the same attribute values" do
         poi = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         poi_other = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        poi.hash.should be_a Fixnum
-        poi.hash.should eql poi_other.hash
+        expect(poi.hash).to be_a Fixnum
+        expect(poi.hash).to eql poi_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         poi_other = POI.new('Other POI', @number, @f, @ss)
-        @poi.hash.should_not eql poi_other.hash
+        expect(@poi.hash).not_to eql poi_other.hash
       end
 
     end
@@ -203,12 +203,12 @@ module RTKIT
       it "should return a RT ROI Observations Sequence Item properly populated with values from the POI instance" do
         poi = POI.new(@name, @number, @f, @ss)
         item = poi.obs_item
-        item.class.should eql DICOM::Item
-        item.count.should eql 4
-        item.value('3006,0082').should eql poi.number.to_s
-        item.value('3006,0084').should eql poi.number.to_s
-        item.value('3006,00A4').should eql poi.type
-        item.value('3006,00A6').should eql poi.interpreter
+        expect(item.class).to eql DICOM::Item
+        expect(item.count).to eql 4
+        expect(item.value('3006,0082')).to eql poi.number.to_s
+        expect(item.value('3006,0084')).to eql poi.number.to_s
+        expect(item.value('3006,00A4')).to eql poi.type
+        expect(item.value('3006,00A6')).to eql poi.interpreter
       end
 
     end
@@ -219,8 +219,8 @@ module RTKIT
       it "should nullify the 'frame' and 'struct' attributes of the POI instance" do
         poi = POI.new(@name, @number, @f, @ss)
         poi.remove_references
-        poi.frame.should be_nil
-        poi.struct.should be_nil
+        expect(poi.frame).to be_nil
+        expect(poi.struct).to be_nil
       end
 
     end
@@ -231,12 +231,12 @@ module RTKIT
       it "should return a Structure Set ROI Sequence Item properly populated with values from the POI instance" do
         poi = POI.new(@name, @number, @f, @ss)
         item = poi.ss_item
-        item.class.should eql DICOM::Item
-        item.count.should eql 4
-        item.value('3006,0022').should eql poi.number.to_s
-        item.value('3006,0024').should eql poi.frame.uid
-        item.value('3006,0026').should eql poi.name
-        item.value('3006,0036').should eql poi.algorithm
+        expect(item.class).to eql DICOM::Item
+        expect(item.count).to eql 4
+        expect(item.value('3006,0022')).to eql poi.number.to_s
+        expect(item.value('3006,0024')).to eql poi.frame.uid
+        expect(item.value('3006,0026')).to eql poi.name
+        expect(item.value('3006,0036')).to eql poi.algorithm
       end
 
     end
@@ -245,7 +245,7 @@ module RTKIT
     context "#to_poi" do
 
       it "should return itself" do
-        @poi.to_poi.equal?(@poi).should be_true
+        expect(@poi.to_poi.equal?(@poi)).to be_true
       end
 
     end

@@ -33,16 +33,16 @@ module RTKIT
       end
 
       it "should create a BinMatcher instance when no arguments are passed" do
-        BinMatcher.new.class.should eql BinMatcher
+        expect(BinMatcher.new.class).to eql BinMatcher
       end
 
       it "should create a BinMatcher instance when nil-arguments are passed" do
-        BinMatcher.new(volumes=nil, master=nil).class.should eql BinMatcher
+        expect(BinMatcher.new(volumes=nil, master=nil).class).to eql BinMatcher
       end
 
       it "should set the volumes attribute as an empty array and the master attribute as nil when an empty BinMatcher instance is created" do
-        @bm.master.should be_nil
-        @bm.volumes.should eql Array.new
+        expect(@bm.master).to be_nil
+        expect(@bm.volumes).to eql Array.new
       end
 
       it "should create a BinMatcher instance when a BinVolume array is passed for 'volumes' and a BinVolume is passed for 'master', and transfer these to the instance attributes" do
@@ -52,9 +52,9 @@ module RTKIT
         master = img_series.struct.structure('External').bin_volume
         volumes << img_series.struct.structure('Small').bin_volume
         bm = BinMatcher.new(volumes, master)
-        bm.class.should eql BinMatcher
-        bm.volumes.should eql volumes
-        bm.master.should eql master
+        expect(bm.class).to eql BinMatcher
+        expect(bm.volumes).to eql volumes
+        expect(bm.master).to eql master
       end
 
     end
@@ -64,16 +64,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bm_other = BinMatcher.new
-        (@bm == bm_other).should be_true
+        expect(@bm == bm_other).to be_true
       end
 
       it "should be false when comparing two instances having different attributes" do
         bm_other = BinMatcher.new([@bv])
-        (@bm == bm_other).should be_false
+        expect(@bm == bm_other).to be_false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        (@bm == 42).should be_false
+        expect(@bm == 42).to be_false
       end
 
     end
@@ -91,7 +91,7 @@ module RTKIT
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         volume = d.patient.study.image_series.first.struct.structure('External').bin_volume
         @bm.add(volume)
-        @bm.volumes.should eql [volume]
+        expect(@bm.volumes).to eql [volume]
       end
 
     end
@@ -108,8 +108,8 @@ module RTKIT
         b3.sensitivity = 0.9
         bm = BinMatcher.new([b3, b1, b2])
         ranked = bm.by_sensitivity
-        ranked.first.should eql b3
-        ranked.last.should eql b1
+        expect(ranked.first).to eql b3
+        expect(ranked.last).to eql b1
       end
 
     end
@@ -126,8 +126,8 @@ module RTKIT
         b3.specificity = 0.8
         bm = BinMatcher.new([b3, b2, b1])
         ranked = bm.by_specificity
-        ranked.first.should eql b3
-        ranked.last.should eql b1
+        expect(ranked.first).to eql b3
+        expect(ranked.last).to eql b1
       end
 
     end
@@ -137,12 +137,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bm_other = BinMatcher.new
-        @bm.eql?(bm_other).should be_true
+        expect(@bm.eql?(bm_other)).to be_true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bm_other = BinMatcher.new([@bv])
-        @bm.eql?(bm_other).should be_false
+        expect(@bm.eql?(bm_other)).to be_false
       end
 
     end
@@ -158,8 +158,8 @@ module RTKIT
         original_volume_image_length = volume.bin_images.length
         bm = BinMatcher.new([volume], master)
         bm.fill_blanks
-        bm.master.bin_images.length.should eql original_master_image_length
-        bm.volumes.first.bin_images.length.should eql original_volume_image_length
+        expect(bm.master.bin_images.length).to eql original_master_image_length
+        expect(bm.volumes.first.bin_images.length).to eql original_volume_image_length
       end
 
       it "should add a BinImage instance to the volume when it contains less BinImage instances than the master volume" do
@@ -171,8 +171,8 @@ module RTKIT
         volume.bin_images.pop
         bm = BinMatcher.new([volume], master)
         bm.fill_blanks
-        bm.master.bin_images.length.should eql original_master_image_length
-        bm.volumes.first.bin_images.length.should eql original_volume_image_length
+        expect(bm.master.bin_images.length).to eql original_master_image_length
+        expect(bm.volumes.first.bin_images.length).to eql original_volume_image_length
       end
 
       it "should not change length of the 'volumes' attribute when including a master volume for processing" do
@@ -183,7 +183,7 @@ module RTKIT
         bm = BinMatcher.new([volume], master)
         original_number_of_volumes = bm.volumes.length
         bm.fill_blanks
-        bm.volumes.length.should eql original_number_of_volumes
+        expect(bm.volumes.length).to eql original_number_of_volumes
       end
 
     end
@@ -193,13 +193,13 @@ module RTKIT
 
       it "should return the same Fixnum for two instances having the same attribute values" do
         bm_other = BinMatcher.new
-        @bm.hash.should be_a Fixnum
-        @bm.hash.should eql bm_other.hash
+        expect(@bm.hash).to be_a Fixnum
+        expect(@bm.hash).to eql bm_other.hash
       end
 
       it "should return a different Fixnum for two instances having different attribute values" do
         bm_other = BinMatcher.new([@bv])
-        @bm.hash.should_not eql bm_other.hash
+        expect(@bm.hash).not_to eql bm_other.hash
       end
 
     end
@@ -217,7 +217,7 @@ module RTKIT
         d = DataSet.read(DIR_SIMPLE_PHANTOM_CONTOURS)
         master = d.patient.study.image_series.first.struct.structure('External').bin_volume
         @bm.master = master
-        @bm.master.should eql master
+        expect(@bm.master).to eql master
       end
 
     end
@@ -227,8 +227,8 @@ module RTKIT
 
       it "should return an empty array when called on a BinMatcher instance with no volumes" do
         narrays = @bm.narrays
-        narrays.class.should eql Array
-        narrays.length.should eql 0
+        expect(narrays.class).to eql Array
+        expect(narrays.length).to eql 0
       end
 
       it "should return an array of (2) NArray objects from the BinMatcher instance containing 2 volumes" do
@@ -237,9 +237,9 @@ module RTKIT
         volume2 = d.patient.study.image_series.first.struct.structure('Small').bin_volume
         bm = BinMatcher.new([volume1, volume2])
         narrays = bm.narrays
-        narrays.class.should eql Array
-        narrays.length.should eql 2
-        narrays.first.class.should eql NArray
+        expect(narrays.class).to eql Array
+        expect(narrays.length).to eql 2
+        expect(narrays.first.class).to eql NArray
       end
 
     end
@@ -297,7 +297,7 @@ puts bm.master.narr.shape
         bm = BinMatcher.new([@vol])
         bm.master = @master
         bm.score_dice
-        bm.volumes.first.dice.should eql 0.5
+        expect(bm.volumes.first.dice).to eql 0.5
       end
 
     end
@@ -324,23 +324,23 @@ puts bm.master.narr.shape
       end
 
       it "should produce the expected scores for the purely under-specified volume" do
-        @bm.volumes[0].sensitivity.should eql 0.7
-        @bm.volumes[0].specificity.should eql 1.0
+        expect(@bm.volumes[0].sensitivity).to eql 0.7
+        expect(@bm.volumes[0].specificity).to eql 1.0
       end
 
       it "should produce the expected scores for the purely over-specified volume" do
-        @bm.volumes[1].sensitivity.should eql 1.0
-        @bm.volumes[1].specificity.should eql 0.6
+        expect(@bm.volumes[1].sensitivity).to eql 1.0
+        expect(@bm.volumes[1].specificity).to eql 0.6
       end
 
       it "should produce the expected scores for the over- and under-specified volume" do
-        @bm.volumes[2].sensitivity.should eql 0.9
-        @bm.volumes[2].specificity.should eql 0.6
+        expect(@bm.volumes[2].sensitivity).to eql 0.9
+        expect(@bm.volumes[2].specificity).to eql 0.6
       end
 
       it "should produce the expected scores for the perfectly specified volume" do
-        @bm.volumes[3].sensitivity.should eql 1.0
-        @bm.volumes[3].specificity.should eql 1.0
+        expect(@bm.volumes[3].sensitivity).to eql 1.0
+        expect(@bm.volumes[3].specificity).to eql 1.0
       end
 
     end
@@ -362,32 +362,32 @@ puts bm.master.narr.shape
         bm = BinMatcher.new([@p_two])
         bm.master = @p_one
         bm.score_ss
-        bm.volumes.first.sensitivity.should eql 1.0
-        bm.volumes.first.specificity.should eql 8/9.0
+        expect(bm.volumes.first.sensitivity).to eql 1.0
+        expect(bm.volumes.first.specificity).to eql 8/9.0
       end
 
       it "should give the expected scores for this case" do
         bm = BinMatcher.new([@p_one])
         bm.master = @p_two
         bm.score_ss
-        bm.volumes.first.sensitivity.should eql 0.5
-        bm.volumes.first.specificity.should eql 1.0
+        expect(bm.volumes.first.sensitivity).to eql 0.5
+        expect(bm.volumes.first.specificity).to eql 1.0
       end
 
       it "should give the expected scores for this case" do
         bm = BinMatcher.new([@p_one])
         bm.master = @n_one
         bm.score_ss
-        bm.volumes.first.sensitivity.should eql 1/9.0
-        bm.volumes.first.specificity.should eql 1.0
+        expect(bm.volumes.first.sensitivity).to eql 1/9.0
+        expect(bm.volumes.first.specificity).to eql 1.0
       end
 
       it "should give the expected scores for this case" do
         bm = BinMatcher.new([@n_one])
         bm.master = @p_one
         bm.score_ss
-        bm.volumes.first.sensitivity.should eql 1.0
-        bm.volumes.first.specificity.should eql 1/9.0
+        expect(bm.volumes.first.sensitivity).to eql 1.0
+        expect(bm.volumes.first.specificity).to eql 1/9.0
       end
 
     end
@@ -416,7 +416,7 @@ puts bm.master.narr.shape
         volumes.each do |volume|
           slice_orders << volume.bin_images.collect {|bin_image| bin_image.pos_slice}
         end
-        slice_orders.uniq.length.should eql 1
+        expect(slice_orders.uniq.length).to eql 1
       end
 
     end
@@ -425,7 +425,7 @@ puts bm.master.narr.shape
     context "#to_bin_matcher" do
 
       it "should return itself" do
-        @bm.to_bin_matcher.equal?(@bm).should be_true
+        expect(@bm.to_bin_matcher.equal?(@bm)).to be_true
       end
 
     end
