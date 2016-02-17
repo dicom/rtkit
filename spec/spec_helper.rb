@@ -45,4 +45,5 @@ end
 # Create a directory for temporary files (and delete the directory if it already exists):
 require 'fileutils'
 FileUtils.rmtree(RTKIT::TMPDIR) if File.directory?(RTKIT::TMPDIR)
+sleep(0.001) # (For some reason, a small delay is needed here to avoid sporadic exceptions)
 FileUtils.mkdir(RTKIT::TMPDIR)
