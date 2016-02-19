@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.author = 'Christoffer Lervag'
   s.email = 'chris.lervag@gmail.com'
   s.homepage = 'https://github.com/dicom/rtkit/'
-  s.license = 'GPLv3'
+  s.license = 'GPL-3.0'
   s.description = "DICOM is a standard widely used throughout the world to store and transfer medical image data. This library enables powerful ways of handling the radiotherapy DICOM modalities in Ruby, to the benefit of any student or professional who would like to go further with their radiotherapy data."
   s.files = Dir["{lib}/**/*", "[A-Z]*"]
 
