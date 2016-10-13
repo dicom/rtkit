@@ -142,6 +142,8 @@ module RTKIT
         bm = BinMatcher.new([v1, v2])
         s = Staple.new(bm)
         s.solve
+        expect(s.true_segmentation).to eql NArray.to_na([[1,1], [1,1]])
+        expect(s.weights).to eql NArray.to_na([0.5, 0.5, 0.5, 0.5])
       end
 
       it "should produce arrays of sensitivity, specificity and phi with dimensions corresponding to the input number of volumes" do
@@ -208,18 +210,22 @@ module RTKIT
       end
 
       it "should produce a true segmentation which is equal to the expert rater's segmentation" do
+        expect(@s.true_segmentation[0, true, 0]).to eql @expert.narray
       end
 
       it "should produce results of sensitivity as expected" do
+        expect(@s.p).to eql @expected_sensitivity
       end
 
       it "should produce results of specificity as expected" do
+        expect(@s.p).to eql @expected_specificity
       end
 
       it "should produce results of phi (sensitivity and specificity) as expected" do
         expected_phi = NArray.float(2, 5)
         expected_phi[0, true] = @expected_sensitivity
         expected_phi[1, true] = @expected_specificity
+        expect(@s.phi).to eql expected_phi
       end
 
     end
@@ -250,9 +256,11 @@ module RTKIT
       end
 
       it "should produce results of sensitivity as expected" do
+        expect(@s.p).to eql @expected_sensitivity
       end
 
       it "should produce results of specificity as expected" do
+        expect(@s.p).to eql @expected_specificity
       end
 
       it "should create a master volume in the BinMatcher instance who's BinImages have equal narrays as those of the input volumes" do
