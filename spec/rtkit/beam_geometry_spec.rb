@@ -27,15 +27,15 @@ module RTKIT
     context "::new" do
 
       it "should raise an error when a non-BeamGeometry is passed as 'source' argument" do
-        expect {BeamGeometry.new(42.0, @isocenter)}.to raise_error
+        expect {BeamGeometry.new(42.0, @isocenter)}.to raise_error(/to_beam_geometry/)
       end
 
       it "should raise an error when a non-BeamGeometry is passed as 'isocenter' argument" do
-        expect {BeamGeometry.new(@source, 42.0)}.to raise_error
+        expect {BeamGeometry.new(@source, 42.0)}.to raise_error(/to_beam_geometry/)
       end
 
       it "should raise an error when a non-VoxelSpace is passed as 'voxel_space' argument" do
-        expect {BeamGeometry.new(@source, @isocenter, 42.0)}.to raise_error
+        expect {BeamGeometry.new(@source, @isocenter, 42.0)}.to raise_error(/to_voxel_space/)
       end
 
       it "should pass the 'source' argument to the 'source' attribute" do
@@ -149,7 +149,7 @@ module RTKIT
     context "#create_drr" do
 
       it "should raise an error when a non-PixelSpace is passed as 'pixel_space' argument" do
-        expect {@bg.create_drr(42.0)}.to raise_error
+        expect {@bg.create_drr(42.0)}.to raise_error(/to_pixel_space/)
       end
 
       it "should return a PixelSpace instance (when the rays intersect the voxel space)" do
@@ -258,7 +258,7 @@ puts result.inspect
     context "#isocenter=()" do
 
       it "should raise an error when a non-Coordinate is passed as argument" do
-        expect {@bg.isocenter = '42.0'}.to raise_error
+        expect {@bg.isocenter = '42.0'}.to raise_error(/to_coordinate/)
       end
 
       it "should pass the position argument to the 'isocenter' attribute" do
@@ -273,7 +273,7 @@ puts result.inspect
     context "#source=()" do
 
       it "should raise an error when a non-Coordinate is passed as argument" do
-        expect {@bg.source = '42.0'}.to raise_error
+        expect {@bg.source = '42.0'}.to raise_error(/to_coordinate/)
       end
 
       it "should pass the position argument to the 'source' attribute" do
@@ -297,7 +297,7 @@ puts result.inspect
     context "#voxel_space=()" do
 
       it "should raise an error when a non-VoxelSpace is passed as argument" do
-        expect {@bg.voxel_space = '42.0'}.to raise_error
+        expect {@bg.voxel_space = '42.0'}.to raise_error(/to_voxel_space/)
       end
 
       it "should pass the vs argument to the 'voxel_space' attribute" do

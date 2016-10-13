@@ -526,7 +526,7 @@ module RTKIT
     context "#frame=()" do
 
       it "should raise an when a non-Frame is passed" do
-        expect {@roi.frame = 'not-a-frame'}.to raise_error
+        expect {@roi.frame = 'not-a-frame'}.to raise_error(/to_frame/)
       end
 
       it "should assign the new frame to the roi" do

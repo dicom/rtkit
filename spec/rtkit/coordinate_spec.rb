@@ -26,15 +26,15 @@ module RTKIT
     context "::new" do
 
       it "should raise an ArgumentError when a non-Float is passed as 'x' argument" do
-        expect {Coordinate.new(['42.0'], @y, @z, @c)}.to raise_error
+        expect {Coordinate.new(['42.0'], @y, @z, @c)}.to raise_error(/to_f/)
       end
 
       it "should raise an ArgumentError when a non-Float is passed as 'y' argument" do
-        expect {Coordinate.new(@x, [42], @z, @c)}.to raise_error
+        expect {Coordinate.new(@x, [42], @z, @c)}.to raise_error(/to_f/)
       end
 
       it "should raise an ArgumentError when a non-Float is passed as 'z' argument" do
-        expect {Coordinate.new(@x, @y, [0], @c)}.to raise_error
+        expect {Coordinate.new(@x, @y, [0], @c)}.to raise_error(/to_f/)
       end
 
       it "should raise an ArgumentError when a non-Contour is passed as 'contour' argument" do

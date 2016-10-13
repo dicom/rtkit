@@ -23,7 +23,7 @@ module RTKIT
     context "::create" do
 
       it "should raise an error when a non-Coordinate is passed as 'pos' argument" do
-        expect {VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, '42')}.to raise_error
+        expect {VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, '42')}.to raise_error(/coordinate/)
       end
 
       it "should pass the 'delta_x' argument to the 'delta_x' attribute" do
@@ -162,7 +162,7 @@ module RTKIT
     context "#pos=()" do
 
       it "should raise an error when a non-Coordinate is passed as argument" do
-        expect {@vs.pos = '42.0'}.to raise_error
+        expect {@vs.pos = '42.0'}.to raise_error(/coordinate/)
       end
 
       it "should pass the pos argument to the 'pos' attribute" do

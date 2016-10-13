@@ -31,7 +31,7 @@ module RTKIT
     context "::new" do
 
       it "should raise an ArgumentError when a non-array is passed as the 'doses' argument" do
-        expect {DoseDistribution.new(42, @dvol)}.to raise_error
+        expect {DoseDistribution.new(42, @dvol)}.to raise_error(/Array/)
       end
 
       it "should raise an ArgumentError when a non-DoseVolume is passed as the 'volume' argument" do

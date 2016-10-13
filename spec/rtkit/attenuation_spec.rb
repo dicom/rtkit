@@ -69,7 +69,7 @@ module RTKIT
     context "#ac_water=()" do
 
       it "should raise an error when a non-Float compatible type is passed as argument" do
-        expect {@a.ac_water = ['42.0']}.to raise_error
+        expect {@a.ac_water = ['42.0']}.to raise_error(/to_f/)
       end
 
       it "should pass the coeff argument to the 'ac_water' attribute" do

@@ -21,7 +21,7 @@ module RTKIT
     context "::create" do
 
       it "should raise an error when a non-Coordinate is passed as 'pos' argument" do
-        expect {PixelSpace.create(@columns, @rows, @delta_col, @delta_row, '42', @cosines)}.to raise_error
+        expect {PixelSpace.create(@columns, @rows, @delta_col, @delta_row, '42', @cosines)}.to raise_error(/coordinate/)
       end
 
       it "should raise an ArgumentError when an invalid cosines array is passed as 'cosines' argument" do
@@ -184,12 +184,12 @@ module RTKIT
     context "#cosines=()" do
 
       it "should raise an error when a non-Array is passed as argument" do
-        expect {@ps.cosines = '42.0'}.to raise_error
+        expect {@ps.cosines = '42.0'}.to raise_error(/array/)
       end
 
       it "should raise an ArgumentError when an array with other than 6 elements is passed as argument" do
-        expect {@ps.cosines = [1, 0, 1, 0, 1,]}.to raise_error
-        expect {@ps.cosines = [1, 0, 1, 0, 1, 0, 1]}.to raise_error
+        expect {@ps.cosines = [1, 0, 1, 0, 1,]}.to raise_error(/array/)
+        expect {@ps.cosines = [1, 0, 1, 0, 1, 0, 1]}.to raise_error(/array/)
       end
 
       it "should pass the cosines argument to the 'cosines' attribute" do
@@ -205,7 +205,7 @@ module RTKIT
     context "#delta_col=()" do
 
       it "should raise an error when a non-Float compatible type is passed" do
-        expect {@ps.delta_col = Array.new}.to raise_error
+        expect {@ps.delta_col = Array.new}.to raise_error(/to_f/)
       end
 
       it "should raise an ArgumentError when a negative value is passed" do
@@ -229,7 +229,7 @@ module RTKIT
     context "#delta_row=()" do
 
       it "should raise an error when a non-Float compatible type is passed" do
-        expect {@ps.delta_row = Array.new}.to raise_error
+        expect {@ps.delta_row = Array.new}.to raise_error(/to_f/)
       end
 
       it "should raise an ArgumentError when a negative value is passed" do
@@ -284,7 +284,7 @@ module RTKIT
     context "#pos=()" do
 
       it "should raise an error when a non-Coordinate is passed as argument" do
-        expect {@ps.pos = '42.0'}.to raise_error
+        expect {@ps.pos = '42.0'}.to raise_error(/coordinate/)
       end
 
       it "should pass the pos argument to the 'pos' attribute" do

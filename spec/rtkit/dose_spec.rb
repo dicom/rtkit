@@ -33,7 +33,7 @@ module RTKIT
     context "::new" do
 
       it "should raise an error when a non-Float-compatible argument is passed as the value" do
-        expect {Dose.new(@ds, @distribution)}.to raise_error
+        expect {Dose.new(@ds, @distribution)}.to raise_error(/DoseDistribution/)
       end
 
       it "should raise an ArgumentError when a non-DoseDistribution is passed as the 'distribution' argument" do
