@@ -40,7 +40,7 @@ module RTKIT
       it "should use the RTKIT root uid with the prefix argument, properly joined by dots" do
         prefix = '6'
         uids = RTKIT.generate_uids(prefix)
-        expect(uids.first.include?("#{RTKIT.dicom_root}.#{prefix}.")).to be_true
+        expect(uids.first.include?("#{RTKIT.dicom_root}.#{prefix}.")).to be true
       end
 
       it "should return an array of n UID strings" do

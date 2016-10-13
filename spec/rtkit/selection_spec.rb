@@ -83,17 +83,17 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         sel_other = Selection.new(@bin)
-        expect(@sel == sel_other).to be_true
+        expect(@sel == sel_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         sel_other = Selection.new(@bin)
         sel_other.add_indices([9,12])
-        expect(@sel == sel_other).to be_false
+        expect(@sel == sel_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@sel == 42).to be_false
+        expect(@sel == 42).to be_falsey
       end
 
     end
@@ -153,13 +153,13 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         sel_other = Selection.new(@bin)
-        expect(@sel.eql?(sel_other)).to be_true
+        expect(@sel.eql?(sel_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         sel_other = Selection.new(@bin)
         sel_other.add_indices([9,12])
-        expect(@sel.eql?(sel_other)).to be_false
+        expect(@sel.eql?(sel_other)).to be false
       end
 
     end
@@ -359,7 +359,7 @@ module RTKIT
     context "#to_selection" do
 
       it "should return itself" do
-        expect(@sel.to_selection.equal?(@sel)).to be_true
+        expect(@sel.to_selection.equal?(@sel)).to be true
       end
 
     end

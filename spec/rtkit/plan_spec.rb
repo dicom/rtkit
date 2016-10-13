@@ -199,16 +199,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         plan_other = Plan.new(@uid, @ss)
-        expect(@plan == plan_other).to be_true
+        expect(@plan == plan_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         plan_other = Plan.new('1.5.99', @ss)
-        expect(@plan == plan_other).to be_false
+        expect(@plan == plan_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@plan == 42).to be_false
+        expect(@plan == 42).to be_falsey
       end
 
     end
@@ -252,12 +252,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         plan_other = Plan.new(@uid, @ss)
-        expect(@plan.eql?(plan_other)).to be_true
+        expect(@plan.eql?(plan_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         plan_other = Plan.new('1.5.99', @ss)
-        expect(@plan.eql?(plan_other)).to be_false
+        expect(@plan.eql?(plan_other)).to be false
       end
 
     end
@@ -311,7 +311,7 @@ module RTKIT
     context "#to_plan" do
 
       it "should return itself" do
-        expect(@plan.to_plan.equal?(@plan)).to be_true
+        expect(@plan.to_plan.equal?(@plan)).to be true
       end
 
     end

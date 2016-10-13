@@ -124,16 +124,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Patient.new(@name, @id, @ds)
-        expect(@p == p_other).to be_true
+        expect(@p == p_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         p_other = Patient.new("Other Patient", @id, @ds)
-        expect(@p == p_other).to be_false
+        expect(@p == p_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@p == 42).to be_false
+        expect(@p == 42).to be_falsey
       end
 
     end
@@ -258,12 +258,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Patient.new(@name, @id, @ds)
-        expect(@p.eql?(p_other)).to be_true
+        expect(@p.eql?(p_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         p_other = Patient.new("Other Patient", @id, @ds)
-        expect(@p.eql?(p_other)).to be_false
+        expect(@p.eql?(p_other)).to be false
       end
 
     end
@@ -288,7 +288,7 @@ module RTKIT
     context "#to_patient" do
 
       it "should return itself" do
-        expect(@p.to_patient.equal?(@p)).to be_true
+        expect(@p.to_patient.equal?(@p)).to be true
       end
 
     end

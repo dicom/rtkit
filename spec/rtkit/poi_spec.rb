@@ -115,16 +115,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         poi = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         poi_other = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        expect(poi == poi_other).to be_true
+        expect(poi == poi_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         poi_other = POI.new('Other POI', @number, @f, @ss)
-        expect(@poi == poi_other).to be_false
+        expect(@poi == poi_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@poi == 42).to be_false
+        expect(@poi == 42).to be_falsey
       end
 
     end
@@ -155,12 +155,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         poi = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         poi_other = POI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        expect(poi.eql?(poi_other)).to be_true
+        expect(poi.eql?(poi_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         POI_other = POI.new('Other POI', @number, @f, @ss)
-        expect(@POI.eql?(POI_other)).to be_false
+        expect(@POI.eql?(POI_other)).to be false
       end
 
     end
@@ -245,7 +245,7 @@ module RTKIT
     context "#to_poi" do
 
       it "should return itself" do
-        expect(@poi.to_poi.equal?(@poi)).to be_true
+        expect(@poi.to_poi.equal?(@poi)).to be true
       end
 
     end

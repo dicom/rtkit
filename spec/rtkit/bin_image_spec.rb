@@ -67,16 +67,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bin_other = BinImage.new(@narray, @image)
-        expect(@bin == bin_other).to be_true
+        expect(@bin == bin_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         bin_other = BinImage.new(NArray.byte(@columns, @rows).fill(1), @image)
-        expect(@bin == bin_other).to be_false
+        expect(@bin == bin_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@bin == 42).to be_false
+        expect(@bin == 42).to be_falsey
       end
 
     end
@@ -328,12 +328,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bin_other = BinImage.new(@narray, @image)
-        expect(@bin.eql?(bin_other)).to be_true
+        expect(@bin.eql?(bin_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bin_other = BinImage.new(NArray.byte(@columns, @rows).fill(1), @image)
-        expect(@bin.eql?(bin_other)).to be_false
+        expect(@bin.eql?(bin_other)).to be false
       end
 
     end
@@ -451,7 +451,7 @@ module RTKIT
     context "#to_bin_image" do
 
       it "should return itself" do
-        expect(@bin.to_bin_image.equal?(@bin)).to be_true
+        expect(@bin.to_bin_image.equal?(@bin)).to be true
       end
 
     end

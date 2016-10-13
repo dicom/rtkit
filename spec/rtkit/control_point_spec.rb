@@ -212,16 +212,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         cp_other = ControlPoint.new(@index, @cum_meterset, @beam)
-        expect(@cp == cp_other).to be_true
+        expect(@cp == cp_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         cp_other = ControlPoint.new(99, @cum_meterset, @beam)
-        expect(@cp == cp_other).to be_false
+        expect(@cp == cp_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@cp == 42).to be_false
+        expect(@cp == 42).to be_falsey
       end
 
     end
@@ -333,12 +333,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         cp_other = ControlPoint.new(@index, @cum_meterset, @beam)
-        expect(@cp.eql?(cp_other)).to be_true
+        expect(@cp.eql?(cp_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         cp_other = ControlPoint.new(99, @cum_meterset, @beam)
-        expect(@cp.eql?(cp_other)).to be_false
+        expect(@cp.eql?(cp_other)).to be false
       end
 
     end
@@ -495,7 +495,7 @@ module RTKIT
     context "#to_control_point" do
 
       it "should return itself" do
-        expect(@cp.to_control_point.equal?(@cp)).to be_true
+        expect(@cp.to_control_point.equal?(@cp)).to be true
       end
 
     end

@@ -230,17 +230,17 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         r_other = Ray.new
-        expect(@r == r_other).to be_true
+        expect(@r == r_other).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         r_other = Ray.new
         r_other.p1 = @p1
-        expect(@r == r_other).to be_false
+        expect(@r == r_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@r == 42).to be_false
+        expect(@r == 42).to be_falsey
       end
 
     end
@@ -457,13 +457,13 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         r_other = Ray.new
-        expect(@r.eql?(r_other)).to be_true
+        expect(@r.eql?(r_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         r_other = Ray.new
         r_other.p1 = @p1
-        expect(@r.eql?(r_other)).to be_false
+        expect(@r.eql?(r_other)).to be false
       end
 
     end
@@ -662,7 +662,7 @@ module RTKIT
     context "#to_ray" do
 
       it "should return itself" do
-        expect(@r.to_ray.equal?(@r)).to be_true
+        expect(@r.to_ray.equal?(@r)).to be true
       end
 
     end

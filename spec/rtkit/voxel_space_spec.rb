@@ -73,22 +73,22 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vs_other = VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, @pos)
-        expect(@vs == vs_other).to be_true
+        expect(@vs == vs_other).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         vs_other = VoxelSpace.create(3, 3, 3, 1, 1, 1, Coordinate.new(0, 0, 0))
-        expect(@vs == vs_other).to be_false
+        expect(@vs == vs_other).to be false
       end
 
       it "should be false when comparing two instances with the same attributes, but different voxel values" do
         vs_other = VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, @pos)
         vs_other[0] = 1
-        expect(@vs == vs_other).to be_false
+        expect(@vs == vs_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@vs == 42).to be_false
+        expect(@vs == 42).to be_falsey
       end
 
     end
@@ -132,12 +132,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vs_other = VoxelSpace.create(@nx, @ny, @nz, @delta_x, @delta_y, @delta_z, @pos)
-        expect(@vs.eql?(vs_other)).to be_true
+        expect(@vs.eql?(vs_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         vs_other = VoxelSpace.create(3, 3, 3, 1, 1, 1, Coordinate.new(0, 0, 0))
-        expect(@vs.eql?(vs_other)).to be_false
+        expect(@vs.eql?(vs_other)).to be false
       end
 
     end
@@ -178,7 +178,7 @@ module RTKIT
     context "#to_voxel_space" do
 
       it "should return itself" do
-        expect(@vs.to_voxel_space.equal?(@vs)).to be_true
+        expect(@vs.to_voxel_space.equal?(@vs)).to be true
       end
 
     end

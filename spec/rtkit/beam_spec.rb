@@ -213,16 +213,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         beam_other = Beam.new(@name, @number, @machine, @meterset, @plan)
-        expect(@beam == beam_other).to be_true
+        expect(@beam == beam_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         beam_other = Beam.new("Other beam", @number, @machine, @meterset, @plan)
-        expect(@beam == beam_other).to be_false
+        expect(@beam == beam_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@beam == 42).to be_false
+        expect(@beam == 42).to be_falsey
       end
 
     end
@@ -455,12 +455,12 @@ drr.to_dcm.write(File.join(TMPDIR, 'drr_test.dcm'))
 
       it "should be true when comparing two instances having the same attribute values" do
         beam_other = Beam.new(@name, @number, @machine, @meterset, @plan)
-        expect(@beam.eql?(beam_other)).to be_true
+        expect(@beam.eql?(beam_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         beam_other = Beam.new("Other beam", @number, @machine, @meterset, @plan)
-        expect(@beam.eql?(beam_other)).to be_false
+        expect(@beam.eql?(beam_other)).to be false
       end
 
     end
@@ -607,7 +607,7 @@ drr.to_dcm.write(File.join(TMPDIR, 'drr_test.dcm'))
     context "#to_beam" do
 
       it "should return itself" do
-        expect(@beam.to_beam.equal?(@beam)).to be_true
+        expect(@beam.to_beam.equal?(@beam)).to be true
       end
 
     end

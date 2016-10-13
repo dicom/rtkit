@@ -98,16 +98,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Plane.new(@a, @b, @c)
-        expect(@p == p_other).to be_true
+        expect(@p == p_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         p_other = Plane.new(99.9, @b, @c)
-        expect(@p == p_other).to be_false
+        expect(@p == p_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@p == 42).to be_false
+        expect(@p == 42).to be_falsey
       end
 
     end
@@ -117,12 +117,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         p_other = Plane.new(@a, @b, @c)
-        expect(@p.eql?(p_other)).to be_true
+        expect(@p.eql?(p_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         p_other = Plane.new(99.9, @b, @c)
-        expect(@p.eql?(p_other)).to be_false
+        expect(@p.eql?(p_other)).to be false
       end
 
     end
@@ -203,7 +203,7 @@ module RTKIT
     context "#to_plane" do
 
       it "should return itself" do
-        expect(@p.to_plane.equal?(@p)).to be_true
+        expect(@p.to_plane.equal?(@p)).to be true
       end
 
     end

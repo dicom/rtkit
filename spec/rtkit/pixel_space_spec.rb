@@ -160,22 +160,22 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ps_other = PixelSpace.create(@columns, @rows, @delta_col, @delta_row, @pos, @cosines)
-        expect(@ps == ps_other).to be_true
+        expect(@ps == ps_other).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         ps_other = PixelSpace.create(3, 3, 1, 1, Coordinate.new(0, 0, 0), @cosines)
-        expect(@ps == ps_other).to be_false
+        expect(@ps == ps_other).to be false
       end
 
       it "should be false when comparing two instances with the same attributes, but different pixel values" do
         ps_other = PixelSpace.create(@columns, @rows, @delta_col, @delta_row, @pos, @cosines)
         ps_other[0] = 1
-        expect(@ps == ps_other).to be_false
+        expect(@ps == ps_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@ps == 42).to be_false
+        expect(@ps == 42).to be_falsey
       end
 
     end
@@ -254,12 +254,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ps_other = PixelSpace.create(@columns, @rows, @delta_col, @delta_row, @pos, @cosines)
-        expect(@ps.eql?(ps_other)).to be_true
+        expect(@ps.eql?(ps_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         ps_other = PixelSpace.create(3, 3, 1, 1, Coordinate.new(0, 0, 0), @cosines)
-        expect(@ps.eql?(ps_other)).to be_false
+        expect(@ps.eql?(ps_other)).to be false
       end
 
     end
@@ -300,7 +300,7 @@ module RTKIT
     context "#to_pixel_space" do
 
       it "should return itself" do
-        expect(@ps.to_pixel_space.equal?(@ps)).to be_true
+        expect(@ps.to_pixel_space.equal?(@ps)).to be true
       end
 
     end

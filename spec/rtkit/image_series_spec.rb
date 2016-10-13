@@ -191,16 +191,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         is_other = ImageSeries.new(@uid, @modality, @f, @st)
-        expect(@is == is_other).to be_true
+        expect(@is == is_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         is_other = ImageSeries.new('1.7.99', @modality, @f, @st)
-        expect(@is == is_other).to be_false
+        expect(@is == is_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@is == 42).to be_false
+        expect(@is == 42).to be_falsey
       end
 
     end
@@ -287,12 +287,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         is_other = ImageSeries.new(@uid, @modality, @f, @st)
-        expect(@is.eql?(is_other)).to be_true
+        expect(@is.eql?(is_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         is_other = ImageSeries.new('1.7.99', @modality, @f, @st)
-        expect(@is.eql?(is_other)).to be_false
+        expect(@is.eql?(is_other)).to be false
       end
 
     end
@@ -356,7 +356,7 @@ module RTKIT
     context "#image_modality?" do
 
       it "should return true when called on a ImageSeries (with modality CT)" do
-        expect(@is.image_modality?).to be_true
+        expect(@is.image_modality?).to be true
       end
 
     end
@@ -394,7 +394,7 @@ module RTKIT
     context "#to_image_series" do
 
       it "should return itself" do
-        expect(@is.to_image_series.equal?(@is)).to be_true
+        expect(@is.to_image_series.equal?(@is)).to be true
       end
 
     end

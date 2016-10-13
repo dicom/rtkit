@@ -166,16 +166,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         c_other = Contour.new(@s)
-        expect(@c == c_other).to be_true
+        expect(@c == c_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         c_other = Contour.create_from_coordinates(@x, @y, @z, @s)
-        expect(@c == c_other).to be_false
+        expect(@c == c_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@c == 42).to be_false
+        expect(@c == 42).to be_falsey
       end
 
     end
@@ -278,12 +278,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         c_other = Contour.new(@s)
-        expect(@c.eql?(c_other)).to be_true
+        expect(@c.eql?(c_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         c_other = Contour.create_from_coordinates(@x, @y, @z, @s)
-        expect(@c.eql?(c_other)).to be_false
+        expect(@c.eql?(c_other)).to be false
       end
 
     end
@@ -323,7 +323,7 @@ module RTKIT
     context "#to_contour" do
 
       it "should return itself" do
-        expect(@c.to_contour.equal?(@c)).to be_true
+        expect(@c.to_contour.equal?(@c)).to be true
       end
 
     end

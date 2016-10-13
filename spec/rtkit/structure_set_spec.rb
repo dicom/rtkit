@@ -146,7 +146,7 @@ module RTKIT
 
       it "should pass the 'image_series' argument to the 'image_series' attribute" do
         expect(@ss.image_series.length).to eql 1
-        expect(@ss.image_series.include?(@is)).to be_true
+        expect(@ss.image_series.include?(@is)).to be true
       end
 
       it "should pass the optional 'date' argument to the 'date' attribute" do
@@ -180,16 +180,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ss_other = StructureSet.new(@uid, @is)
-        expect(@ss == ss_other).to be_true
+        expect(@ss == ss_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         ss_other = StructureSet.new('1.8.99', @is)
-        expect(@ss == ss_other).to be_false
+        expect(@ss == ss_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@ss == 42).to be_false
+        expect(@ss == 42).to be_falsey
       end
 
     end
@@ -267,12 +267,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         ss_other = StructureSet.new(@uid, @is)
-        expect(@ss.eql?(ss_other)).to be_true
+        expect(@ss.eql?(ss_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         ss_other = StructureSet.new('1.8.99', @is)
-        expect(@ss.eql?(ss_other)).to be_false
+        expect(@ss.eql?(ss_other)).to be false
       end
 
     end
@@ -396,7 +396,7 @@ module RTKIT
     context "#to_structure_set" do
 
       it "should return itself" do
-        expect(@ss.to_structure_set.equal?(@ss)).to be_true
+        expect(@ss.to_structure_set.equal?(@ss)).to be true
       end
 
     end

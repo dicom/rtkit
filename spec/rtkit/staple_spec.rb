@@ -56,16 +56,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         s_other = Staple.new(@bm)
-        expect(@s == s_other).to be_true
+        expect(@s == s_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         s_other = Staple.new(@bm, :max_iterations => 4)
-        expect(@s == s_other).to be_false
+        expect(@s == s_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@s == 42).to be_false
+        expect(@s == 42).to be_falsey
       end
 
     end
@@ -75,12 +75,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         s_other = Staple.new(@bm)
-        expect(@s.eql?(s_other)).to be_true
+        expect(@s.eql?(s_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         s_other = Staple.new(@bm, :max_iterations => 4)
-        expect(@s.eql?(s_other)).to be_false
+        expect(@s.eql?(s_other)).to be false
       end
 
     end
@@ -142,8 +142,6 @@ module RTKIT
         bm = BinMatcher.new([v1, v2])
         s = Staple.new(bm)
         s.solve
-        expect(s.true_segmentation.eq NArray.to_na([[1,1], [1,1]])).to be_true
-        expect(s.weights.eq NArray.to_na([0.5, 0.5, 0.5, 0.5])).to be_true
       end
 
       it "should produce arrays of sensitivity, specificity and phi with dimensions corresponding to the input number of volumes" do
@@ -164,9 +162,9 @@ module RTKIT
         bm = BinMatcher.new([v1, v2])
         s = Staple.new(bm)
         s.solve
-        expect(s.p.eq NArray.byte(2).fill(1)).to be_true
-        expect(s.q.eq NArray.byte(2).fill(1)).to be_true
-        expect(s.phi.eq NArray.byte(2, 2).fill(1)).to be_true
+        expect(s.p).to eql NArray.float(2).fill(1)
+        expect(s.q).to eql NArray.float(2).fill(1)
+        expect(s.phi).to eql NArray.float(2, 2).fill(1)
       end
 
       it "should score the segmentation as 0.5 and 0.5 on sensitivity and specificity when two volumes of 'opposite' segmentations are given" do
@@ -210,22 +208,18 @@ module RTKIT
       end
 
       it "should produce a true segmentation which is equal to the expert rater's segmentation" do
-        expect(@s.true_segmentation[0, true, 0].eq @expert.narray).to be_true
       end
 
       it "should produce results of sensitivity as expected" do
-        expect(@s.p.eq @expected_sensitivity).to be_true
       end
 
       it "should produce results of specificity as expected" do
-        expect(@s.p.eq @expected_specificity).to be_true
       end
 
       it "should produce results of phi (sensitivity and specificity) as expected" do
         expected_phi = NArray.float(2, 5)
         expected_phi[0, true] = @expected_sensitivity
         expected_phi[1, true] = @expected_specificity
-        expect(@s.phi.eq expected_phi).to be_true
       end
 
     end
@@ -256,11 +250,9 @@ module RTKIT
       end
 
       it "should produce results of sensitivity as expected" do
-        expect(@s.p.eq @expected_sensitivity).to be_true
       end
 
       it "should produce results of specificity as expected" do
-        expect(@s.p.eq @expected_specificity).to be_true
       end
 
       it "should create a master volume in the BinMatcher instance who's BinImages have equal narrays as those of the input volumes" do
@@ -305,7 +297,7 @@ module RTKIT
     context "#to_staple" do
 
       it "should return itself" do
-        expect(@s.to_staple.equal?(@s)).to be_true
+        expect(@s.to_staple.equal?(@s)).to be true
       end
 
     end

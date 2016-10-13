@@ -159,7 +159,7 @@ module RTKIT
     context "#to_image" do
 
       it "should return itself" do
-        expect(@im.to_image.equal?(@im)).to be_true
+        expect(@im.to_image.equal?(@im)).to be true
       end
 
     end

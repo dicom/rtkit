@@ -84,16 +84,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coord_other = Coordinate.new(@x, @y, @z)
-        expect(@coord == coord_other).to be_true
+        expect(@coord == coord_other).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         coord_other = Coordinate.new(@x, @y*3, @z)
-        expect(@coord == coord_other).to be_false
+        expect(@coord == coord_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@coord == 42).to be_false
+        expect(@coord == 42).to be_falsey
       end
 
     end
@@ -103,12 +103,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coord_other = Coordinate.new(@x, @y, @z)
-        expect(@coord.eql?(coord_other)).to be_true
+        expect(@coord.eql?(coord_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         coord_other = Coordinate.new(@x, @y*3, @z)
-        expect(@coord.eql?(coord_other)).to be_false
+        expect(@coord.eql?(coord_other)).to be false
       end
 
     end
@@ -133,7 +133,7 @@ module RTKIT
     context "#to_coordinate" do
 
       it "should return itself" do
-        expect(@coord.to_coordinate.equal?(@coord)).to be_true
+        expect(@coord.to_coordinate.equal?(@coord)).to be true
       end
 
     end

@@ -27,11 +27,11 @@ module RTKIT
     context "::new" do
 
       it "should raise an error when a non-BeamGeometry is passed as 'source' argument" do
-        expect {BeamGeometry.new(42.0, @isocenter)}.to raise_error(/to_beam_geometry/)
+        expect {BeamGeometry.new(42.0, @isocenter, @vs)}.to raise_error(/to_coordinate/)
       end
 
       it "should raise an error when a non-BeamGeometry is passed as 'isocenter' argument" do
-        expect {BeamGeometry.new(@source, 42.0)}.to raise_error(/to_beam_geometry/)
+        expect {BeamGeometry.new(@source, 42.0, @vs)}.to raise_error(/to_coordinate/)
       end
 
       it "should raise an error when a non-VoxelSpace is passed as 'voxel_space' argument" do
@@ -131,16 +131,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bg_other = BeamGeometry.new(@source, @isocenter, @vs)
-        expect(@bg == bg_other).to be_true
+        expect(@bg == bg_other).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bg_other = BeamGeometry.new(@source, Coordinate.new(4, -5, 6), @vs)
-        expect(@bg == bg_other).to be_false
+        expect(@bg == bg_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@bg == 42).to be_false
+        expect(@bg == 42).to be_falsey
       end
 
     end
@@ -228,12 +228,12 @@ puts result.inspect
 
       it "should be true when comparing two instances having the same attribute values" do
         bg_other = BeamGeometry.new(@source, @isocenter, @vs)
-        expect(@bg.eql?(bg_other)).to be_true
+        expect(@bg.eql?(bg_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bg_other = BeamGeometry.new(Coordinate.new(4, -5, 6), @isocenter, @vs)
-        expect(@bg.eql?(bg_other)).to be_false
+        expect(@bg.eql?(bg_other)).to be false
       end
 
     end
@@ -258,7 +258,7 @@ puts result.inspect
     context "#isocenter=()" do
 
       it "should raise an error when a non-Coordinate is passed as argument" do
-        expect {@bg.isocenter = '42.0'}.to raise_error(/to_coordinate/)
+        expect {@bg.isocenter = '42.0'}.to raise_error(/coordinate/)
       end
 
       it "should pass the position argument to the 'isocenter' attribute" do
@@ -273,7 +273,7 @@ puts result.inspect
     context "#source=()" do
 
       it "should raise an error when a non-Coordinate is passed as argument" do
-        expect {@bg.source = '42.0'}.to raise_error(/to_coordinate/)
+        expect {@bg.source = '42.0'}.to raise_error(/coordinate/)
       end
 
       it "should pass the position argument to the 'source' attribute" do
@@ -288,7 +288,7 @@ puts result.inspect
     context "#to_beam_geometry" do
 
       it "should return itself" do
-        expect(@bg.to_beam_geometry.equal?(@bg)).to be_true
+        expect(@bg.to_beam_geometry.equal?(@bg)).to be true
       end
 
     end

@@ -51,16 +51,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         a_other = Attenuation.new(@energy)
-        expect(@a == a_other).to be_true
+        expect(@a == a_other).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         a_other = Attenuation.new(1.23)
-        expect(@a == a_other).to be_false
+        expect(@a == a_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@a == 42).to be_false
+        expect(@a == 42).to be_falsey
       end
 
     end
@@ -135,12 +135,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         a_other = Attenuation.new(@energy)
-        expect(@a.eql?(a_other)).to be_true
+        expect(@a.eql?(a_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         a_other = Attenuation.new(0.78)
-        expect(@a.eql?(a_other)).to be_false
+        expect(@a.eql?(a_other)).to be false
       end
 
     end
@@ -165,7 +165,7 @@ module RTKIT
     context "#to_attenuation" do
 
       it "should return itself" do
-        expect(@a.to_attenuation.equal?(@a)).to be_true
+        expect(@a.to_attenuation.equal?(@a)).to be true
       end
 
     end

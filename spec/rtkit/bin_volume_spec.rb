@@ -90,16 +90,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bv_other = BinVolume.new(@is, :images => @bin_images, :source => @roi)
-        expect(@bv == bv_other).to be_true
+        expect(@bv == bv_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         bv_other = BinVolume.new(@is)
-        expect(@bv == bv_other).to be_false
+        expect(@bv == bv_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@bv == 42).to be_false
+        expect(@bv == 42).to be_falsey
       end
 
     end
@@ -139,12 +139,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bv_other = BinVolume.new(@is, :images => @bin_images, :source => @roi)
-        expect(@bv.eql?(bv_other)).to be_true
+        expect(@bv.eql?(bv_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bv_other = BinVolume.new(@is)
-        expect(@bv.eql?(bv_other)).to be_false
+        expect(@bv.eql?(bv_other)).to be false
       end
 
     end
@@ -219,7 +219,7 @@ module RTKIT
     context "#to_bin_volume" do
 
       it "should return itself" do
-        expect(@bv.to_bin_volume.equal?(@bv)).to be_true
+        expect(@bv.to_bin_volume.equal?(@bv)).to be true
       end
 
     end

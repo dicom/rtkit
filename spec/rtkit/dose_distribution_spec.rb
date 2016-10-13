@@ -49,7 +49,7 @@ module RTKIT
       it "should pass the convert a 'doses' Array argument to an NArray (with type float single) when storing the 'doses' attribute" do
         expect(@dist.doses.class).to eql NArray
         expect(@dist.doses.typecode).to eql 4 # float single is 4, float double is 5
-        expect(@dist.doses == NArray.to_na(@doses.sort)).to be_true
+        expect(@dist.doses == NArray.to_na(@doses.sort)).to be true
       end
 
     end
@@ -59,16 +59,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dist_other = DoseDistribution.new(@doses, @dvol)
-        expect(@dist == dist_other).to be_true
+        expect(@dist == dist_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         dist_other = DoseDistribution.new([99.9], @dvol)
-        expect(@dist == dist_other).to be_false
+        expect(@dist == dist_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@dist == 42).to be_false
+        expect(@dist == 42).to be_falsey
       end
 
     end
@@ -109,12 +109,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dist_other = DoseDistribution.new(@doses, @dvol)
-        expect(@dist.eql?(dist_other)).to be_true
+        expect(@dist.eql?(dist_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         dist_other = DoseDistribution.new([99.9], @dvol)
-        expect(@dist.eql?(dist_other)).to be_false
+        expect(@dist.eql?(dist_other)).to be false
       end
 
     end
@@ -252,7 +252,7 @@ module RTKIT
     context "#to_dose_distribution" do
 
       it "should return itself" do
-        expect(@dist.to_dose_distribution.equal?(@dist)).to be_true
+        expect(@dist.to_dose_distribution.equal?(@dist)).to be true
       end
 
     end

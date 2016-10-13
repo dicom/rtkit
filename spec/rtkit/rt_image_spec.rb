@@ -137,16 +137,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         rt_other = RTImage.new(@uid, @plan)
-        expect(@rt == rt_other).to be_true
+        expect(@rt == rt_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         rt_other = RTImage.new('1.6.99', @plan)
-        expect(@rt == rt_other).to be_false
+        expect(@rt == rt_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@rt == 42).to be_false
+        expect(@rt == 42).to be_falsey
       end
 
     end
@@ -156,12 +156,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         rt_other = RTImage.new(@uid, @plan)
-        expect(@rt.eql?(rt_other)).to be_true
+        expect(@rt.eql?(rt_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         rt_other = RTImage.new('1.6.99', @plan)
-        expect(@rt.eql?(rt_other)).to be_false
+        expect(@rt.eql?(rt_other)).to be false
       end
 
     end
@@ -186,7 +186,7 @@ module RTKIT
     context "#to_rt_image" do
 
       it "should return itself" do
-        expect(@rt.to_rt_image.equal?(@rt)).to be_true
+        expect(@rt.to_rt_image.equal?(@rt)).to be true
       end
 
     end

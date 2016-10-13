@@ -131,16 +131,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         s_other = Study.new(@uid, @p)
-        expect(@s == s_other).to be_true
+        expect(@s == s_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         s_other = Study.new('1.4.99', @p)
-        expect(@s == s_other).to be_false
+        expect(@s == s_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@s == 42).to be_false
+        expect(@s == 42).to be_falsey
       end
 
     end
@@ -192,12 +192,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         s_other = Study.new(@uid, @p)
-        expect(@s.eql?(s_other)).to be_true
+        expect(@s.eql?(s_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         s_other = Study.new('1.4.99', @p)
-        expect(@s.eql?(s_other)).to be_false
+        expect(@s.eql?(s_other)).to be false
       end
 
     end
@@ -251,7 +251,7 @@ module RTKIT
     context "#to_study" do
 
       it "should return itself" do
-        expect(@s.to_study.equal?(@s)).to be_true
+        expect(@s.to_study.equal?(@s)).to be true
       end
 
     end

@@ -268,16 +268,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         soi = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         soi_other = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        expect(soi == soi_other).to be_true
+        expect(soi == soi_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         soi_other = Structure.new('Other ROI', @number, @f, @ss)
-        expect(@soi == soi_other).to be_false
+        expect(@soi == soi_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@soi == 42).to be_false
+        expect(@soi == 42).to be_falsey
       end
 
     end
@@ -288,12 +288,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         soi = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         soi_other = Structure.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        expect(soi.eql?(soi_other)).to be_true
+        expect(soi.eql?(soi_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         soi_other = Structure.new('Other ROI', @number, @f, @ss)
-        expect(@soi.eql?(soi_other)).to be_false
+        expect(@soi.eql?(soi_other)).to be false
       end
 
     end
@@ -319,7 +319,7 @@ module RTKIT
     context "#to_structure" do
 
       it "should return itself" do
-        expect(@soi.to_structure.equal?(@soi)).to be_true
+        expect(@soi.to_structure.equal?(@soi)).to be true
       end
 
     end

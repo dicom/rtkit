@@ -72,16 +72,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         f = Frame.new(@uid, @p)
         f_other = Frame.new(@uid, @p)
-        expect(f == f_other).to be_true
+        expect(f == f_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         f_other = Frame.new('1.2.99', @p)
-        expect(@f == f_other).to be_false
+        expect(@f == f_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@f == 42).to be_false
+        expect(@f == 42).to be_falsey
       end
 
     end
@@ -178,12 +178,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         f = Frame.new(@uid, @p)
         f_other = Frame.new(@uid, @p)
-        expect(f.eql?(f_other)).to be_true
+        expect(f.eql?(f_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         f_other = Frame.new('1.2.99', @p)
-        expect(@f.eql?(f_other)).to be_false
+        expect(@f.eql?(f_other)).to be false
       end
 
     end
@@ -270,7 +270,7 @@ module RTKIT
     context "#to_frame" do
 
       it "should return itself" do
-        expect(@f.to_frame.equal?(@f)).to be_true
+        expect(@f.to_frame.equal?(@f)).to be true
       end
 
     end

@@ -26,7 +26,7 @@ module RTKIT
 
       #it "should return false on a purely zero-valued NArray" do
         #narr = NArray.byte(5, 5)
-        #narr.segmented?.should be_false
+        #narr.segmented?.should be false
       #end
 
     end

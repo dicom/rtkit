@@ -139,16 +139,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         im_other = ProjectionImage.new(@uid, @rtis)
-        expect(@im == im_other).to be_true
+        expect(@im == im_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         im_other = ProjectionImage.new('1.4.99', @rtis)
-        expect(@im == im_other).to be_false
+        expect(@im == im_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@im == 42).to be_false
+        expect(@im == 42).to be_falsey
       end
 
     end
@@ -370,12 +370,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         im_other = ProjectionImage.new(@uid, @rtis)
-        expect(@im.eql?(im_other)).to be_true
+        expect(@im.eql?(im_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         im_other = ProjectionImage.new('1.4.99', @rtis)
-        expect(@im.eql?(im_other)).to be_false
+        expect(@im.eql?(im_other)).to be false
       end
 
     end
@@ -489,7 +489,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should reduce the number of columns as expected by :even cropping (asymmetric situation)" do
@@ -498,7 +498,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should reduce the number of columns as expected by :left cropping" do
@@ -507,7 +507,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should reduce the number of columns as expected by :right cropping" do
@@ -516,7 +516,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should expand the number of columns as expected by :even bordering (symmetric situation)" do
@@ -526,7 +526,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[1..-2, true] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should expand the number of columns as expected by :even bordering (asymmetric situation)" do
@@ -536,7 +536,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[1..-1, true] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should expand the number of columns as expected by :left bordering" do
@@ -546,7 +546,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[2..-1, true] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should expand the number of columns as expected by :right bordering" do
@@ -556,7 +556,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[0..-3, true] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should reduce the number of rows as expected by :even cropping (symmetric situation)" do
@@ -565,7 +565,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should reduce the number of rows as expected by :even cropping (asymmetric situation)" do
@@ -574,7 +574,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should reduce the number of rows as expected by :top cropping" do
@@ -583,7 +583,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should reduce the number of rows as expected by :bottom cropping" do
@@ -592,7 +592,7 @@ module RTKIT
         expect(@im.rows).to eql rows
         expect(@im.columns).to eql cols
         expect(@im.narray.shape).to eql [cols, rows]
-        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be_true
+        expect(@im.narray == NArray.int(cols, rows).fill(1)).to be true
       end
 
       it "should expand the number of rows as expected by :even bordering (symmetric situation)" do
@@ -602,7 +602,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[true, 1..-2] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should expand the number of rows as expected by :even bordering (asymmetric situation)" do
@@ -612,7 +612,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[true, 1..-1] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should expand the number of rows as expected by :top bordering" do
@@ -622,7 +622,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[true, 2..-1] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should expand the number of rows as expected by :bottom bordering" do
@@ -632,7 +632,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[true, 0..-3] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
       it "should both expand the rows as expected by :bottom bordering and reduce the columns as expected by :left cropping" do
@@ -643,7 +643,7 @@ module RTKIT
         expect(@im.narray.shape).to eql [cols, rows]
         expected = NArray.int(cols, rows)
         expected[true, 0..-3] = 1
-        expect(@im.narray == expected).to be_true
+        expect(@im.narray == expected).to be true
       end
 
     end
@@ -686,7 +686,7 @@ module RTKIT
     context "#to_projection_image" do
 
       it "should return itself" do
-        expect(@im.to_projection_image.equal?(@im)).to be_true
+        expect(@im.to_projection_image.equal?(@im)).to be true
       end
 
     end

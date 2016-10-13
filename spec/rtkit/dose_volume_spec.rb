@@ -102,16 +102,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vol_other = DoseVolume.new(@uid, @f, @dose)
-        expect(@vol == vol_other).to be_true
+        expect(@vol == vol_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         vol_other = DoseVolume.new('1.6.99', @f, @dose)
-        expect(@vol == vol_other).to be_false
+        expect(@vol == vol_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@vol == 42).to be_false
+        expect(@vol == 42).to be_falsey
       end
 
     end
@@ -331,7 +331,7 @@ module RTKIT
         exp_arr = NArray.int(2, @cols, @rows)
         exp_arr[0, true, true] = NArray.int(@cols, @rows).indgen! * 10.0
         exp_arr[1, true, true] = NArray.int(@cols, @rows).indgen! * 2 * 10.0
-        expect(@vol.dose_arr == exp_arr).to be_true
+        expect(@vol.dose_arr == exp_arr).to be true
       end
 
       it "should (when called without argument) return the full dose distribution" do
@@ -483,12 +483,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         vol_other = DoseVolume.new(@uid, @f, @dose)
-        expect(@vol.eql?(vol_other)).to be_true
+        expect(@vol.eql?(vol_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         vol_other = DoseVolume.new('1.6.99', @f, @dose)
-        expect(@vol.eql?(vol_other)).to be_false
+        expect(@vol.eql?(vol_other)).to be false
       end
 
     end
@@ -560,7 +560,7 @@ module RTKIT
     context "#to_dose_volume" do
 
       it "should return itself" do
-        expect(@vol.to_dose_volume.equal?(@vol)).to be_true
+        expect(@vol.to_dose_volume.equal?(@vol)).to be true
       end
 
     end

@@ -64,16 +64,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bm_other = BinMatcher.new
-        expect(@bm == bm_other).to be_true
+        expect(@bm == bm_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         bm_other = BinMatcher.new([@bv])
-        expect(@bm == bm_other).to be_false
+        expect(@bm == bm_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@bm == 42).to be_false
+        expect(@bm == 42).to be_falsey
       end
 
     end
@@ -137,12 +137,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         bm_other = BinMatcher.new
-        expect(@bm.eql?(bm_other)).to be_true
+        expect(@bm.eql?(bm_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         bm_other = BinMatcher.new([@bv])
-        expect(@bm.eql?(bm_other)).to be_false
+        expect(@bm.eql?(bm_other)).to be false
       end
 
     end
@@ -425,7 +425,7 @@ puts bm.master.narr.shape
     context "#to_bin_matcher" do
 
       it "should return itself" do
-        expect(@bm.to_bin_matcher.equal?(@bm)).to be_true
+        expect(@bm.to_bin_matcher.equal?(@bm)).to be true
       end
 
     end

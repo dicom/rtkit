@@ -83,16 +83,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coll_other = CollimatorSetup.new(@type, @pos, @cp)
-        expect(@coll == coll_other).to be_true
+        expect(@coll == coll_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         coll_other = CollimatorSetup.new('MLCY', @pos, @cp)
-        expect(@coll == coll_other).to be_false
+        expect(@coll == coll_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@coll == 42).to be_false
+        expect(@coll == 42).to be_falsey
       end
 
     end
@@ -102,12 +102,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         coll_other = CollimatorSetup.new(@type, @pos, @cp)
-        expect(@coll.eql?(coll_other)).to be_true
+        expect(@coll.eql?(coll_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         coll_other = CollimatorSetup.new('MLCY', @pos, @cp)
-        expect(@coll.eql?(coll_other)).to be_false
+        expect(@coll.eql?(coll_other)).to be false
       end
 
     end
@@ -159,7 +159,7 @@ module RTKIT
     context "#to_collimator_setup" do
 
       it "should return itself" do
-        expect(@coll.to_collimator_setup.equal?(@coll)).to be_true
+        expect(@coll.to_collimator_setup.equal?(@coll)).to be true
       end
 
     end

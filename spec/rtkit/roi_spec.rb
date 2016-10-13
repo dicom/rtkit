@@ -185,16 +185,16 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         roi = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         roi_other = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        expect(roi == roi_other).to be_true
+        expect(roi == roi_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         roi_other = ROI.new('Other ROI', @number, @f, @ss)
-        expect(@roi == roi_other).to be_false
+        expect(@roi == roi_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@roi == 42).to be_false
+        expect(@roi == 42).to be_falsey
       end
 
     end
@@ -260,7 +260,7 @@ module RTKIT
         @ss1.expects(:remove_structure).once.with(roi)
         roi.attach_to(series)
         expect(roi.frame).to eql series.frame
-        expect(series.structures.include?(roi)).to be_true
+        expect(series.structures.include?(roi)).to be true
       end
 
       it "should add the ROI (containing slices) to the ImageSeries instance" do
@@ -270,7 +270,7 @@ module RTKIT
         @ss.expects(:remove_structure).once.with(roi)
         roi.attach_to(series)
         expect(roi.frame).to eql series.frame
-        expect(series.structures.include?(roi)).to be_true
+        expect(series.structures.include?(roi)).to be true
       end
 
       it "should not do anything with the rois when they already belong to the given ImageSeries and have the correct frame" do
@@ -308,7 +308,7 @@ module RTKIT
         struct_less_is = ImageSeries.new('1.767.232', 'CT', @f1, @st)
         roi.attach_to(struct_less_is)
         expect(roi.frame).to eql struct_less_is.frame
-        expect(struct_less_is.structures.include?(roi)).to be_true
+        expect(struct_less_is.structures.include?(roi)).to be true
         expect(roi.image_series).to eql struct_less_is
       end
 
@@ -436,12 +436,12 @@ module RTKIT
       it "should be true when comparing two instances having the same attribute values" do
         roi = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
         roi_other = ROI.new(@name, @number, @f, @ss, :color => "0\\0\\0")
-        expect(roi.eql?(roi_other)).to be_true
+        expect(roi.eql?(roi_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         roi_other = ROI.new('Other ROI', @number, @f, @ss)
-        expect(@roi.eql?(roi_other)).to be_false
+        expect(@roi.eql?(roi_other)).to be false
       end
 
     end
@@ -694,7 +694,7 @@ module RTKIT
     context "#to_roi" do
 
       it "should return itself" do
-        expect(@roi.to_roi.equal?(@roi)).to be_true
+        expect(@roi.to_roi.equal?(@roi)).to be true
       end
 
     end

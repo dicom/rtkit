@@ -145,16 +145,16 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dose_other = RTDose.new(@uid, @plan)
-        expect(@dose == dose_other).to be_true
+        expect(@dose == dose_other).to be true
       end
 
       it "should be false when comparing two instances having different attributes" do
         dose_other = RTDose.new('1.7.99', @plan)
-        expect(@dose == dose_other).to be_false
+        expect(@dose == dose_other).to be false
       end
 
       it "should be false when comparing against an instance of incompatible type" do
-        expect(@dose == 42).to be_false
+        expect(@dose == 42).to be_falsey
       end
 
     end
@@ -198,12 +198,12 @@ module RTKIT
 
       it "should be true when comparing two instances having the same attribute values" do
         dose_other = RTDose.new(@uid, @plan)
-        expect(@dose.eql?(dose_other)).to be_true
+        expect(@dose.eql?(dose_other)).to be true
       end
 
       it "should be false when comparing two instances having different attribute values" do
         dose_other = RTDose.new('1.7.99', @plan)
-        expect(@dose.eql?(dose_other)).to be_false
+        expect(@dose.eql?(dose_other)).to be false
       end
 
     end
@@ -269,7 +269,7 @@ module RTKIT
     context "#to_rt_dose" do
 
       it "should return itself" do
-        expect(@dose.to_rt_dose.equal?(@dose)).to be_true
+        expect(@dose.to_rt_dose.equal?(@dose)).to be true
       end
 
     end
